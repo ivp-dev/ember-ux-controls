@@ -1,7 +1,7 @@
 ember-ux-controls
 ==============================================================================
 
-[Short description of the addon.]
+Example page: https://ivp-dev.github.io/ember-ux
 
 
 Compatibility
