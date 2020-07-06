@@ -1,0 +1,85 @@
+$scroll-port__z-index:             1 !default;
+$scroll-port__track-size:          16px !default;
+$scroll-port__bar-size:            2px !default;
+$scroll-port__bar_size-hover:      12px !default;
+$scroll-port__bar_outstand:        2px !default;
+
+.scroll-port {
+  position:                relative;
+  width:                   100%;
+  height:                  100%; 
+  &.scroll-port_x-visible {
+    .scroll-port__track_x {
+      display: block;
+    }
+  }
+  &.scroll-port_y-visible {
+    .scroll-port__track_y {
+      display: block;
+    }
+  }
+  .scroll-port__screen {
+    height:                100%;
+    width:                 100%;
+    display:               flex;
+    .scroll-port__content {
+      overflow:            hidden;
+      position:            relative;
+    }
+  }
+  .scroll-port__track {
+    position:              absolute;
+    right:                 0;
+    overflow:              hidden;
+    display:               none;
+    z-index:               100;
+    background:            transparent;
+    > .scroll-port__bar {
+      position:            absolute;
+      opacity:             .5;
+      background:        black;
+      border-radius:       4px;
+      user-select:         none;
+      z-index:             2;
+      &:hover {
+        opacity:           1;
+        transition:        opacity 0.2s linear;
+      }
+    }
+  }
+  .scroll-port__track_x {
+    width:                 100%;
+    bottom:                0;
+    left:                  0;
+    height:                $scroll-port__track-size;
+    > .scroll-port__bar {
+      height:               $scroll-port__bar-size;
+      transition:           height 0.1s linear;
+      bottom:               $scroll-port__bar_outstand;
+      &_grabbed {
+        opacity:           1;
+        height: $scroll-port__bar-size-hover;
+      }
+      &:hover{
+        height: $scroll-port__bar-size-hover;
+      }
+    }
+  }
+  .scroll-port__track_y {
+    width:                 $scroll-port__track-size;
+    top:                   0;
+    height:                100%;
+    > .scroll-port__bar {
+      width:              $scroll-port__bar-size;
+      transition:         width 0.1s linear;
+      right:              $scroll-port__bar_outstand;
+      &_grabbed {
+        opacity:           1;
+        width: $scroll-port__bar-size-hover;
+      }
+      &:hover {
+        width: $scroll-port__bar-size-hover;
+      }
+    }
+  }
+}

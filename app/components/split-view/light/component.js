@@ -1,0 +1,1 @@
+export { default } from 'ember-ux-controls/components/split-view/light/component';

@@ -1,0 +1,11 @@
+<div 
+  id="{{this.elementId}}" 
+  class="{{this.classNames}}"
+  {{did-insert this.didInsert}}
+>
+  {{#if this.hasItemsSource}}
+    {{this.content}}
+  {{else}}
+    {{yield}}
+  {{/if}}
+</div>

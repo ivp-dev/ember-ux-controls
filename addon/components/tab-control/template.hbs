@@ -1,0 +1,28 @@
+<div 
+  class="{{this.classNames}}"
+  {{did-insert this.didInsert}}
+   ...attributes
+>
+  <TabControl::TabPane
+    @parentElement={{this}}
+  >
+    {{#unless this.hasItemsSource}}
+      {{yield (
+        hash
+          Tab=(
+            component this.itemTemplateName
+            parentElement=this
+            header=@header
+            content=@content
+          )
+        )
+      }}
+    {{/unless}}
+  </TabControl::TabPane>
+
+  <div 
+    class={{this.contentClassNames}}
+  >
+  </div>
+
+</div>

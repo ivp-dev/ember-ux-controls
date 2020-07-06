@@ -1,0 +1,26 @@
+<div 
+  class={{this.classNames}}
+  {{split-view-modifier
+    parentElement=this
+    minPaneSizes=@minPaneSizes
+    sizes=@sizes
+    onSizeChanged=@onSizeChanged
+  }}
+  ...attributes
+  >
+  <SplitView::SplitPanel
+    @parentElement={{this}}
+  >
+    {{#unless this.hasItemsSource}}
+      {{yield (
+        hash
+          Pane=(
+            component this.itemTemplateName
+            parentElement=this
+            content=@content
+          )
+        )
+      }}
+    {{/unless}}
+  </SplitView::SplitPanel>
+</div>

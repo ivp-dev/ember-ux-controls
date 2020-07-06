@@ -1,0 +1,30 @@
+<a 
+  href="#" 
+  class={{this.classNames}} 
+  {{did-insert this.didInsert}}
+>
+  {{component 
+    this.headerTemplateName 
+    header=this.header
+    classNamesBuilder=this.classNamesBuilder
+  }}
+</a>
+
+{{#if this.isSelected}}
+  <template 
+    {{did-insert this.onSelectionChanged}}
+  >
+    {{this.openNode}}
+      {{#if this.hasItemsSource}}
+        {{component 
+          this.contentTemplateName
+          content=this.content
+          hasItemsSource=this.hasItemsSource
+          classNamesBuilder=this.classNamesBuilder
+        }}
+      {{else}}
+        {{yield}}
+      {{/if}}
+    {{this.closeNode}}
+  </template>
+{{/if}}

@@ -1,0 +1,10 @@
+{{#if this.isItemsHost}}
+  {{#each this.children as |pane|}}
+    <SplitView::Pane 
+      @parentElement={{this.parentElement}}
+      @pane={{pane}}
+    />
+  {{/each}}
+{{else}}
+  {{yield}}
+{{/if}}

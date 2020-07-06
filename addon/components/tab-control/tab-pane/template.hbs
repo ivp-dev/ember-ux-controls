@@ -1,0 +1,46 @@
+<div class="{{this.classNames}}">
+  {{#if this.isItemsHost}}
+    {{#if this.scrollable}}
+      <ScrollPort 
+        @scrollAxis={{this.scrollAxis}} as |Port|>
+        <Port.Content 
+          @axis={{this.scrollAxis}}
+        >
+          <div
+            class="{{this.scrollPortClassNames}}"
+          >
+            {{#each this.children as |tab|}}
+              <TabControl::TabItem
+                @parentElement={{this}}
+                @tab={{tab}}
+              />
+            {{/each}}
+          </div>
+        </Port.Content>
+      </ScrollPort>
+    {{else}}
+      {{#each this.children as |tab|}}
+        <TabControl::TabItem 
+          @parentElement={{this}}
+          @tab={{tab}}
+        />
+      {{/each}}
+    {{/if}}
+  {{else}}
+    {{#if this.scrollable}}
+      <ScrollPort @scrollAxis={{this.scrollAxis}} as |Port|>
+        <Port.Content 
+          @axis={{this.scrollAxis}}
+        >
+          <div
+            class="{{this.scrollPortClassNames}}"
+          >
+            {{yield}}
+          </div>
+        </Port.Content>
+      </ScrollPort>
+    {{else}}
+      {{yield}}
+    {{/if}}
+  {{/if}}
+</div>
