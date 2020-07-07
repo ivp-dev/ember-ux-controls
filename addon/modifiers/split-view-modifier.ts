@@ -225,6 +225,13 @@ export class SplitViewBehavior {
         ), __startEvents,
         this.startMoveHandler
       );
+
+      if (this.parentElement instanceof SplitView) {
+        this.parentElement.itemContainerGenerator.eventHandler.removeEventListener(
+          this,
+          GeneratorStatusEventArgs
+        );
+      }
     }
   }
 
@@ -471,9 +478,10 @@ export class SplitViewBehavior {
 
       reducedSize = blockSizes.size - reducedSize;
     }
+    
     sum = sizes.reduce((a, b) => a + b, 0);
-    if (sum > portSize || sum < portSize) {
-      sizes.map((size, i) => sizes[i] = size * portSize / sum)
+    if (sum !== portSize) {
+      sizes = sizes.map((size) => size * portSize / sum)
     }
 
     this.sizes = sizes.map(size =>
