@@ -27,3 +27,7 @@ export interface IDimensions {
   scrollX: number
   scrollY: number
 }
+
+export interface IContentElement {
+  content: unknown 
+}

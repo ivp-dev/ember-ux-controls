@@ -10,7 +10,7 @@ import {
 } from 'ember-ux-core/common/types';
 import { Pane } from './pane/component';
 import PaneModel from 'ember-ux-controls/common/classes/pane-model';
-import { IContentElement } from 'ember-ux-controls/common/classes/types';
+import { IContentElement } from 'ember-ux-controls/common/types';
 
 // @ts-ignore
 import layout from './template';
