@@ -3,20 +3,20 @@
   {{did-insert this.didInsert}}
 >
   {{#unless this.isRoot}}
-    {{component 
-      this.headerTemplateName 
-      header=@header 
-      classNamesBuilder=this.classNamesBuilder
-      hasItems=this.hasItems
-      isExpanded=this.isExpanded
-      toggleExpanded=this.toggleExpanded
-    }}
+    <TreeView::Header
+      @header={{this.header}}
+      @expanderTemplateName={{this.expanderTemplateName}}
+      @headerTemplateName={{this.headerTemplateName}}
+      @classNamesBuilder={{this.classNamesBuilder}}
+      @hasItems={{this.hasItems}}
+      @isExpanded={{this.isExpanded}}
+      @toggleExpander={{this.toggleExpander}}
+    />
   {{/unless}}
-  
+
   <TreeView::Pane
     @parentElement={{this}}
-    @classNamesBuilder={{this.classNamesBuilder}}
-    @hasItemsSource={{this.hasItemsSource}}
+    @hasItems={{this.hasItems}}
     @isExpanded={{this.isExpanded}}
   >
     {{#unless this.hasItemsSource}}
@@ -25,7 +25,6 @@
           Item=(
             component this.itemTemplateName
             parentElement=this
-            header=@header
           )
         )
       }}

@@ -1,56 +1,73 @@
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import { action } from '@ember/object';
 // @ts-ignore
 import layout from './template';
-import { computed } from '@ember/object';
-import { on, off } from 'ember-ux-core/utils/dom';
 
 interface IHeaderArgs extends IUXElementArgs {
-  hasItems: boolean
-  isExpanded: boolean
-  header: unknown,
-  classNamesBuilder: ClassNamesBuilder
-  toggleExpanded: () => void
+  header?: unknown
+  headerTemplateName?: string
+  expanderTemplateName?: string
+  classNamesBuilder?: ClassNamesBuilder
+  hasItems?: boolean,
+  isExpanded?: boolean,
+  toggleExpander?: (event: Event) => void
+  select: () => void
 }
 
 export class Header extends UXElement<IHeaderArgs> {
   public get header() {
-    return this.args.header;
+    return (
+      this.args?.header ??
+      this.props?.header
+    );
   }
 
-  @computed('args.{hasItems,isExpanded}')
+  public get headerTemplateName() {
+    return (
+      this.args?.headerTemplateName ??
+      this.props?.headerTemplateName
+    );
+  }
+
+  public get expanderTemplateName() {
+    return (
+      this.args?.expanderTemplateName ??
+      this.props?.expanderTemplateName
+    );
+  }
+
+  public get classNamesBuilder() {
+    return (
+      this.args.classNamesBuilder ?? 
+      this.props?.classNamesBuilder
+    );
+  }
+
+  public get hasItems() {
+    return (
+      this.args.hasItems ?? 
+      this.props?.hasItems
+    );
+  }
+
+  public get isExpanded() {
+    return (
+      this.args.isExpanded ?? 
+      this.props?.isExpanded
+    );
+  }
+
   public get classNames()
     : string {
-    return `${this.args.classNamesBuilder('header', {
-      [`$active`]: this.args.hasItems,
-      [`$expanded`]: this.args.isExpanded
-    })}`;
-  }
-
-  @action
-  public didInsert(
-    element: HTMLElement
-  ) {
-    this._html = element;
-    on(this._html, 'click', this.onClick);
-  }
-
-  @action
-  private onClick(
-    event: MouseEvent | TouchEvent
-  ) {
-    if(this.args.hasItems) {
-      this.args.toggleExpanded();
+    if (this.classNamesBuilder) {
+      return `${this.classNamesBuilder('header', {
+        [`$active`]: this.hasItems,
+        [`$expanded`]: this.isExpanded
+      })}`;
     }
-    event.preventDefault();
-  }
 
-  public willDestroy() {
-    off(this._html, 'click', this.onClick)
+    return ''
   }
-
-  private _html: HTMLElement | null = null
 }
 
 export default Header.RegisterTemplate(layout);

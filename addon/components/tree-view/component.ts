@@ -9,9 +9,14 @@ import { A } from '@ember/array';
 import { action } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import { notifyPropertyChange } from '@ember/object';
-
+import { computed } from '@ember/object';
 export interface ITreeViewArgs extends IItemsControlArgs {
+  isRoot?: boolean
+  model?: TreeViewItemModel
+  header?: unknown,
+  items?: EmberArray<unknown>,
   headerTemplateName?: string,
+  expanderTemplateName?: string,
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => EmberArray<unknown>
 }
@@ -26,12 +31,29 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     super(owner, args, props);
   }
 
+  public get header()
+    : unknown {
+    return (
+      this.args.model?.header ??
+      this.args.header
+    );
+  }
+
+
+  public get item()
+    : unknown | this {
+    return (
+      this.args.model?.item ??
+      this
+    );
+  }
+
   public get isExpanded() {
-    return this.isRoot || this._isExpanded;
+    return this._isExpanded;
   }
 
   public set isExpanded(value: boolean) {
-    if(this._isExpanded !== value) {
+    if (this._isExpanded !== value) {
       this._isExpanded = value;
       notifyPropertyChange(this, 'isExpanded');
     }
@@ -63,8 +85,16 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     return (
       this.args.headerTemplateName ??
       this.props?.headerTemplateName ??
-      'tree-view/header'
+      'tree-view/header/presenter'
     );
+  }
+
+  public get expanderTemplateName(){
+    return (
+      this.args.expanderTemplateName ??
+      this.props?.expanderTemplateName ??
+      'tree-view/expander'
+    )
   }
 
   public get itemTemplateName() {
@@ -110,8 +140,8 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   }
 
   public clearContainerForItem(
-    container: TreeViewItemModel,
-    _item: unknown
+    container: TreeViewItemModel
+    /*item: unknown*/
   ): void {
     container.item = null;
     container.header = null;
@@ -122,7 +152,12 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     container: TreeViewItemModel,
     item: unknown
   ): void {
-    container.item = item;
+    if (
+      !this.itemItsOwnContainer(item) &&
+      container instanceof TreeViewItemModel
+    ) {
+      container.item = item;
+    }
   }
 
   public readItemFromContainer(
@@ -149,8 +184,11 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   }
 
   @action
-  public toggleExpanded() {
+  public toggleExpander(
+    event: Event
+  ) {
     this.isExpanded = !this.isExpanded;
+    event.preventDefault();
   }
 
   private _isExpanded: boolean = false;

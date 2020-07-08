@@ -1,0 +1,13 @@
+<a 
+  href="#"
+  class={{this.classNames}} 
+  {{on 'click' @toggleExpander}}
+>
+{{#if @hasItems}}
+  {{#if @isExpanded}}
+    -
+  {{else}}
+    +
+  {{/if}}
+{{/if}}
+</a>  

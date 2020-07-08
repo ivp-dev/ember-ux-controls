@@ -1,10 +1,10 @@
 <div class={{this.classNames}}>
-  {{#if @hasItemsSource}}
+  {{#if this.hasItemsSource}}
     {{#each this.children as |item|}}
       <TreeView::Item 
         @header={{item.header}}
         @itemsSource={{item.items}}
-        @parentElement={{this.parentElement}}
+        @parentElement={{this}}
       />
     {{/each}}
   {{else}}

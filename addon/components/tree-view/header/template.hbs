@@ -1,6 +1,21 @@
-<a href="#" 
-  class={{this.classNames}}
-  {{did-insert this.didInsert}}
->
-  {{@header}}
-</a>
+<div class={{this.classNames}}>
+  {{#if this.isExpanded}}
+    +
+  {{/if}}
+  {{component 
+    @expanderTemplateName
+    hasItems=@hasItems
+    isExpanded=@isExpanded
+    toggleExpander=@toggleExpander
+    classNamesBuilder=@classNamesBuilder
+  }}
+  <a 
+    href="#"
+  >
+    {{component 
+      @headerTemplateName 
+      header=@header 
+      classNamesBuilder=@classNamesBuilder
+    }}
+  </a>
+</div>
