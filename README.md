@@ -1,7 +1,7 @@
 ember-ux-controls
 ==============================================================================
 
-Example page: https://ivp-dev.github.io/ember-ux
+Example page: https://ivp-dev.github.io/ember-ux-controls
 
 
 Compatibility
