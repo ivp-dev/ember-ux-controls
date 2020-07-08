@@ -7,7 +7,7 @@ export default class Application extends Controller.extend({
 }) {
   
   @tracked axis = Axes.X
-  @tracked sizes = [35, 65]
+  @tracked sizes = [20, 80]
   @tracked barSize = 3
   @tracked minPaneSize = 20
   @tracked fluent = true

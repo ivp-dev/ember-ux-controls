@@ -28,6 +28,11 @@ export interface IDimensions {
   scrollY: number
 }
 
+export interface IHeaderItemsElement {
+  header: unknown,
+  items: unknown[]
+}
+
 export interface IContentElement {
   content: unknown 
 }

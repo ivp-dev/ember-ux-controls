@@ -15,6 +15,10 @@ h1, h2 {
   padding: 0;
 }
 
+a {
+  text-decoration: none;
+}
+
 input {
   padding-left: 3px;
 }
@@ -166,10 +170,12 @@ input[type=checkbox] {
   background-color: #d44cfd;
 }
 
+.example__tree-view,
 .example__scroll-port {
   width: 100%;
   height: 100%;
 }
+
 .example__scroll-port .scroll-port-demo__content {
   font-size: 70px;
   min-width: 200vw;
@@ -186,4 +192,21 @@ input[type=checkbox] {
 
 .scroll-port__bar {
   border-radius: 0 !important;
+}
+
+.tree-view__item {
+  margin-top: 5px;
+}
+
+.tree-view__header {
+  color: white;
+  padding: 5px 3px;
+}
+
+.tree-view__header::before {
+  border-color: transparent transparent transparent white;
+}
+
+.tree-view__header_expanded::before {
+  border-color: white transparent transparent transparent;
 }

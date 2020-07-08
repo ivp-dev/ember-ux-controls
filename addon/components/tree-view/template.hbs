@@ -1,1 +1,34 @@
-{{yield}}
+<div 
+  class={{this.classNames}}
+  {{did-insert this.didInsert}}
+>
+  {{#unless this.isRoot}}
+    {{component 
+      this.headerTemplateName 
+      header=@header 
+      classNamesBuilder=this.classNamesBuilder
+      hasItems=this.hasItems
+      isExpanded=this.isExpanded
+      toggleExpanded=this.toggleExpanded
+    }}
+  {{/unless}}
+  
+  <TreeView::Pane
+    @parentElement={{this}}
+    @classNamesBuilder={{this.classNamesBuilder}}
+    @hasItemsSource={{this.hasItemsSource}}
+    @isExpanded={{this.isExpanded}}
+  >
+    {{#unless this.hasItemsSource}}
+      {{yield (
+        hash
+          Item=(
+            component this.itemTemplateName
+            parentElement=this
+            header=@header
+          )
+        )
+      }}
+    {{/unless}}
+  </TreeView::Pane>
+</div>

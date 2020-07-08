@@ -9,7 +9,7 @@ import {
   Size
 } from 'ember-ux-core/common/types';
 import { Pane } from './pane/component';
-import PaneModel from 'ember-ux-controls/common/classes/pane-model';
+import SplitViewPaneModel from 'ember-ux-controls/common/classes/split-view-pane-model';
 import { IContentElement } from 'ember-ux-controls/common/types';
 
 // @ts-ignore
@@ -146,12 +146,12 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
   }
 
   public createContainerForItem()
-    : PaneModel {
-    return new PaneModel(this);
+    : SplitViewPaneModel {
+    return new SplitViewPaneModel(this);
   }
 
   public prepareItemContainer(
-    container: PaneModel
+    container: SplitViewPaneModel
   ): void {
     let
       item: unknown;
@@ -174,21 +174,21 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
   }
 
   public clearContainerForItem(
-    container: PaneModel
+    container: SplitViewPaneModel
   ): void {
     container.item = null;
     container.content = null;
   }
 
   public linkContainerToItem(
-    container: PaneModel,
+    container: SplitViewPaneModel,
     item: unknown
   ): void {
     container.item = item;
   }
 
   public readItemFromContainer(
-    container: PaneModel
+    container: SplitViewPaneModel
   ): unknown {
     return container.item;
   }

@@ -1,0 +1,13 @@
+<div class={{this.classNames}}>
+  {{#if @hasItemsSource}}
+    {{#each this.children as |item|}}
+      <TreeView::Item 
+        @header={{item.header}}
+        @itemsSource={{item.items}}
+        @parentElement={{this.parentElement}}
+      />
+    {{/each}}
+  {{else}}
+    {{yield}}
+  {{/if}}
+</div>

@@ -3,7 +3,7 @@ import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-core/common/typ
 import { scheduleOnce } from '@ember/runloop';
 import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
 import { TabItem } from './tab-item/component';
-import Tab from 'ember-ux-controls/common/classes/tab';
+import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
@@ -52,6 +52,11 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return classNamesBuilder;
   }
 
+  public get hasItems() {
+    return this.items.count > 0;
+  }
+
+
   public get contentPresenter() {
     return this._contentPresenter;
   }
@@ -73,7 +78,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   public get itemTemplateName() {
     return (
-      super.itemTemplateName ?? 
+      super.itemTemplateName ??
       'tab-control/tab-item'
     );
   }
@@ -139,8 +144,8 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public createContainerForItem()
-    : Tab {
-    return new Tab(this);
+    : TabItemModel {
+    return new TabItemModel(this);
   }
 
   public prepareItemContainer(
@@ -155,7 +160,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
       return;
     }
 
-    if (!isTab(container)) {
+    if (!(container instanceof TabItemModel)) {
       return;
     }
 
@@ -174,7 +179,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public clearContainerForItem(
-    container: Tab
+    container: TabItemModel
     /*item: unknown*/
   ): void {
     container.item = null;
@@ -186,7 +191,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     container: unknown,
     item: unknown
   ): void {
-    if (!this.itemItsOwnContainer(item) && isTab(container)) {
+    if (
+      !this.itemItsOwnContainer(item) &&
+      container instanceof TabItemModel
+    ) {
       container.item = item;
     }
   }
@@ -194,7 +202,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public readItemFromContainer(
     container: unknown
   ): unknown {
-    if (isTab(container)) {
+    if (container instanceof TabItemModel) {
       return container.item;
     }
     return container;
@@ -246,14 +254,6 @@ function isHeaderContentElement(
   return (
     typeof (<IHeaderContentElement>obj).content !== 'undefined' &&
     typeof (<IHeaderContentElement>obj).header !== 'undefined'
-  );
-}
-
-function isTab(
-  obj: unknown
-): obj is Tab {
-  return (
-    obj instanceof Tab
   );
 }
 

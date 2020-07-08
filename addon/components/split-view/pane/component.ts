@@ -7,7 +7,7 @@ import { SplitView } from '../component';
 import { action } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import ItemsControl from 'ember-ux-core/components/items-control';
-import PaneModel from 'ember-ux-controls/common/classes/pane-model';
+import PaneModel from 'ember-ux-controls/common/classes/split-view-pane-model';
 
 interface ISplitViewPaneArgs extends IUXElementArgs {
   pane?: PaneModel

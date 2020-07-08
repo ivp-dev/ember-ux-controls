@@ -4,7 +4,7 @@ import { on, off, appendBetween } from 'ember-ux-core/utils/dom';
 import { scheduleOnce } from '@ember/runloop';
 import { TabControl } from '../component';
 import { TabPane } from '../tab-pane/component';
-import Tab from 'ember-ux-controls/common/classes/tab';
+import Tab from 'ember-ux-controls/common/classes/tab-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
@@ -107,18 +107,12 @@ export class TabItem extends UXElement<ITabItemArgs> {
 
   public get classNames()
     : string {
-    let
-      classNames: string;
-
-    classNames = '';
-
-    if (this.parentTabControl) {
-      classNames = `${this.parentTabControl.classNamesBuilder('tab', {
+    if (this.classNamesBuilder) {
+      return `${this.classNamesBuilder('tab', {
         '$active': this.isSelected
       })}`;
     }
-
-    return classNames;
+    return '';
   }
 
   public get openNode()
