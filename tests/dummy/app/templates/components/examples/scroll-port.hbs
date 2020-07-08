@@ -1,0 +1,61 @@
+<div class="example__scroll-port">
+  <SplitView::Light
+    @axis={{@axis}}
+    @sizes={{@sizes}}
+    @minPaneSize={{@minPaneSize}} 
+    @barSize={{@barSize}} 
+    @fluent={{@fluent}} 
+    @responsive={{@responsive}}
+    @onSizeChanged={{@onSizeChanged}}
+    as |Splitter|
+  >
+    <Splitter.Pane> 
+      <div class="example__properties">
+        <div class="grid">
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@scrollAxis</span>
+            </div>
+            <div class="grid__cell">
+              <select {{on "change" (fn this.onAxisChanged)}}>
+                <option value="">auto</option>
+                <option value="y">y - axis</option>
+                <option value="x">x - axis</option>
+              </select>
+            </div>
+          </div>
+           <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@delta</span>
+            </div>
+            <div class="grid__cell">
+              <Input @value={{this.delta}} @type="number" @min={{1}}/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Splitter.Pane>
+    <Splitter.Pane>
+      <ComponentObserver 
+        @scrollAxis={{this.scrollAxis}}
+        @delta={{this.delta}}
+      >
+          <ScrollPort 
+            @scrollAxis={{this.scrollAxis}} 
+            @delta={{this.delta}} 
+            as |Port|
+          >
+            <Port.Content @axis={{this.scrollAxis}}>
+              <div class="scroll-port-demo__content">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a laoreet ante. Duis id turpis vehicula, lacinia ante nec, hendrerit odio. In tristique nisi a orci varius placerat. Donec bibendum non sapien mattis condimentum. Aliquam erat volutpat. Pellentesque vel elit iaculis, pharetra ligula in, vehicula sem. Pellentesque erat leo, viverra vel posuere id, varius id odio. Phasellus lectus enim, pretium quis ipsum non, suscipit hendrerit odio. Curabitur dictum ornare elit congue tincidunt. Nunc id mauris sit amet arcu gravida dignissim eget sed nisi. Vivamus volutpat convallis nunc at ultricies. Phasellus ac condimentum urna.
+                Pellentesque pulvinar hendrerit ligula. Nam at est id libero mattis efficitur venenatis et quam. Aliquam egestas turpis augue, quis elementum tortor finibus vel. Sed et bibendum quam. Maecenas non ultricies magna, eget lacinia dui. Vestibulum eget blandit nisi, in pretium erat. Donec elementum aliquam lectus, suscipit laoreet tortor semper a. Integer in ante orci. Nulla facilisi. Sed felis dui, pulvinar at ex ut, malesuada interdum turpis. Vivamus et erat in enim porttitor porttitor. Donec sapien sapien, tempor ut finibus sed, placerat a mauris. Suspendisse sit amet justo ut urna placerat pretium nec vel odio.
+                Etiam eget elit et ex porta varius. Aliquam erat volutpat. Quisque sit amet rutrum ante. Nulla sed feugiat sem. Etiam risus tellus, mattis sed tellus porta, condimentum cursus nunc. Donec commodo ullamcorper pellentesque. Nam aliquet posuere mauris, ut fermentum dolor elementum eu. Vivamus quis fringilla felis. Aenean eu hendrerit augue. Maecenas tempor lacinia diam quis varius. Morbi placerat viverra ligula at feugiat. Proin at urna consequat, cursus mauris in, sagittis sapien.
+                Nulla ut augue dapibus, pretium orci vel, tristique diam. Nullam euismod tempor dignissim. In ac tincidunt sem, in euismod magna. Fusce pellentesque feugiat ante sit amet auctor. Sed eget hendrerit metus, sit amet elementum tortor. Pellentesque elementum eu tellus id pretium. Integer sed augue quis lectus efficitur vulputate ac eu nisi. Pellentesque tincidunt justo mi, ut varius odio dapibus et.
+                Donec et imperdiet sapien. Proin et mauris ac arcu convallis rutrum. Nam at augue et erat egestas maximus a non eros. Proin efficitur, magna sit amet ultrices elementum, erat nibh tincidunt augue, in semper arcu odio consequat ex. Suspendisse potenti. Suspendisse sed consequat nibh. Nulla eleifend, augue ac bibendum dapibus, dui dolor lacinia metus, ut malesuada arcu tellus id dolor. Suspendisse et nulla odio. Aenean ultrices interdum mi, dapibus aliquam sapien ornare sed. Maecenas consequat tincidunt congue.
+              </div>
+            </Port.Content>
+          </ScrollPort>
+      </ComponentObserver>
+    </Splitter.Pane>
+  </SplitView::Light>
+</div>

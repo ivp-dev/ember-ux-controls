@@ -1,6 +1,44 @@
-<h2 id="title">Welcome to ember-ux-controls</h2>
-
-<TabControl as |Tabs|>
-  <Tabs.Tab @header="Header1">Content 1</Tabs.Tab>
-  <Tabs.Tab @header="Header2">Content 2</Tabs.Tab>
-</TabControl>
+<div class="container">
+  <Header>
+    <h2>Docs for ember-ux components</h2>
+  </Header>
+  <TabControl
+    class="component-navigator"
+    @side="left"
+    @direction="direct"
+    @scrollable={{false}} as |Menu|>
+    <Menu.Tab @header="Tab control">
+      <Examples::TabControl 
+        @onSizeChanged={{this.onSizeChanged}}
+        @axis={{this.axis}}
+        @sizes={{this.sizes}}
+        @minPaneSize={{this.minPaneSize}} 
+        @barSize={{this.barSize}} 
+        @fluent={{this.fluent}} 
+        @responsive={{this.responsive}}
+      />
+    </Menu.Tab>
+    <Menu.Tab @header="Split view">
+      <Examples::SplitView 
+        @onSizeChanged={{this.onSizeChanged}}
+        @axis={{this.axis}}
+        @sizes={{this.sizes}}
+        @minPaneSize={{this.minPaneSize}} 
+        @barSize={{this.barSize}} 
+        @fluent={{this.fluent}} 
+        @responsive={{this.responsive}}
+      />
+    </Menu.Tab>
+      <Menu.Tab @header="Scroll port">
+      <Examples::ScrollPort 
+        @onSizeChanged={{this.onSizeChanged}}
+        @axis={{this.axis}}
+        @sizes={{this.sizes}}
+        @minPaneSize={{this.minPaneSize}} 
+        @barSize={{this.barSize}} 
+        @fluent={{this.fluent}} 
+        @responsive={{this.responsive}}
+      />
+    </Menu.Tab>
+  </TabControl>
+</div>

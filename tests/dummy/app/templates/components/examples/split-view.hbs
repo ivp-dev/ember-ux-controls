@@ -1,0 +1,118 @@
+<div class="example__split-view">
+  <SplitView::Light
+    @axis={{@axis}}
+    @sizes={{@sizes}}
+    @minPaneSize={{@minPaneSize}} 
+    @onSizeChanged={{@onSizeChanged}}
+    @barSize={{@barSize}} 
+    @fluent={{@fluent}} 
+    @responsive={{@responsive}}
+    as |Splitter|
+  >
+    <Splitter.Pane> 
+      <div class="example__properties">
+        <div class="grid">
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@axis</span>
+            </div>
+            <div class="grid__cell">
+              <select {{on "change" (fn this.onAxisChanged)}}>
+                <option value="x">x - axis</option>
+                <option value="y">y - axis</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@barSize</span>
+            </div>
+            <div class="grid__cell">
+              <Input @value={{this.barSize}} @type="number" @min={{1}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@minPaneSize</span>
+            </div>
+            <div class="grid__cell">
+              <Input @value={{this.minPaneSize}} @type="number" @min={{0}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@fluent</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.fluent}}/>
+            </div>
+          </div> 
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@responsive</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.responsive}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@sizes</span>
+            </div>
+            <div class="grid__cell">
+              <Input readonly @value={{get this.sizes 0}}/>
+            </div>
+            <div class="grid__row">
+              <div class="grid__cell"></div>
+              <div class="grid__cell">
+                <Input readonly @value={{get this.sizes 1}}/>
+              </div>
+            </div>
+            <div class="grid__row">
+              <div class="grid__cell"></div>
+              <div class="grid__cell">
+                <Input readonly @value={{get this.sizes 2}}/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Splitter.Pane>
+    <Splitter.Pane>
+      <ComponentObserver 
+        @axis={{this.axis}}
+        @minPaneSize={{this.minPaneSize}} 
+        @barSize={{this.barSize}}
+        @fluent={{this.fluent}}
+        @responsive={{this.responsive}}
+      >
+        <SplitView::Light
+          @axis={{this.axis}}
+          @minPaneSize={{this.minPaneSize}} 
+          @sizes={{this.sizes}}
+          @barSize={{this.barSize}} 
+          @fluent={{this.fluent}} 
+          @responsive={{this.responsive}}
+          @onSizeChanged={{this.onSizeChanged}}
+          as |SplitterInter|
+        >
+          <SplitterInter.Pane>
+            <div class="left-panel">
+              <span>Left panel</span>
+            </div>
+          </SplitterInter.Pane>
+          <SplitterInter.Pane>
+            <div class="middle-panel">
+              <span>Middle panel</span>
+            </div>
+          </SplitterInter.Pane>
+          <SplitterInter.Pane>
+            <div class="right-panel">
+              <span>Right panel</span>
+            </div>
+          </SplitterInter.Pane>
+        </SplitView::Light>
+      </ComponentObserver> 
+    </Splitter.Pane>
+  </SplitView::Light>
+</div>
