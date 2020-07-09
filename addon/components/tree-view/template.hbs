@@ -4,9 +4,12 @@
 >
   {{#unless this.isRoot}}
     <TreeView::Header
+      @selectedCount={{this.selectedInfos.count}}
       @hasChilds={{this.hasChilds}}
       @isExpanded={{this.isExpanded}}
+      @isSelected={{this.isSelected}}
       @toggleExpander={{this.toggleExpander}}
+      @changeSelection={{this.changeSelection}}
       @header={{this.header}}
       @expanderTemplateName={{this.expanderTemplateName}}
       @headerTemplateName={{this.headerTemplateName}}
@@ -31,6 +34,7 @@
             this.itemTemplateName
             parentElement=this
             header=this.header
+            multipleSelectionEnable=this.multipleSelectionEnable
             headerTemplateName=this.headerTemplateName
             expanderTemplateName=this.expanderTemplateName
           )

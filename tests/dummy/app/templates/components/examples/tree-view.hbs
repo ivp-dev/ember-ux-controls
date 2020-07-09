@@ -15,7 +15,10 @@
     </Splitter.Pane>
     <Splitter.Pane>
       <ComponentObserver>
-        <TreeView as |Tree|>
+        <TreeView 
+          @multipleSelectionEnable={{true}} 
+          as |Tree|  
+        >
           <Tree.Item @header="Level 1" 
             as |SubTree|
           >

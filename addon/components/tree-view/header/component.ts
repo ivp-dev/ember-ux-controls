@@ -10,6 +10,7 @@ interface IHeaderArgs extends IUXElementArgs {
   classNamesBuilder?: ClassNamesBuilder
   hasChilds?: boolean,
   isExpanded?: boolean,
+  isSelected?: boolean,
   toggleExpander?: (event: Event) => void
   select: () => void
 }
@@ -26,6 +27,13 @@ export class Header extends UXElement<IHeaderArgs> {
     return (
       this.args.toggleExpander ??
       this.props?.toggleExpander
+    );
+  }
+
+  public get isSelected() {
+    return (
+      this.args.isSelected ??
+      this.props?.isSelected
     );
   }
 

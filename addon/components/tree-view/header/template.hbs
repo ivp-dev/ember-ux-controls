@@ -8,11 +8,14 @@
   }}
   <a 
     href="#"
+    {{on 'click' (fn @changeSelection (if this.isSelected false true))}}
   >
     {{component 
       this.headerTemplateName 
       header=this.header 
       classNamesBuilder=this.classNamesBuilder
     }}
+
+    ({{@selectedCount}})
   </a>
 </div>

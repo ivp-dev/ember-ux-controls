@@ -210,3 +210,7 @@ input[type=checkbox] {
 .tree-view__header_expanded::before {
   border-color: white transparent transparent transparent;
 }
+
+.tree-view__item_selected > .tree-view__header {
+  background-color: #fd854c;
+}

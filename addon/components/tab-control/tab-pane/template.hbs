@@ -12,7 +12,7 @@
             {{#each this.children as |tab|}}
               <TabControl::TabItem
                 @parentElement={{this}}
-                @tab={{tab}}
+                @container={{tab}}
               />
             {{/each}}
           </div>
@@ -22,7 +22,7 @@
       {{#each this.children as |tab|}}
         <TabControl::TabItem 
           @parentElement={{this}}
-          @tab={{tab}}
+          @container={{tab}}
         />
       {{/each}}
     {{/if}}
