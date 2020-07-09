@@ -1,26 +1,27 @@
 import ItemsControl, { IItemsControlArgs } from 'ember-ux-core/components/items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-// @ts-ignore
-import layout from './template';
 import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
 import EmberArray from '@ember/array';
-import { IHeaderItemsElement } from 'ember-ux-controls/common/types';
+import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types';
 import { A } from '@ember/array';
 import { action } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 import { notifyPropertyChange } from '@ember/object';
-import { computed } from '@ember/object';
+import { TreeViewPane } from 'ember-ux-controls/components/tree-view/pane/component'
+// @ts-ignore
+import layout from './template';
+
+
+
 export interface ITreeViewArgs extends IItemsControlArgs {
-  isRoot?: boolean
-  model?: TreeViewItemModel
   header?: unknown,
-  items?: EmberArray<unknown>,
+  container?: TreeViewItemModel,
   headerTemplateName?: string,
   expanderTemplateName?: string,
+  hasItemsSource?: boolean
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => EmberArray<unknown>
 }
-
 
 export class TreeView extends ItemsControl<ITreeViewArgs> {
   constructor(
@@ -34,16 +35,22 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   public get header()
     : unknown {
     return (
-      this.args.model?.header ??
+      this.args.container?.header ??
       this.args.header
     );
   }
 
+  public get container() {
+    return (
+      this.args.container &&
+      this.props?.container
+    )
+  }
 
   public get item()
-    : unknown | this {
+    : unknown {
     return (
-      this.args.model?.item ??
+      this.args.container?.item ??
       this
     );
   }
@@ -52,7 +59,9 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     return this._isExpanded;
   }
 
-  public set isExpanded(value: boolean) {
+  public set isExpanded(
+    value: boolean
+  ) {
     if (this._isExpanded !== value) {
       this._isExpanded = value;
       notifyPropertyChange(this, 'isExpanded');
@@ -60,10 +69,15 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   }
 
   public get isRoot() {
-    return !(this.args.parentElement instanceof TreeView);
+    return !(
+      this.args.parentElement instanceof TreeView || (
+        this.args.parentElement instanceof TreeViewPane &&
+        this.args.parentElement.parentTreeView
+      )
+    );
   }
 
-  public get hasItems() {
+  public get hasChilds() {
     return this.items.count > 0;
   }
 
@@ -89,12 +103,12 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     );
   }
 
-  public get expanderTemplateName(){
+  public get expanderTemplateName() {
     return (
       this.args.expanderTemplateName ??
       this.props?.expanderTemplateName ??
       'tree-view/expander'
-    )
+    );
   }
 
   public get itemTemplateName() {
@@ -107,6 +121,18 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   public createContainerForItem()
     : TreeViewItemModel {
     return new TreeViewItemModel();
+  }
+
+  public linkContainerToItem(
+    container: TreeViewItemModel,
+    item: unknown
+  ): void {
+    if (
+      !this.itemItsOwnContainer(item) &&
+      container instanceof TreeViewItemModel
+    ) {
+      container.item = item;
+    }
   }
 
   public prepareItemContainer(
@@ -125,17 +151,16 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
       return;
     }
 
-    if (isHeaderItemsElement(item)) {
+    if (isHeaderElement(item)) {
       container.header = item.header
-      container.items = A(item.items);
-    } else if (
-      typeof this.args.getHeader === 'function' &&
-      typeof this.args.getItems === 'function'
-    ) {
+    } else if (typeof this.args.getHeader === 'function') {
       container.header = this.args.getHeader(item);
-      container.items = this.args.getItems(item)
-    } else {
-      throw new Error(`Can't extract header and content from item`);
+    }
+
+    if (isItemsElement(item)) {
+      container.items = A(item.items)
+    } else if (typeof this.args.getItems === 'function') {
+      container.items = this.args.getItems(item);
     }
   }
 
@@ -146,18 +171,6 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     container.item = null;
     container.header = null;
     container.items = null;
-  }
-
-  public linkContainerToItem(
-    container: TreeViewItemModel,
-    item: unknown
-  ): void {
-    if (
-      !this.itemItsOwnContainer(item) &&
-      container instanceof TreeViewItemModel
-    ) {
-      container.item = item;
-    }
   }
 
   public readItemFromContainer(
@@ -194,11 +207,17 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
   private _isExpanded: boolean = false;
 }
 
-function isHeaderItemsElement(obj: any)
-  : obj is IHeaderItemsElement {
+function isItemsElement(obj: any)
+  : obj is IItemsElement {
   return (
-    typeof (<IHeaderItemsElement>obj).items !== 'undefined' &&
-    typeof (<IHeaderItemsElement>obj).header !== 'undefined'
+    typeof (<IItemsElement>obj).items !== 'undefined'
+  );
+}
+
+function isHeaderElement(obj: any)
+  : obj is IHeaderedElement {
+  return (
+    typeof (<IHeaderedElement>obj).header !== 'undefined'
   );
 }
 

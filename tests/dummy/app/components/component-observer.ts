@@ -3,7 +3,7 @@ import { computed } from '@ember/object';
 import { defineProperty } from '@ember/object';
 
 interface ComponentObserverArgs {
-
+  test?: boolean
 }
 
 export default class ComponentObserver extends Component<ComponentObserverArgs> {
@@ -28,18 +28,6 @@ export default class ComponentObserver extends Component<ComponentObserverArgs> 
       () => {
         return this._dirty = !this._dirty;
       }]
-    )
-    );
+    ));
   }
-}
-
-function convertTo(type: string, value: any) {
-  switch (type) {
-    case 'number':
-      return Number(value);
-    case 'boolean':
-      return value == 'true'
-  }
-
-  return value;
 }

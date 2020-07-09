@@ -15,18 +15,27 @@
     </Splitter.Pane>
     <Splitter.Pane>
       <ComponentObserver>
-          <TreeView as |Tree|>
-            <Tree.Item @header="Level 1" as |SubTree|>
-              <SubTree.Item @header="Level 1.1" as |SubSubTree|>
-                <SubSubTree.Item @header="Level 1.1.1"/>
-                <SubSubTree.Item @header="Level 1.1.2"/>
-              </SubTree.Item>
-              <SubTree.Item @header="Level 1.2"/>
-              <SubTree.Item @header="Level 1.3"/>
-              <SubTree.Item @header="Level 1.4"/>
-            </Tree.Item>
-            <Tree.Item @header="Level 2"/>
-          </TreeView>
+        <TreeView as |Tree|>
+          <Tree.Item @header="Level 1" 
+            as |SubTree|
+          >
+            <SubTree.Item 
+              @header="Level 1.1" 
+              as |SubSubTree|
+            >
+              <SubSubTree.Item @header="Level 1.1.1"/>
+              <SubSubTree.Item @header="Level 1.1.2"/>
+            </SubTree.Item>
+            <SubTree.Item @header="Level 1.2"/>
+            <SubTree.Item @header="Level 1.3"/>
+            <SubTree.Item @header="Level 1.4"/>
+          </Tree.Item>
+          <Tree.Item @header="Level 2"/>
+        </TreeView>
+        
+        <br/>
+        
+        <TreeView @itemsSource={{@tree}}/>
       </ComponentObserver>
     </Splitter.Pane>
   </SplitView::Light>

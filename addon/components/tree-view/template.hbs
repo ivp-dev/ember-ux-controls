@@ -4,27 +4,35 @@
 >
   {{#unless this.isRoot}}
     <TreeView::Header
+      @hasChilds={{this.hasChilds}}
+      @isExpanded={{this.isExpanded}}
+      @toggleExpander={{this.toggleExpander}}
       @header={{this.header}}
       @expanderTemplateName={{this.expanderTemplateName}}
       @headerTemplateName={{this.headerTemplateName}}
       @classNamesBuilder={{this.classNamesBuilder}}
-      @hasItems={{this.hasItems}}
-      @isExpanded={{this.isExpanded}}
-      @toggleExpander={{this.toggleExpander}}
     />
   {{/unless}}
 
   <TreeView::Pane
     @parentElement={{this}}
-    @hasItems={{this.hasItems}}
+    @hasItemsSource={{this.hasItemsSource}}
+    @classNamesBuilder={{this.classNamesBuilder}}
+    @hasChilds={{this.hasChilds}}
+    @expanderTemplateName={{this.expanderTemplateName}}
+    @headerTemplateName={{this.headerTemplateName}}
     @isExpanded={{this.isExpanded}}
   >
     {{#unless this.hasItemsSource}}
       {{yield (
         hash
           Item=(
-            component this.itemTemplateName
+            component
+            this.itemTemplateName
             parentElement=this
+            header=this.header
+            headerTemplateName=this.headerTemplateName
+            expanderTemplateName=this.expanderTemplateName
           )
         )
       }}

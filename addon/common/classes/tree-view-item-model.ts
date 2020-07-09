@@ -7,7 +7,9 @@ class TreeViewItemModel {
     return this._item;
   }
 
-  public set item(value: unknown) {
+  public set item(
+    value: unknown
+  ) {
     if (this._item !== value) {
       this._item = value;
       notifyPropertyChange(this, 'item');
@@ -17,7 +19,10 @@ class TreeViewItemModel {
   public get items() {
     return this._items;
   }
-  public set items(value: EmberArray<unknown> | null) {
+
+  public set items(
+    value: EmberArray<unknown> | null
+  ) {
     if (this._items !== value) {
       this._items = value;
       notifyPropertyChange(this, 'items');
@@ -27,7 +32,10 @@ class TreeViewItemModel {
   public get header() {
     return this._header;
   }
-  public set header(value: unknown) {
+
+  public set header(
+    value: unknown
+  ) {
     if (this._header !== value) {
       this._header = value;
       notifyPropertyChange(this, 'header');

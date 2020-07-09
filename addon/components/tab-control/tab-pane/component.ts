@@ -23,10 +23,6 @@ export class TabPane extends Panel<ITabPaneArgs> {
 
   public get classNamesBuilder()
     : ClassNamesBuilder | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.classNamesBuilder;
-    }
-
     return (
       this.args.classNamesBuilder ??
       this.props?.classNamesBuilder
@@ -52,10 +48,6 @@ export class TabPane extends Panel<ITabPaneArgs> {
 
   public get scrollable()
     : boolean | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.scrollable;
-    }
-
     return (
       this.args?.scrollable ||
       this.props?.scrollable
@@ -64,23 +56,18 @@ export class TabPane extends Panel<ITabPaneArgs> {
 
   public get scrollAxis()
     : Axes | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.scrollAxis;
-    }
-
     return (
       this.args.scrollAxis ??
       this.props?.scrollAxis
     );
   }
 
-  public get parentTabControl()
-    : TabControl | null {
-    if (this.parentItemsControl instanceof TabControl) {
-      return this.parentItemsControl;
-    }
-
-    return null;
+  public get parentTabControl(){
+    return (
+      this.parentItemsControl instanceof TabControl 
+      ? this .parentItemsControl
+      : null
+    )
   }
 }
 

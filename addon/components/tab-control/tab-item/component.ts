@@ -14,7 +14,9 @@ import layout from './template';
 
 
 interface ITabItemArgs extends IUXElementArgs {
-  tab?: Tab
+  tab?: Tab,
+  isSelected?: boolean
+  item?: unknown,
   header?: unknown,
   content?: unknown,
   contentTemplateName?: string
@@ -84,7 +86,6 @@ export class TabItem extends UXElement<ITabItemArgs> {
   public get header()
     : unknown {
     return (
-      this.args.tab?.header ??
       this.args.header
     );
   }
@@ -92,7 +93,6 @@ export class TabItem extends UXElement<ITabItemArgs> {
   public get content()
     : unknown {
     return (
-      this.args.tab?.content ??
       this.args.content
     );
   }
@@ -100,7 +100,7 @@ export class TabItem extends UXElement<ITabItemArgs> {
   public get item()
     : unknown | this {
     return (
-      this.args.tab?.item ??
+      this.args.item ??
       this
     );
   }

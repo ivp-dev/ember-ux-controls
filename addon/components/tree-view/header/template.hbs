@@ -1,21 +1,18 @@
 <div class={{this.classNames}}>
-  {{#if this.isExpanded}}
-    +
-  {{/if}}
   {{component 
-    @expanderTemplateName
-    hasItems=@hasItems
-    isExpanded=@isExpanded
-    toggleExpander=@toggleExpander
-    classNamesBuilder=@classNamesBuilder
+    this.expanderTemplateName
+    hasChilds=this.hasChilds
+    isExpanded=this.isExpanded
+    toggleExpander=this.toggleExpander
+    classNamesBuilder=this.classNamesBuilder
   }}
   <a 
     href="#"
   >
     {{component 
-      @headerTemplateName 
-      header=@header 
-      classNamesBuilder=@classNamesBuilder
+      this.headerTemplateName 
+      header=this.header 
+      classNamesBuilder=this.classNamesBuilder
     }}
   </a>
 </div>

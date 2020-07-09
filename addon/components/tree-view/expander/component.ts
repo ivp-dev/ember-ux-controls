@@ -5,9 +5,9 @@ import layout from './template';
 import { computed } from '@ember/object';
 
 interface IExpanderArgs extends IUXElementArgs {
-  isExpanded: boolean,
-  hasItems: boolean,
-  classNamesBuilder: ClassNamesBuilder
+  isExpanded?: boolean,
+  hasChilds?: boolean,
+  classNamesBuilder?: ClassNamesBuilder
 }
 
 export class Expander extends UXElement<IExpanderArgs> {
@@ -25,10 +25,14 @@ export class Expander extends UXElement<IExpanderArgs> {
 
   @computed('args.{isExpanded}')
   public get classNames() {
-    return this.classNamesBuilder('expander', {
-      [`$open`]: this.args.isExpanded,
-      [`$close`]: !this.args.isExpanded
-    })
+    if(this.classNamesBuilder) {
+      return this.classNamesBuilder('expander', {
+        [`$open`]: this.args.isExpanded,
+        [`$close`]: !this.args.isExpanded
+      });
+    }
+
+    return '';
   }
 }
 

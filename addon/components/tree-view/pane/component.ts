@@ -1,18 +1,20 @@
 import Panel, { IPanelArgs } from 'ember-ux-core/components/panel';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import { computed } from '@ember/object';
+import { TreeView } from '../component';
 // @ts-ignore
 import layout from './template';
-import { TreeView } from '../component';
+
 
 
 interface ITreeViewPaneArgs extends IPanelArgs {
   isExpanded?: boolean,
   hasItemsSource?: boolean,
   classNamesBuilder?: ClassNamesBuilder
+  headerTemplateName?: string
+  expanderTemplateName?: string
 }
 
-export class TabPane extends Panel<ITreeViewPaneArgs> {
+export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
   constructor(
     owner: any,
     args: ITreeViewPaneArgs,
@@ -22,21 +24,27 @@ export class TabPane extends Panel<ITreeViewPaneArgs> {
   }
 
   public get classNamesBuilder() {
-    if (this.parentTreeView) {
-      return this.parentTreeView.classNamesBuilder;
-    }
-
     return (
       this.args.classNamesBuilder ??
       this.props?.classNamesBuilder
     )
   }
 
-  public get hasItemsSource() {
-    if (this.parentTreeView) {
-      return this.parentTreeView.hasItemsSource;
-    }
+  public get expanderTemplateName() {
+    return (
+      this.args.expanderTemplateName ??
+      this.props?.expanderTemplateName
+    )
+  }
 
+  public get headerTemplateName() {
+    return (
+      this.args.headerTemplateName ??
+      this.props?.headerTemplateName
+    )
+  }
+
+  public get hasItemsSource() {
     return (
       this.args.hasItemsSource ??
       this.props?.hasItemsSource
@@ -44,6 +52,7 @@ export class TabPane extends Panel<ITreeViewPaneArgs> {
   }
 
   public get isExpanded() {
+    this.hasItemsSource
     return (
       this.args.isExpanded ??
       this.props?.isExpanded
@@ -63,7 +72,7 @@ export class TabPane extends Panel<ITreeViewPaneArgs> {
     return '';
   }
 
-  protected get parentTreeView()
+  public get parentTreeView()
     : TreeView | null {
     if (this.parentItemsControl instanceof TreeView) {
       return this.parentItemsControl;
@@ -73,4 +82,4 @@ export class TabPane extends Panel<ITreeViewPaneArgs> {
   }
 }
 
-export default TabPane.RegisterTemplate(layout);
+export default TreeViewPane.RegisterTemplate(layout);

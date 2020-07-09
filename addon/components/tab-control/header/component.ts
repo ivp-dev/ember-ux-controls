@@ -13,20 +13,11 @@ interface IHeaderArgs extends IUXElementArgs {
 export class Header extends UXElement<IHeaderArgs> {
   public get header()
     : unknown {
-    if (this.parentElement instanceof TabItem) {
-      return this.parentElement.header;
-    }
     return this.args.header;
   }
 
   public get classNames()
     : string {
-    if (this.parentElement instanceof TabItem &&
-      typeof this.parentElement.classNamesBuilder !== 'undefined'
-    ) {
-      return `${this.parentElement.classNamesBuilder('header')}`;
-    }
-
     if (this.args.classNamesBuilder) {
       return `${this.args.classNamesBuilder('header')}`;
     }

@@ -5,15 +5,22 @@
 >
   <TabControl::TabPane
     @parentElement={{this}}
+    @scrollable={{this.scrollable}}
+    @scrollAxis={{this.scrollAxis}}
+    @classNamesBuilder={{this.classNamesBuilder}}
   >
     {{#unless this.hasItemsSource}}
       {{yield (
         hash
           Tab=(
-            component this.itemTemplateName
-            parentElement=this
-            header=@header
-            content=@content
+            component 
+              this.itemTemplateName
+              parentElement=this
+              contentTemplateName=this.contentTemplateName
+              headerTemplateName=this.headerTemplateName
+              classNamesBuilder=this.classNamesBuilder
+              header=@header
+              content=@content
           )
         )
       }}

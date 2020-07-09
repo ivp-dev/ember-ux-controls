@@ -2,11 +2,6 @@ import {
   ISize
 } from 'ember-ux-core/common/types';
 
-export interface IHeaderContentElement {
-  header: unknown
-  content: unknown
-}
-
 export interface IOffset {
   left: number,
   top: number
@@ -28,11 +23,17 @@ export interface IDimensions {
   scrollY: number
 }
 
-export interface IHeaderItemsElement {
-  header: unknown,
+export interface IHeaderedElement {
+  header: unknown
+}
+
+export interface IItemsElement {
   items: unknown[]
 }
 
 export interface IContentElement {
-  content: unknown 
+  content: unknown
 }
+
+export interface IHeaderContentElement
+  extends IHeaderedElement, IContentElement {  }
