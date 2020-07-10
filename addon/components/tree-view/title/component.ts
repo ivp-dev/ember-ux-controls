@@ -3,11 +3,11 @@ import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 // @ts-ignore
 import layout from './template';
 
-interface ITreeViewHeaderArgs extends IUXElementArgs {
+interface ITreeViewTitleArgs extends IUXElementArgs {
   classNamesBuilder?: ClassNamesBuilder
 }
 
-export class TreeViewHeader extends UXElement<ITreeViewHeaderArgs> {
+export class TreeViewTitle extends UXElement<ITreeViewTitleArgs> {
   public get classNamesBuilder() {
     return (
       this.args.classNamesBuilder ?? 
@@ -18,11 +18,11 @@ export class TreeViewHeader extends UXElement<ITreeViewHeaderArgs> {
   public get classNames()
     : string {
     if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('header')}`;
+      return `${this.classNamesBuilder('title')}`;
     }
 
     return ''
   }
 }
 
-export default TreeViewHeader.RegisterTemplate(layout);
+export default TreeViewTitle.RegisterTemplate(layout);

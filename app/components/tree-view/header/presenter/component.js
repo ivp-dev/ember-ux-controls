@@ -1,1 +1,0 @@
-export { default } from 'ember-ux-controls/components/tree-view/header/presenter/component';

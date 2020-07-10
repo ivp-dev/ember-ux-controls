@@ -1,25 +1,6 @@
 <div
   class={{this.classNames}}
 >
-  {{component 
-    this.expanderTemplateName
-    hasChilds=this.hasChilds
-    isExpanded=this.isExpanded
-    toggleExpander=this.toggleExpander
-    classNamesBuilder=this.classNamesBuilder
-  }}
-  <a 
-    href="#"
-    {{on 'click' (fn @changeSelection (if this.isSelected false true))}}
-  >
-    {{component 
-      this.headerPresenterTemplateName 
-      header=this.header
-      hasChilds=this.hasChilds
-      isExpanded=this.isExpanded
-      isSelected=this.isSelected
-      classNamesBuilder=this.classNamesBuilder
-    }} - ({{@selectedCount}})
-  </a>
+  {{yield}}
 </div>
 

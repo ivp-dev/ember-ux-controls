@@ -4,26 +4,30 @@
 >
   {{#unless this.isRoot}}
     <TreeView::Header
-      @selectedCount={{this.selectedInfos.count}}
-      @hasChilds={{this.hasChilds}}
-      @isExpanded={{this.isExpanded}}
-      @isSelected={{this.isSelected}}
-      @header={{this.header}}
-      @changeSelection={{this.changeSelection}}
-      @toggleExpander={{this.toggleExpander}}
-      @headerTemplateName={{this.headerTemplateName}}
-      @expanderTemplateName={{this.expanderTemplateName}}
-      @headerPresenterTemplateName={{this.headerPresenterTemplateName}}
       @classNamesBuilder={{this.classNamesBuilder}}
-    />
+    >
+      <TreeView::Expander
+        @hasChilds={{this.hasChilds}}
+        @isExpanded={{this.isExpanded}}
+        @toggleExpander={{this.toggleExpander}}
+        @classNamesBuilder={{this.classNamesBuilder}}
+      />
+      <TreeView::Title
+        @isSelected={{this.isSelected}}
+        @classNamesBuilder={{this.classNamesBuilder}}
+        @changeSelection={{this.changeSelection}}
+      >
+        {{this.header}}
+      </TreeView::Title>
+      
+    </TreeView::Header>
   {{/unless}}
 
   <TreeView::Pane
     @parentElement={{this}}
+    @hasChilds={{this.hasChilds}}
     @hasItemsSource={{this.hasItemsSource}}
     @classNamesBuilder={{this.classNamesBuilder}}
-    @hasChilds={{this.hasChilds}}
-    @expanderTemplateName={{this.expanderTemplateName}}
     @headerTemplateName={{this.headerTemplateName}}
     @isExpanded={{this.isExpanded}}
   >

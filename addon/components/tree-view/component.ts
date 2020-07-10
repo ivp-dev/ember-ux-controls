@@ -26,8 +26,6 @@ export interface ITreeViewArgs extends ISelectItemsControlArgs {
   header?: unknown,
   container?: TreeViewItemModel,
   headerTemplateName?: string,
-  headerPresenterTemplateName?: string,
-  expanderTemplateName?: string,
   hasItemsSource?: boolean
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => EmberArray<unknown>
@@ -41,9 +39,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ) {
     super(owner, args, assign({
       itemTemplateName: 'tree-view',
-      headerTemplateName: 'tree-view/header',
-      headerPresenterTemplateName: 'tree-view/header/presenter',
-      expanderTemplateName: 'tree-view/expander'
+      headerTemplateName: 'tree-view/header'
     }, props ?? {}));
   }
 
@@ -145,20 +141,6 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return (
       this.args.headerTemplateName ??
       this.props?.headerTemplateName
-    );
-  }
-
-  public get headerPresenterTemplateName() {
-    return (
-      this.args.headerPresenterTemplateName ??
-      this.props?.headerPresenterTemplateName
-    );
-  }
-
-  public get expanderTemplateName() {
-    return (
-      this.args.expanderTemplateName ??
-      this.props?.expanderTemplateName
     );
   }
 

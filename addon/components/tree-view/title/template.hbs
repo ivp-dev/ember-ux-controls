@@ -1,0 +1,7 @@
+<a 
+  href="#" 
+  class={{this.classNames}}
+  {{on 'click' (fn @changeSelection (if @isSelected false true))}}
+>
+  {{yield}}
+</a>
