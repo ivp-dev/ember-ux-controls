@@ -11,12 +11,22 @@
   >
     <Splitter.Pane> 
       <div class="example__properties">
+        <div class="grid">
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@multipleSelectionEnable</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.multipleSelectionEnable}}/>
+            </div>
+          </div>
+        </div>
       </div>
     </Splitter.Pane>
     <Splitter.Pane>
       <ComponentObserver>
         <TreeView 
-          @multipleSelectionEnable={{true}} 
+          @multipleSelectionEnable={{this.multipleSelectionEnable}} 
           as |Tree|  
         >
           <Tree.Item @header="Level 1" 
@@ -27,7 +37,9 @@
               as |SubSubTree|
             >
               <SubSubTree.Item @header="Level 1.1.1"/>
-              <SubSubTree.Item @header="Level 1.1.2"/>
+              <SubSubTree.Item @header="Level 1.1.2" as |SubSubSubTree|>
+                <SubSubSubTree.Item @header="Level 1.1.1.1"/>
+              </SubSubTree.Item>
             </SubTree.Item>
             <SubTree.Item @header="Level 1.2"/>
             <SubTree.Item @header="Level 1.3"/>

@@ -1,34 +1,31 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
+
+import Component from '@glimmer/component';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { computed } from '@ember/object';
+// @ts-ignore
+import { setComponentTemplate } from '@ember/component';
 // @ts-ignore
 import layout from './template';
-import { computed } from '@ember/object';
 
-interface IExpanderArgs extends IUXElementArgs {
+
+interface ITreeViewExpanderArgs {
   isExpanded?: boolean,
   hasChilds?: boolean,
   classNamesBuilder?: ClassNamesBuilder
 }
-
-export class Expander extends UXElement<IExpanderArgs> {
-  constructor(
-    owner: any,
-    args: IExpanderArgs,
-    props?: IExpanderArgs
-  ) {
-    super(owner, args, props);
-  }
+ 
+class TreeViewExpander extends Component<ITreeViewExpanderArgs> {
 
   public get classNamesBuilder() {
     return this.args.classNamesBuilder;
   }
 
-  @computed('args.{isExpanded}')
+  @computed('args.{isExpanded,hasChilds}')
   public get classNames() {
     if(this.classNamesBuilder) {
       return this.classNamesBuilder('expander', {
-        [`$open`]: this.args.isExpanded,
-        [`$close`]: !this.args.isExpanded
+        [`$toggled`]: this.args.isExpanded,
+        [`$toggleable`]: this.args.hasChilds, 
       });
     }
 
@@ -36,4 +33,5 @@ export class Expander extends UXElement<IExpanderArgs> {
   }
 }
 
-export default Expander.RegisterTemplate(layout);
+export default setComponentTemplate(layout, TreeViewExpander)
+

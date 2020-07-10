@@ -7,12 +7,12 @@ interface IHeaderArgs extends IUXElementArgs {
   header?: unknown
   headerTemplateName?: string
   expanderTemplateName?: string
+  toggleExpander?: (event: Event) => void
+  headerPresenterTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
   hasChilds?: boolean,
   isExpanded?: boolean,
-  isSelected?: boolean,
-  toggleExpander?: (event: Event) => void
-  select: () => void
+  isSelected?: boolean
 }
 
 export class Header extends UXElement<IHeaderArgs> {
@@ -23,13 +23,6 @@ export class Header extends UXElement<IHeaderArgs> {
     );
   }
 
-  public get toggleExpander() {
-    return (
-      this.args.toggleExpander ??
-      this.props?.toggleExpander
-    );
-  }
-
   public get isSelected() {
     return (
       this.args.isSelected ??
@@ -37,10 +30,24 @@ export class Header extends UXElement<IHeaderArgs> {
     );
   }
 
+  public get toggleExpander() {
+    return (
+      this.args.toggleExpander ??
+      this.props?.toggleExpander
+    );
+  }
+
   public get headerTemplateName() {
     return (
       this.args.headerTemplateName ??
       this.props?.headerTemplateName
+    );
+  }
+
+  public get headerPresenterTemplateName() {
+    return (
+      this.args.headerPresenterTemplateName ??
+      this.props?.headerPresenterTemplateName
     );
   }
 
@@ -75,10 +82,7 @@ export class Header extends UXElement<IHeaderArgs> {
   public get classNames()
     : string {
     if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('header', {
-        [`$active`]: this.hasChilds,
-        [`$expanded`]: this.isExpanded
-      })}`;
+      return `${this.classNamesBuilder('header')}`;
     }
 
     return ''

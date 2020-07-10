@@ -9,32 +9,39 @@
   display: inline-block;
 }
 
-.tree-view__header_active {
-  &:before {
-    content: "";
-    position: absolute;
-    top:50%;
-    left: -10px;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 4px 0 4px 4px;
-    border-color: transparent transparent transparent #000000;
-  }
-}
-
-.tree-view__header_expanded {
-  &:before {
-    border-width: 4px 4px 0px 4px;
-    border-color: #000000 transparent transparent transparent;
-  }
-}
-
 .tree-view__container {
   display: none;
 }
 
 .tree-view__container_visible {
   display: block;
+}
+
+.tree-view__expander {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  position: relative;
+  outline: none;
+  visibility: hidden;
+  cursor: pointer;
+  &:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    transform-origin: center;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 4px 0 4px 4px;
+    border-color: transparent transparent transparent #000000;
+  }
+  &_toggleable {
+    visibility: visible;
+  }
+  &_toggled {
+    transform: rotate(90deg);
+  }
 }

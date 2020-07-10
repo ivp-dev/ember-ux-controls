@@ -1,4 +1,6 @@
-<div class={{this.classNames}}>
+<div
+  class={{this.classNames}}
+>
   {{component 
     this.expanderTemplateName
     hasChilds=this.hasChilds
@@ -11,11 +13,13 @@
     {{on 'click' (fn @changeSelection (if this.isSelected false true))}}
   >
     {{component 
-      this.headerTemplateName 
-      header=this.header 
+      this.headerPresenterTemplateName 
+      header=this.header
+      hasChilds=this.hasChilds
+      isExpanded=this.isExpanded
+      isSelected=this.isSelected
       classNamesBuilder=this.classNamesBuilder
-    }}
-
-    ({{@selectedCount}})
+    }} - ({{@selectedCount}})
   </a>
 </div>
+

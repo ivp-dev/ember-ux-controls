@@ -194,23 +194,16 @@ input[type=checkbox] {
   border-radius: 0 !important;
 }
 
-.tree-view__item {
-  margin-top: 5px;
-}
-
 .tree-view__header {
-  color: white;
+  color: #dad8d8;
   padding: 5px 3px;
 }
 
-.tree-view__header::before {
-  border-color: transparent transparent transparent white;
-}
-
-.tree-view__header_expanded::before {
-  border-color: white transparent transparent transparent;
+.tree-view__expander::before {
+  border-color: transparent transparent transparent #dad8d8;
 }
 
 .tree-view__item_selected > .tree-view__header {
   background-color: #fd854c;
+  color: #191b1f;
 }
