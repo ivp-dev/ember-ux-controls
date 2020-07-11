@@ -50,7 +50,11 @@
         
         <br/>
         
-        <TreeView @itemsSource={{@tree}}/>
+        <TreeView 
+          @itemsSource={{@tree}} 
+          @multipleSelectionEnable={{this.multipleSelectionEnable}} 
+        />
+        
       </ComponentObserver>
     </Splitter.Pane>
   </SplitView::Light>

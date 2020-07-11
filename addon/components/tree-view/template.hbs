@@ -3,33 +3,39 @@
   {{did-insert this.didInsert}}
 >
   {{#unless this.isRoot}}
-    <TreeView::Header
-      @classNamesBuilder={{this.classNamesBuilder}}
-    >
-      <TreeView::Expander
-        @hasChilds={{this.hasChilds}}
-        @isExpanded={{this.isExpanded}}
-        @toggleExpander={{this.toggleExpander}}
-        @classNamesBuilder={{this.classNamesBuilder}}
-      />
-      <TreeView::Title
-        @isSelected={{this.isSelected}}
-        @classNamesBuilder={{this.classNamesBuilder}}
-        @changeSelection={{this.changeSelection}}
-      >
-        {{this.header}}
-      </TreeView::Title>
-      
-    </TreeView::Header>
+
+    {{#component 
+      this.headerTemplateName
+      classNamesBuilder=this.classNamesBuilder
+    }}
+    
+      {{component 
+        this.expanderTemplateName
+        hasChilds=this.hasChilds
+        isExpanded=this.isExpanded
+        toggleExpander=this.toggleExpander
+        classNamesBuilder=this.classNamesBuilder
+      }}
+
+      {{component 
+        this.titleTemplateName
+        header=this.header
+        isSelected=this.isSelected
+        changeSelection=this.changeSelection
+        classNamesBuilder=this.classNamesBuilder
+      }}({{this.selectedItems.count}})
+    {{/component}}
   {{/unless}}
 
   <TreeView::Pane
     @parentElement={{this}}
+    @isRoot={{this.isRoot}}
     @hasChilds={{this.hasChilds}}
-    @hasItemsSource={{this.hasItemsSource}}
-    @classNamesBuilder={{this.classNamesBuilder}}
-    @headerTemplateName={{this.headerTemplateName}}
     @isExpanded={{this.isExpanded}}
+    @hasItemsSource={{this.hasItemsSource}}
+    @itemTemplateName={{this.itemTemplateName}}
+    @classNamesBuilder={{this.classNamesBuilder}}
+    @multipleSelectionEnable={{this.multipleSelectionEnable}}
   >
     {{#unless this.hasItemsSource}}
       {{yield (

@@ -42,6 +42,20 @@ class TreeViewItemModel {
     }
   }
 
+  public get isSelected() {
+    return this._isSelected;
+  }
+
+  public set isSelected(
+    value: boolean
+  ) {
+    if (this._isSelected !== value) {
+      this._isSelected = value;
+      notifyPropertyChange(this, 'isSelected');
+    }
+  }
+
+  private _isSelected: boolean = false
   private _items: EmberArray<unknown> | null = null
   private _header: unknown
   private _item: unknown

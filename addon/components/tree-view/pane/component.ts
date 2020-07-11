@@ -7,11 +7,12 @@ import layout from './template';
 
 
 interface ITreeViewPaneArgs extends IPanelArgs {
+  isRoot?: boolean,
   isExpanded?: boolean,
   hasItemsSource?: boolean,
-  classNamesBuilder?: ClassNamesBuilder
-  headerTemplateName?: string
-  expanderTemplateName?: string
+  itemTemplateName?: string
+  classNamesBuilder?: ClassNamesBuilder,
+  multipleSelectionEnable?: boolean
 }
 
 export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
@@ -30,17 +31,10 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
     )
   }
 
-  public get expanderTemplateName() {
+  public get itemTemplateName() {
     return (
-      this.args.expanderTemplateName ??
-      this.props?.expanderTemplateName
-    )
-  }
-
-  public get headerTemplateName() {
-    return (
-      this.args.headerTemplateName ??
-      this.props?.headerTemplateName
+      this.args.itemTemplateName ??
+      this.props?.itemTemplateName
     )
   }
 
@@ -52,7 +46,6 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
   }
 
   public get isExpanded() {
-    this.hasItemsSource
     return (
       this.args.isExpanded ??
       this.props?.isExpanded
@@ -60,7 +53,17 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
   }
 
   public get isRoot() {
-    return this.parentTreeView && this.parentTreeView.isRoot;
+    return (
+      this.args.isRoot ?? 
+      this.props?.isRoot
+    );
+  }
+
+  public get multipleSelectionEnable() {
+    return (
+      this.args.multipleSelectionEnable ??
+      this.props?.multipleSelectionEnable
+    )
   }
 
   public get classNames() {

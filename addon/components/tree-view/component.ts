@@ -14,7 +14,7 @@ import { assign } from '@ember/polyfills';
 // @ts-ignore
 import layout from './template';
 
-export class TreeViewGlobalChangedEventArgs {
+export class TreeViewRootSelectionChangedEventArgs {
   constructor(
     public sender: TreeView,
     public value: boolean
@@ -24,8 +24,11 @@ export class TreeViewGlobalChangedEventArgs {
 export interface ITreeViewArgs extends ISelectItemsControlArgs {
   item?: unknown
   header?: unknown,
+  isSelected?: boolean,
   container?: TreeViewItemModel,
+  titleTemplateName?: string,
   headerTemplateName?: string,
+  expanderTemplateName?: string,
   hasItemsSource?: boolean
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => EmberArray<unknown>
@@ -39,7 +42,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ) {
     super(owner, args, assign({
       itemTemplateName: 'tree-view',
-      headerTemplateName: 'tree-view/header'
+      titleTemplateName: 'tree-view/title',
+      headerTemplateName: 'tree-view/header',
+      expanderTemplateName: 'tree-view/expander'
     }, props ?? {}));
   }
 
@@ -48,6 +53,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return this.args.header;
   }
 
+  @computed('args.container')
   public get container() {
     return (
       this.args.container ??
@@ -55,6 +61,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     )
   }
 
+  @computed('args.item')
   public get item()
     : unknown {
     return (
@@ -76,8 +83,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     }
   }
 
+  @computed('args.isSelected')
   public get isSelected() {
-    return this._isSelected;
+    return this.args.isSelected || this._isSelected;
   }
 
   public set isSelected(
@@ -107,11 +115,12 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     }
   }
 
+  @computed('args.parentElement')
   public get isRoot() {
     return !(
       this.args.parentElement instanceof TreeView || (
         this.args.parentElement instanceof TreeViewPane &&
-        this.args.parentElement.parentTreeView
+        this.args.parentElement.parentTreeView !== null
       )
     );
   }
@@ -137,11 +146,43 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     })}`;
   }
 
+  @computed('args.titleTemplateName')
+  public get titleTemplateName() {
+    return (
+      this.args.titleTemplateName ??
+      this.props?.titleTemplateName
+    );
+  }
+
+  @computed('args.expanderTemplateName')
+  public get expanderTemplateName() {
+    return (
+      this.args.expanderTemplateName ??
+      this.props?.expanderTemplateName
+    );
+  }
+
+  @computed('args.headerTemplateName')
   public get headerTemplateName() {
     return (
       this.args.headerTemplateName ??
       this.props?.headerTemplateName
     );
+  }
+
+  protected get parentTreeView()
+  : TreeView | null {
+    if(this.parentElement instanceof TreeView) {
+      return this.parentElement;
+    }
+
+    if(
+      this.parentElement instanceof TreeViewPane &&
+      this.parentElement.parentTreeView !== null) {
+        return this.parentElement.parentTreeView;
+    }
+
+    return null;
   }
 
   public createContainerForItem()
@@ -218,14 +259,14 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       return;
     }
 
-    if (this.parentElement instanceof TreeView) {
+    if (this.parentTreeView) {
       if (this.isSelected) {
         if (this.selectedItems.count === 0) {
-          this.parentElement.onUnselect(this.container);
+          this.parentTreeView.onUnselect(this.container);
         }
       } else {
         if (this.selectedItems.count === this.items.count) {
-          this.parentElement.onSelect(this.container);
+          this.parentTreeView.onSelect(this.container);
         }
       }
     }
@@ -234,9 +275,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   @action
   public didInsert() {
     const
-      parent = this.parentElement;
+      parent = this.parentTreeView;
 
-    if (parent instanceof TreeView) {
+    if (parent !== null) {
 
       this.setRoot(parent);
 
@@ -267,7 +308,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
 
     root.eventHandler.removeEventListener(
       this,
-      TreeViewGlobalChangedEventArgs
+      TreeViewRootSelectionChangedEventArgs
     );
   }
 
@@ -284,23 +325,23 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     if (root) {
       root.eventHandler.addEventListener(
         this,
-        TreeViewGlobalChangedEventArgs,
-        this.onGlobalSelectionChanged
+        TreeViewRootSelectionChangedEventArgs,
+        this.onRootSelectionChanged
       );
 
       this._root = root;
     }
   }
 
-  private onGlobalSelectionChanged(
-    args: TreeViewGlobalChangedEventArgs
+  private onRootSelectionChanged(
+    args: TreeViewRootSelectionChangedEventArgs
   ) {
     if (
       !this.multipleSelectionEnable &&
-      this.parentElement instanceof TreeView &&
-      args.sender.parentElement !== this.parentElement
+      this.parentTreeView &&
+      args.sender.parentTreeView !== this.parentTreeView
     ) {
-      this.parentElement.unselectAllInternal();
+      this.parentTreeView.unselectAllInternal();
     }
   }
 
@@ -316,16 +357,16 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   public changeSelection(
     isSelected: boolean
   ) {
-    if (this.parentElement instanceof TreeView) {
+    if (this.parentTreeView) {
       if (isSelected) {
-        this.parentElement.onSelect(this.container);
+        this.parentTreeView.onSelect(this.container);
       } else {
-        this.parentElement.onUnselect(this.container);
+        this.parentTreeView.onUnselect(this.container);
       }
 
       if (this._root) {
         this._root.eventHandler.emitEvent(
-          new TreeViewGlobalChangedEventArgs(
+          new TreeViewRootSelectionChangedEventArgs(
             this,
             isSelected
           )
@@ -353,7 +394,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       root = this.findRoot(
         Reflect.get(
           parentElement,
-          'parentElement'
+          'parentTreeView'
         )
       );
     }

@@ -1,12 +1,17 @@
 <div class={{this.classNames}}>
   {{#if this.hasItemsSource}}
     {{#each this.children as |container|}}
-      <TreeView 
-        @parentElement={{this}}
-        @item={{container.item}}
-        @header={{container.header}}
-        @itemsSource={{container.items}}
-      />
+      {{component 
+        this.itemTemplateName
+        parentElement=this
+        isRoot=this.isRoot
+        isExpanded=this.isExpanded
+        item=container.item
+        header=container.header
+        isSelected=container.isSelected
+        itemsSource=container.items
+        multipleSelectionEnable=this.multipleSelectionEnable
+      }}
     {{/each}}
   {{else}}
     {{yield}}
