@@ -44,6 +44,14 @@
               </select>
             </div>
           </div>
+           <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@itemsSource</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.itemsSourceEnable}}/>
+            </div>
+          </div>
         </div>
       </div>
     </Splitter.Pane>
@@ -57,7 +65,10 @@
         <TabControl 
           @side={{this.side}}
           @direction={{this.direction}}
-          @scrollable={{this.scrollable}} as |Tab|>
+          @scrollable={{this.scrollable}}
+          @itemsSource={{this.itemsSource}}
+          as |Tab|
+        >
           <Tab.Tab @header="First tab">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce dapibus dictum lacinia. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam placerat posuere lacus ut molestie. Aliquam eget magna nulla. Vestibulum varius vestibulum tincidunt. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed vulputate tortor vitae leo efficitur mollis quis eu orci. Fusce eu mauris nec ligula lacinia iaculis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus varius fermentum magna scelerisque pretium. Nulla nulla diam, feugiat posuere libero ultricies, fringilla cursus libero. Cras in ex eget quam feugiat dignissim. Donec non ex diam. Aenean sed odio et turpis ullamcorper commodo. Praesent porta, leo eget pellentesque eleifend, orci ligula vehicula nunc, vel ornare ligula felis ac nunc.
             Donec elit eros, dictum at tempor varius, facilisis eu libero. Etiam id enim ac massa sollicitudin interdum varius sed mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Phasellus nec pretium mauris, vel consequat risus. Phasellus auctor fringilla tortor, in semper elit porttitor nec. Sed eu massa vel magna elementum maximus vel a nisi. Nunc ut massa ante. Fusce fermentum varius orci eu malesuada.

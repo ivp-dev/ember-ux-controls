@@ -1,6 +1,6 @@
 <div class="{{this.classNames}}" 
   {{scroll-port-modifier 
-    parentElement=this
+    owner=this
     scrollAxis = @scrollAxis
     delta = @delta
   }}
@@ -13,17 +13,18 @@
       hash
         Content=(
           component "scroll-port/content"
-          parentElement=this
+          axis=this.scrollAxis
+          classNamesBuilder=this.classNamesBuilder
         )
       )
     }}
   </ScrollPort::Screen>
   <ScrollPort::Track 
-    @parentElement={{this}}
+    @classNamesBuilder={{this.classNamesBuilder}}
     @axis="x"
   />
 
   <ScrollPort::Track 
-    @parentElement={{this}}
+    @classNamesBuilder={{this.classNamesBuilder}}
     @axis="y"/>
 </div>

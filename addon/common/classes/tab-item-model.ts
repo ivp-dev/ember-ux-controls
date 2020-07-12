@@ -1,10 +1,8 @@
 import { ISelectable } from 'ember-ux-core/common/types'
-import { TabControl } from 'ember-ux-controls/components/tab-control/component';
 import { notifyPropertyChange } from '@ember/object';
 
 export default class TabItemModel implements ISelectable {
   constructor(
-    public owner: TabControl
   ) { }
 
   public get item() {

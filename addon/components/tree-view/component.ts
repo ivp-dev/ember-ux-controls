@@ -115,13 +115,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     }
   }
 
-  @computed('args.parentElement')
   public get isRoot() {
     return !(
-      this.args.parentElement instanceof TreeView || (
-        this.args.parentElement instanceof TreeViewPane &&
-        this.args.parentElement.parentTreeView !== null
-      )
+      this.logicalParent instanceof TreeView
     );
   }
 
@@ -168,21 +164,6 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       this.args.headerTemplateName ??
       this.props?.headerTemplateName
     );
-  }
-
-  protected get parentTreeView()
-  : TreeView | null {
-    if(this.parentElement instanceof TreeView) {
-      return this.parentElement;
-    }
-
-    if(
-      this.parentElement instanceof TreeViewPane &&
-      this.parentElement.parentTreeView !== null) {
-        return this.parentElement.parentTreeView;
-    }
-
-    return null;
   }
 
   public createContainerForItem()
@@ -259,14 +240,14 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       return;
     }
 
-    if (this.parentTreeView) {
+    if (this.logicalParent instanceof TreeView) {
       if (this.isSelected) {
         if (this.selectedItems.count === 0) {
-          this.parentTreeView.onUnselect(this.container);
+          this.logicalParent.onUnselect(this.container);
         }
       } else {
         if (this.selectedItems.count === this.items.count) {
-          this.parentTreeView.onSelect(this.container);
+          this.logicalParent.onSelect(this.container);
         }
       }
     }
@@ -275,9 +256,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   @action
   public didInsert() {
     const
-      parent = this.parentTreeView;
+      parent = this.logicalParent;
 
-    if (parent !== null) {
+    if (parent instanceof TreeView) {
 
       this.setRoot(parent);
 
@@ -338,10 +319,10 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ) {
     if (
       !this.multipleSelectionEnable &&
-      this.parentTreeView &&
-      args.sender.parentTreeView !== this.parentTreeView
+      this.logicalParent instanceof TreeView &&
+      args.sender.logicalParent !== this.logicalParent
     ) {
-      this.parentTreeView.unselectAllInternal();
+      this.logicalParent.unselectAllInternal();
     }
   }
 
@@ -357,11 +338,11 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   public changeSelection(
     isSelected: boolean
   ) {
-    if (this.parentTreeView) {
+    if (this.logicalParent instanceof TreeView) {
       if (isSelected) {
-        this.parentTreeView.onSelect(this.container);
+        this.logicalParent.onSelect(this.container);
       } else {
-        this.parentTreeView.onUnselect(this.container);
+        this.logicalParent.onUnselect(this.container);
       }
 
       if (this._root) {

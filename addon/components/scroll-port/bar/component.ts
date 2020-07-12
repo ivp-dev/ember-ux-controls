@@ -1,7 +1,7 @@
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
 import { Axes } from 'ember-ux-core/common/types';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem'
-import { Track } from 'ember-ux-controls/components/scroll-port/track/component';
+import { computed } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
@@ -19,14 +19,20 @@ class Bar extends UXElement<IBarArgs> {
   ) {
     super(owner, args, props);
   }
-  get classNamesBuilder() {
-    if (this.parentElement instanceof Track) {
-      return this.parentElement.classNamesBuilder;
-    }
 
+  @computed('args.{classNamesBuilder}')
+  get classNamesBuilder() {
     return (
       this.args.classNamesBuilder ??
       this.props?.classNamesBuilder
+    );
+  }
+
+  @computed('args.{axis}')
+  get axis() {
+    return (
+      this.args.axis ??
+      this.props?.axis
     );
   }
 
@@ -34,7 +40,7 @@ class Bar extends UXElement<IBarArgs> {
     : string {
     if (this.classNamesBuilder) {
       return `${this.classNamesBuilder('bar', {
-        [`$${this.args.axis}`]: typeof this.args.axis !== 'undefined'
+        [`$${this.axis}`]: typeof this.axis !== 'undefined'
       })}`;
     }
     return '';

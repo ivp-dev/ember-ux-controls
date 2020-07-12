@@ -3,7 +3,6 @@ import { action } from '@ember/object';
 import { on, off, appendBetween } from 'ember-ux-core/utils/dom';
 import { scheduleOnce } from '@ember/runloop';
 import { TabControl } from '../component';
-import { TabPane } from '../tab-pane/component';
 import Tab from 'ember-ux-controls/common/classes/tab-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
@@ -13,7 +12,7 @@ import layout from './template';
 
 
 
-interface ITabItemArgs extends IUXElementArgs {
+interface ITabControlItemArgs extends IUXElementArgs {
   container?: Tab,
   isSelected?: boolean
   item?: unknown,
@@ -24,10 +23,10 @@ interface ITabItemArgs extends IUXElementArgs {
   classNamesBuilder?: ClassNamesBuilder
 }
 
-export class TabItem extends UXElement<ITabItemArgs> {
+export class TabControlItem extends UXElement<ITabControlItemArgs> {
   constructor(
     owner: any,
-    args: ITabItemArgs
+    args: ITabControlItemArgs
   ) {
     super(owner, args);
 
@@ -35,45 +34,59 @@ export class TabItem extends UXElement<ITabItemArgs> {
     this._closeNode = document.createTextNode('');
   }
 
+  @computed('args.{headerTemplateName}')
   public get headerTemplateName()
     : string | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.headerTemplateName;
-    }
-
-    return this.args.headerTemplateName;
+    return this.args.headerTemplateName ?? this.props?.contentTemplateName;
   }
 
+  @computed('args.{contentTemplateName}')
   public get contentTemplateName()
     : string | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.contentTemplateName;
-    }
-
-    return this.args.contentTemplateName;
+    return this.args.contentTemplateName ?? this.props?.contentTemplateName;
   }
 
+  @computed('args.{classNamesBuilder}')
   public get classNamesBuilder()
     : ClassNamesBuilder | undefined {
-    if (this.parentTabControl) {
-      return this.parentTabControl.classNamesBuilder;
-    }
-
-    return this.args.classNamesBuilder;
+    return this.args.classNamesBuilder ?? this.props?.classNamesBuilder;
   }
 
-  public get hasItemsSource()
+  @computed('args.{isSelected}')
+  public get isSelected()
     : boolean {
+    return this.args.isSelected ?? this._isSelected;
+  }
+
+  @computed('args.{header}')
+  public get header()
+    : unknown {
     return (
-      this.parentTabControl !== null &&
-      this.parentTabControl.hasItemsSource
+      this.args.header
     );
   }
 
-  @computed('args.tab.isSelected')
-  public get isSelected()
-    : boolean {
-    return this.args.container?.isSelected ?? this._isSelected;
+  @computed('args.{content}')
+  public get content()
+    : unknown {
+    return (
+      this.args.content
+    );
+  }
+
+  @computed('args.{item}')
+  public get item()
+    : unknown | this {
+    return (
+      this.args.item ??
+      this
+    );
+  }
+
+  @computed('args.{container}')
+  public get container()
+    : Tab | this {
+    return this.args.container ?? this;
   }
 
   public set isSelected(value: boolean) {
@@ -83,25 +96,11 @@ export class TabItem extends UXElement<ITabItemArgs> {
     }
   }
 
-  public get header()
-    : unknown {
+  public get hasItemsSource()
+    : boolean {
     return (
-      this.args.header
-    );
-  }
-
-  public get content()
-    : unknown {
-    return (
-      this.args.content
-    );
-  }
-
-  public get item()
-    : unknown | this {
-    return (
-      this.args.item ??
-      this
+      this.logicalParent instanceof TabControl &&
+      this.logicalParent.hasItemsSource
     );
   }
 
@@ -125,24 +124,6 @@ export class TabItem extends UXElement<ITabItemArgs> {
     return this._closeNode;
   }
 
-  protected get parentTabControl()
-    : TabControl | null {
-    if (this.parentElement instanceof TabControl) {
-      return this.parentElement;
-    }
-
-    if (this.parentElement instanceof TabPane) {
-      return this.parentElement.parentTabControl;
-    }
-
-    return null;
-  }
-
-  protected get container()
-    : Tab | this {
-    return this.args.container ?? this;
-  }
-
   protected get html()
     : HTMLElement | null {
     return this._html;
@@ -161,16 +142,16 @@ export class TabItem extends UXElement<ITabItemArgs> {
     element: HTMLElement
   ): void {
     const
-      owner: TabControl | null = this.parentTabControl;
+      parent = this.logicalParent;
 
     on(element, 'click', this.onTabClick);
 
     if (
-      owner !== null &&
-      !owner.hasItemsSource
+      parent instanceof TabControl &&
+      !parent.hasItemsSource
     ) {
       scheduleOnce('afterRender', this, () => {
-        owner.addChild(this);
+        parent.addChild(this);
       })
     }
 
@@ -191,10 +172,10 @@ export class TabItem extends UXElement<ITabItemArgs> {
     event: MouseEvent | TouchEvent
   ): void {
     if (
-      this.parentTabControl &&
+      this.logicalParent instanceof TabControl &&
       !this.isSelected
     ) {
-      this.parentTabControl.onSelect(this.container);
+      this.logicalParent.onSelect(this.container);
     }
     event.preventDefault();
   }
@@ -215,11 +196,11 @@ export class TabItem extends UXElement<ITabItemArgs> {
 
   private updateContentPresenter() {
     if (
-      this.parentTabControl &&
-      this.parentTabControl.contentPresenter
+      this.logicalParent instanceof TabControl &&
+      this.logicalParent.contentPresenter
     ) {
       appendBetween(
-        this.parentTabControl.contentPresenter,
+        this.logicalParent.contentPresenter,
         this.openNode,
         this.closeNode,
         true
@@ -233,4 +214,4 @@ export class TabItem extends UXElement<ITabItemArgs> {
   private _isSelected: boolean = false;
 }
 
-export default TabItem.RegisterTemplate(layout);
+export default TabControlItem.RegisterTemplate(layout);

@@ -1,5 +1,5 @@
 <div class="{{this.classNames}}">
-  {{#if this.isItemsHost}}
+  {{#if this.hasItemsSource}}
     {{#if this.scrollable}}
       <ScrollPort 
         @scrollAxis={{this.scrollAxis}} as |Port|>
@@ -9,20 +9,36 @@
           <div
             class="{{this.scrollPortClassNames}}"
           >
-            {{#each this.children as |tab|}}
+            {{#each this.children as |container|}}
               <TabControl::TabItem
-                @parentElement={{this}}
-                @container={{tab}}
+                @visualParent={{this}}
+                @logicalParent={{this.logicalParent}}
+                @container={{container}}
+                @isSelected={{container.isSelected}}
+                @item={{container.item}}
+                @header={{container.header}}
+                @content={{container.content}}
+                @classNamesBuilder={{this.classNamesBuilder}}
+                @headerTemplateName={{this.headerTemplateName}}
+                @contentTemplateName={{this.contentTemplateName}}
               />
             {{/each}}
           </div>
         </Port.Content>
       </ScrollPort>
     {{else}}
-      {{#each this.children as |tab|}}
+      {{#each this.children as |container|}}
         <TabControl::TabItem 
-          @parentElement={{this}}
-          @container={{tab}}
+          @visualParent={{this}}
+          @logicalParent={{this.logicalParent}}
+          @container={{container}}
+          @isSelected={{container.isSelected}}
+          @item={{container.item}}
+          @header={{container.header}}
+          @content={{container.content}}
+          @classNamesBuilder={{this.classNamesBuilder}}
+          @headerTemplateName={{this.headerTemplateName}}
+          @contentTemplateName={{this.contentTemplateName}}
         />
       {{/each}}
     {{/if}}

@@ -2,7 +2,7 @@ import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-core/compo
 import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-core/common/types';
 import { scheduleOnce } from '@ember/runloop';
 import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
-import { TabItem } from './tab-item/component';
+import { TabControlItem } from './tab-item/component';
 import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
@@ -10,6 +10,7 @@ import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import { notifyPropertyChange } from '@ember/object';
 import { find } from 'ember-ux-core/utils/dom'
 import { action } from '@ember/object';
+import { assign } from '@ember/polyfills';
 // @ts-ignore
 import layout from './template';
 
@@ -31,31 +32,79 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     args: ITabControlArgs,
     props?: ITabControlArgs
   ) {
-    super(owner, args, props);
+    super(owner, args, assign({
+      itemTemplateName: 'tab-control/tab-item',
+      headerTemplateName: 'tab-control/header',
+      contentTemplateName: 'tab-control/content/presenter',
+      direction: Direction.Forward,
+      scrollable: false,
+      side: Side.Top,
+    }, props ?? {}));
 
     this.itemContainerGenerator.eventHandler.addEventListener(
       this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
-    )
+    );
   }
 
   @computed('side', 'direction', 'scrollable')
   public get classNamesBuilder()
     : ClassNamesBuilder {
     let
-      classNamesBuilder = bem(
-        'tab-control', {
-        [`$${this.side}`]: this.side !== Side.Top,
-        [`$${this.direction}`]: this.direction !== Direction.Forward,
-        [`$scrollable-tabs`]: this.scrollable
-      });
+      classNamesBuilder: ClassNamesBuilder
+
+    classNamesBuilder = bem(
+      'tab-control', {
+      [`$${this.side}`]: this.side !== Side.Top,
+      [`$${this.direction}`]: this.direction !== Direction.Forward,
+      [`$scrollable-tabs`]: this.scrollable
+    });
 
     return classNamesBuilder;
+  }
+
+  @computed('args.{contentTemplateName}')
+  public get contentTemplateName() {
+    return (
+      this.args.contentTemplateName ??
+      this.props?.contentTemplateName
+    );
+  }
+
+  @computed('args.{headerTemplateName}')
+  public get headerTemplateName() {
+    return (
+      this.args.headerTemplateName ??
+      this.props?.headerTemplateName
+    );
+  }
+
+  @computed('args.{direction}')
+  public get direction() {
+    return (
+      this.args.direction ??
+      this.props?.direction
+    );
+  }
+
+  @computed('args.{scrollable}')
+  public get scrollable() {
+    return (
+      this.args.scrollable ??
+      this.props?.scrollable
+    );
+  }
+
+  @computed('args.{side}')
+  public get side() {
+    return (
+      this.args.side ??
+      this.props?.side
+    );
   }
 
   public get hasItems() {
     return this.items.count > 0;
   }
-
 
   public get contentPresenter() {
     return this._contentPresenter;
@@ -76,53 +125,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return `${this.classNamesBuilder('content')}`;
   }
 
-  public get itemTemplateName() {
-    return (
-      super.itemTemplateName ??
-      'tab-control/tab-item'
-    );
-  }
-
-  public get contentTemplateName() {
-    return (
-      this.args.contentTemplateName ??
-      this.props?.contentTemplateName ??
-      'tab-control/content'
-    );
-  }
-
-  public get headerTemplateName() {
-    return (
-      this.args.headerTemplateName ??
-      this.props?.headerTemplateName ??
-      'tab-control/header'
-    );
-  }
-
-  public get direction() {
-    return (
-      this.args.direction ??
-      this.props?.direction ??
-      Direction.Forward
-    );
-  }
-
-  public get scrollable() {
-    return (
-      this.args.scrollable ??
-      this.props?.scrollable ??
-      false
-    );
-  }
-
-  public get side() {
-    return (
-      this.args.side ??
-      this.props?.side ??
-      Side.Top
-    );
-  }
-
   public get scrollAxis() {
     return (
       this.side === Side.Left ||
@@ -134,18 +136,18 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   public itemItsOwnContainer(
     item: unknown
-  ): item is TabItem {
+  ): item is TabControlItem {
     let
       result: boolean
 
-    result = item instanceof TabItem;
+    result = item instanceof TabControlItem;
 
     return result;
   }
 
   public createContainerForItem()
     : TabItemModel {
-    return new TabItemModel(this);
+    return new TabItemModel();
   }
 
   public prepareItemContainer(
@@ -242,10 +244,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   private _contentPresenter: Element | null = null;
-}
-
-export function parentIsTabControl(parentElement: unknown): parentElement is TabControl {
-  return parentElement instanceof TabControl
 }
 
 function isHeaderContentElement(

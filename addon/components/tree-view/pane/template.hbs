@@ -3,7 +3,8 @@
     {{#each this.children as |container|}}
       {{component 
         this.itemTemplateName
-        parentElement=this
+        visualParent=this
+        logicalParent=this.logicalParent
         isRoot=this.isRoot
         isExpanded=this.isExpanded
         item=container.item

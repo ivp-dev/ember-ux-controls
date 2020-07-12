@@ -28,7 +28,7 @@
   {{/unless}}
 
   <TreeView::Pane
-    @parentElement={{this}}
+    @visualParent={{this}}
     @isRoot={{this.isRoot}}
     @hasChilds={{this.hasChilds}}
     @isExpanded={{this.isExpanded}}
@@ -43,7 +43,7 @@
           Item=(
             component
             this.itemTemplateName
-            parentElement=this
+            visualParent=this
             header=this.header
             multipleSelectionEnable=this.multipleSelectionEnable
             headerTemplateName=this.headerTemplateName

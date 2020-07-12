@@ -4,9 +4,12 @@
    ...attributes
 >
   <TabControl::TabPane
-    @parentElement={{this}}
+    @visualParent={{this}}
     @scrollable={{this.scrollable}}
     @scrollAxis={{this.scrollAxis}}
+    @hasItemsSource={{this.hasItemsSource}}
+    @headerTemplateName={{this.headerTemplateName}}
+    @contentTemplateName={{this.contentTemplateName}}
     @classNamesBuilder={{this.classNamesBuilder}}
   >
     {{#unless this.hasItemsSource}}
@@ -14,22 +17,21 @@
         hash
           Tab=(
             component 
-              this.itemTemplateName
-              parentElement=this
-              contentTemplateName=this.contentTemplateName
-              headerTemplateName=this.headerTemplateName
-              classNamesBuilder=this.classNamesBuilder
-              header=@header
-              content=@content
+            this.itemTemplateName
+            header=@header
+            content=@content
+            visualParent=this
+            contentTemplateName=this.contentTemplateName
+            headerTemplateName=this.headerTemplateName
+            classNamesBuilder=this.classNamesBuilder
           )
         )
       }}
     {{/unless}}
   </TabControl::TabPane>
 
-  <div 
-    class={{this.contentClassNames}}
-  >
-  </div>
+  <TabControl::Content 
+    @classNamesBuilder={{this.classNamesBuilder}}
+  />
 
 </div>

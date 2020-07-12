@@ -57,6 +57,7 @@ const
 */
 
 interface IScrollPortBehaviorArgs extends IScrollPortArgs {
+  owner: object,
   classNamesBuilder?: ClassNamesBuilder
 }
 
@@ -156,8 +157,8 @@ class ScrollPortBehavior {
   bar: Bar | null = null
 
   get classNamesBuilder() {
-    if (this.parentElement instanceof ScrollPort) {
-      return this.parentElement.classNamesBuilder;
+    if (this.owner instanceof ScrollPort) {
+      return this.owner.classNamesBuilder;
     }
 
     if (this.args.classNamesBuilder) {
@@ -196,8 +197,8 @@ class ScrollPortBehavior {
     return this.args.scrollAxis;
   }
 
-  get parentElement() {
-    return this.args.parentElement;
+  get owner() {
+    return this.args.owner;
   }
 
   get scrollX() {
@@ -385,9 +386,9 @@ class ScrollPortBehavior {
   private updatePublicProperties(
     dim: Readonly<IDimensions>
   ) {
-    if (this.parentElement instanceof ScrollPort) {
-      this.parentElement.isX = dim.isX;
-      this.parentElement.isY = dim.isY;
+    if (this.owner instanceof ScrollPort) {
+      this.owner.isX = dim.isX;
+      this.owner.isY = dim.isY;
     }
   }
 

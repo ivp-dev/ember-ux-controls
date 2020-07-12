@@ -1,6 +1,6 @@
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem'
-import { ScrollPort } from '../component';
+import { computed } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
@@ -18,17 +18,13 @@ class Screen extends UXElement<IScreenArgs> {
     super(owner, args, props);
   }
 
+  @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
-    if (this.parentElement instanceof ScrollPort) {
-      return this.parentElement.classNamesBuilder;
-    }
-
     return (
       this.args.classNamesBuilder ??
       this.props?.classNamesBuilder
     );
   }
-
 
   get classNames() {
     if (this.classNamesBuilder) {

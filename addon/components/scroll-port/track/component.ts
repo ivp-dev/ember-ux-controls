@@ -1,7 +1,7 @@
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
 import { Axes } from 'ember-ux-core/common/types';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem'
-import { ScrollPort } from '../component';
+import { computed } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
@@ -20,14 +20,19 @@ export class Track extends UXElement<ITrackArgs> {
     super(owner, args, props);
   }
 
+  @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
-    if (this.parentElement instanceof ScrollPort) {
-      return this.parentElement.classNamesBuilder;
-    }
-
     return (
       this.args.classNamesBuilder ??
       this.props?.classNamesBuilder
+    );
+  }
+
+  @computed('args.{axis}')
+  get axis() {
+    return (
+      this.args.axis ??
+      this.props?.axis
     );
   }
 
@@ -35,7 +40,7 @@ export class Track extends UXElement<ITrackArgs> {
     : string {
     if (this.classNamesBuilder) {
       return `${this.classNamesBuilder('track', {
-        [`$${this.args.axis}`]: typeof this.args.axis !== 'undefined'
+        [`$${this.axis}`]: typeof this.axis !== 'undefined'
       })}`;
     }
     return ''
