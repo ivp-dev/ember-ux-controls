@@ -18,6 +18,7 @@ interface ITabControlItemArgs extends IUXElementArgs {
   item?: unknown,
   header?: unknown,
   content?: unknown,
+  hasItemsSource?: boolean
   contentTemplateName?: string
   headerTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
@@ -26,9 +27,10 @@ interface ITabControlItemArgs extends IUXElementArgs {
 export class TabControlItem extends UXElement<ITabControlItemArgs> {
   constructor(
     owner: any,
-    args: ITabControlItemArgs
+    args: ITabControlItemArgs,
+    props?: ITabControlItemArgs
   ) {
-    super(owner, args);
+    super(owner, args, props);
 
     this._openNode = document.createTextNode('');
     this._closeNode = document.createTextNode('');
@@ -50,6 +52,12 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   public get classNamesBuilder()
     : ClassNamesBuilder | undefined {
     return this.args.classNamesBuilder ?? this.props?.classNamesBuilder;
+  }
+
+  @computed('args.{hasItemsSource}')
+  public get hasItemsSource()
+    : boolean | undefined {
+    return this.args.hasItemsSource ?? this.props?.hasItemsSource;
   }
 
   @computed('args.{isSelected}')
@@ -94,14 +102,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
       this._isSelected = value;
       notifyPropertyChange(this, 'isSelected');
     }
-  }
-
-  public get hasItemsSource()
-    : boolean {
-    return (
-      this.logicalParent instanceof TabControl &&
-      this.logicalParent.hasItemsSource
-    );
   }
 
   public get classNames()
@@ -150,6 +150,7 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
       parent instanceof TabControl &&
       !parent.hasItemsSource
     ) {
+      
       scheduleOnce('afterRender', this, () => {
         parent.addChild(this);
       })
@@ -157,7 +158,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
 
     this.html = element;
   }
-
 
   @action
   public onSelectionChanged()

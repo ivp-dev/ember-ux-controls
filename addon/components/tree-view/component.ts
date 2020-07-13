@@ -166,6 +166,18 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     );
   }
 
+  protected get root() {
+    return this._root;
+  }
+
+  protected set root(
+    value: TreeView | null
+  ) {
+    if (this._root !== value) {
+      this._root = value;
+    }
+  }
+
   public createContainerForItem()
     : TreeViewItemModel {
     return new TreeViewItemModel();
@@ -310,13 +322,16 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
         this.onRootSelectionChanged
       );
 
-      this._root = root;
+      this.root = root;
     }
   }
 
   private onRootSelectionChanged(
     args: TreeViewRootSelectionChangedEventArgs
   ) {
+
+    debugger
+
     if (
       !this.multipleSelectionEnable &&
       this.logicalParent instanceof TreeView &&
@@ -338,15 +353,17 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   public changeSelection(
     isSelected: boolean
   ) {
-    if (this.logicalParent instanceof TreeView) {
+    if (
+      this.logicalParent instanceof TreeView
+    ) {
       if (isSelected) {
         this.logicalParent.onSelect(this.container);
       } else {
         this.logicalParent.onUnselect(this.container);
       }
 
-      if (this._root) {
-        this._root.eventHandler.emitEvent(
+      if (this.root) {
+        this.root.eventHandler.emitEvent(
           new TreeViewRootSelectionChangedEventArgs(
             this,
             isSelected
@@ -375,7 +392,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       root = this.findRoot(
         Reflect.get(
           parentElement,
-          'parentTreeView'
+          'logicalParent'
         )
       );
     }

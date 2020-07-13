@@ -10,6 +10,7 @@ interface ITabPaneArgs extends IPanelArgs {
   scrollable?: boolean
   scrollAxis?: Axes
   hasItemsSource?: boolean
+  itemTemplateName?: string
   headerTemplateName?: string
   contentTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
@@ -22,6 +23,15 @@ export class TabPane extends Panel<ITabPaneArgs> {
     props?: ITabPaneArgs
   ) {
     super(owner, args, props);
+  }
+
+  @computed('args.{itemTemplateName}')
+  public get itemTemplateName()
+    : string | undefined {
+    return (
+      this.args.itemTemplateName ||
+      this.props?.itemTemplateName
+    );
   }
 
   @computed('args.{headerTemplateName}')

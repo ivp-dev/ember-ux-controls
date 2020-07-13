@@ -74,15 +74,6 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
     }
     return '';
   }
-
-  public get parentTreeView()
-    : TreeView | null {
-    if (this.parentItemsControl instanceof TreeView) {
-      return this.parentItemsControl;
-    }
-
-    return null;
-  }
 }
 
 export default TreeViewPane.RegisterTemplate(layout);
