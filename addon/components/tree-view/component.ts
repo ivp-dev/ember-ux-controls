@@ -329,9 +329,6 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   private onRootSelectionChanged(
     args: TreeViewRootSelectionChangedEventArgs
   ) {
-
-    debugger
-
     if (
       !this.multipleSelectionEnable &&
       this.logicalParent instanceof TreeView &&
