@@ -3,17 +3,15 @@ import { action } from '@ember/object';
 import { on, off, appendBetween } from 'ember-ux-core/utils/dom';
 import { scheduleOnce } from '@ember/runloop';
 import { TabControl } from '../component';
-import Tab from 'ember-ux-controls/common/classes/tab-item-model';
+import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 // @ts-ignore
 import layout from './template';
 
-
-
 interface ITabControlItemArgs extends IUXElementArgs {
-  container?: Tab,
+  container?: TabItemModel,
   isSelected?: boolean
   item?: unknown,
   header?: unknown,
@@ -91,9 +89,16 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     );
   }
 
+  public set item(value: unknown) {
+    if(this._item !== value) {
+      this._item = value;
+      notifyPropertyChange(this, 'item');
+    }
+  }
+
   @computed('args.{container}')
   public get container()
-    : Tab | this {
+    : TabItemModel | this {
     return this.args.container ?? this;
   }
 
@@ -208,6 +213,7 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     }
   }
 
+  private _item: unknown
   private _openNode: Node
   private _closeNode: Node
   private _html: HTMLElement | null = null;

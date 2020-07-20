@@ -12,25 +12,13 @@
     @headerTemplateName={{this.headerTemplateName}}
     @contentTemplateName={{this.contentTemplateName}}
     @classNamesBuilder={{this.classNamesBuilder}}
-  >
+  as |Tabs|>
     {{#unless this.hasItemsSource}}
-      {{yield (
-        hash
-          Tab=(
-            component 
-            this.itemTemplateName
-            header=@header
-            visualParent=this
-            contentTemplateName=this.contentTemplateName
-            headerTemplateName=this.headerTemplateName
-            classNamesBuilder=this.classNamesBuilder
-          )
-        )
-      }}
+      {{yield Tabs}}
     {{/unless}}
   </TabControl::TabPane>
 
-  <TabControl::Content 
+  <TabControl::Content
     @classNamesBuilder={{this.classNamesBuilder}}
   />
 

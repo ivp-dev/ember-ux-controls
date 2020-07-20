@@ -156,13 +156,9 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     let
       item: unknown;
 
-    item = this.readItemFromContainer(container)
+    item = this.readItemFromContainer(container);
 
-    if (this.itemItsOwnContainer(item)) {
-      return;
-    }
-
-    if (!(container instanceof TabItemModel)) {
+    if (!(isHeaderContentElement(container))) {
       return;
     }
 
@@ -185,8 +181,8 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     /*item: unknown*/
   ): void {
     container.item = null;
-    container.content = null;
-    container.header = null;
+    //container.content = null;
+    //container.header = null;
   }
 
   public linkContainerToItem(
@@ -204,7 +200,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public readItemFromContainer(
     container: unknown
   ): unknown {
-    if (container instanceof TabItemModel) {
+    if (container instanceof TabItemModel || container instanceof TabControlItem) {
       return container.item;
     }
     return container;

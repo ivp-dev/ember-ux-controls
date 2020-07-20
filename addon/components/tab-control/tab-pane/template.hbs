@@ -55,12 +55,24 @@
           <div
             class="{{this.scrollPortClassNames}}"
           >
-            {{yield}}
+            {{yield (hash Tab=(component 
+              this.itemTemplateName
+              logicalParent=this.visualParent
+              headerTemplateName=this.headerTemplateName
+              contentTemplateName=this.contentTemplateName
+              classNamesBuilder=this.classNamesBuilder))
+            }}
           </div>
         </Port.Content>
       </ScrollPort>
     {{else}}
-      {{yield}}
+      {{yield (hash Tab=(component 
+        this.itemTemplateName
+        logicalParent=this.visualParent
+        headerTemplateName=this.headerTemplateName
+        contentTemplateName=this.contentTemplateName
+        classNamesBuilder=this.classNamesBuilder))
+      }}
     {{/if}}
   {{/if}}
 </div>
