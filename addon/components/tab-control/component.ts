@@ -11,6 +11,7 @@ import { notifyPropertyChange } from '@ember/object';
 import { find } from 'ember-ux-core/utils/dom'
 import { action } from '@ember/object';
 import { assign } from '@ember/polyfills';
+import { addObserver } from '@ember/object/observers';
 // @ts-ignore
 import layout from './template';
 
@@ -149,14 +150,14 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public prepareItemContainer(
-    container: unknown
+    container: TabControlItem | TabItemModel
   ): void {
     let
       item: unknown;
 
     item = this.readItemFromContainer(container);
 
-    if (!(isHeaderContentElement(container))) {
+    if (this.itemItsOwnContainer(item)) {
       return;
     }
 
@@ -179,8 +180,8 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     /*item: unknown*/
   ): void {
     container.item = null;
-    //container.content = null;
-    //container.header = null;
+    container.content = null;
+    container.header = null;
   }
 
   public linkContainerToItem(
@@ -188,8 +189,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     item: unknown
   ): void {
     if (
-      !this.itemItsOwnContainer(item) &&
-      container instanceof TabItemModel
+      !this.itemItsOwnContainer(item) && (
+        container instanceof TabItemModel || 
+        container instanceof TabControlItem
+      )
     ) {
       container.item = item;
     }
@@ -198,7 +201,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public readItemFromContainer(
     container: unknown
   ): unknown {
-    if (container instanceof TabItemModel || container instanceof TabControlItem) {
+    if (
+      container instanceof TabItemModel || 
+      container instanceof TabControlItem
+    ) {
       return container.item;
     }
     return container;

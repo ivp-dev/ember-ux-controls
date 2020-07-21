@@ -7,6 +7,7 @@ import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { next } from '@ember/runloop';
 // @ts-ignore
 import layout from './template';
 
@@ -68,24 +69,39 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   public get header()
     : unknown {
     return (
+      this._header ??
       this.args.header
     );
+  }
+
+  public set header(value: unknown) {
+    if(this.header !== value) {
+      this._header = value;
+      notifyPropertyChange(this, 'header')
+    }
   }
 
   @computed('args.{content}')
   public get content()
     : unknown {
     return (
+      this._content??
       this.args.content
     );
+  }
+
+  public set content(value: unknown) {
+    if(this.content !== value) {
+      this._content = value;
+      notifyPropertyChange(this, 'content')
+    }
   }
 
   @computed('args.{item}')
   public get item()
     : unknown | this {
     return (
-      this.args.item ??
-      this
+      this._item ?? this
     );
   }
 
@@ -155,10 +171,9 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
       parent instanceof TabControl &&
       !parent.hasItemsSource
     ) {
-      
-      scheduleOnce('afterRender', this, () => {
+      next(this, () => {
         parent.addChild(this);
-      })
+      }); 
     }
 
     this.html = element;
@@ -214,6 +229,8 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   }
 
   private _item: unknown
+  private _content: unknown
+  private _header: unknown
   private _openNode: Node
   private _closeNode: Node
   private _html: HTMLElement | null = null;
