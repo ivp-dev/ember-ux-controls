@@ -34,8 +34,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   ) {
     super(owner, args, assign({
       itemTemplateName: 'tab-control/tab-item',
-      headerTemplateName: 'tab-control/header',
-      contentTemplateName: 'tab-control/content/presenter',
       direction: Direction.Forward,
       scrollable: false,
       side: Side.Top,

@@ -3,11 +3,15 @@
   class={{this.classNames}} 
   {{did-insert this.didInsert}}
 >
-  {{component 
-    this.headerTemplateName 
-    header=this.header
-    classNamesBuilder=this.classNamesBuilder
-  }}
+  {{#if this.headerTemplateName}}
+    {{component 
+      this.headerTemplateName 
+      header=this.header
+      classNamesBuilder=this.classNamesBuilder
+    }}
+  {{else}}
+    {{this.header}}
+  {{/if}}
 </a>
 
 {{#if this.isSelected}}
@@ -16,11 +20,15 @@
   >
     {{this.openNode}}
       {{#if this.hasItemsSource}}
-        {{component 
-          this.contentTemplateName
-          content=this.content
-          classNamesBuilder=this.classNamesBuilder
-        }}
+        {{#if this.contentTemplateName}}
+          {{component 
+            this.contentTemplateName
+            content=this.content
+            classNamesBuilder=this.classNamesBuilder
+          }}
+        {{else}}
+          {{this.content}}
+        {{/if}}
       {{else}}
         {{yield}}
       {{/if}}
