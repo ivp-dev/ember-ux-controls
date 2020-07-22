@@ -10,19 +10,18 @@
             class="{{this.scrollPortClassNames}}"
           >
             {{#each this.children as |container|}}
-              {{component 
-                  this.itemTemplateName
-                  visualParent=this
-                  logicalParent=this.logicalParent
-                  hasItemsSource=this.hasItemsSource
-                  container=container
-                  isSelected=container.isSelected
-                  item=container.item
-                  header=container.header
-                  content=container.content
-                  classNamesBuilder=this.classNamesBuilder
-                  headerTemplateName=this.headerTemplateName
-                  contentTemplateName=this.contentTemplateName
+              {{component this.itemTemplateName
+                visualParent=this
+                logicalParent=this.logicalParent
+                hasItemsSource=this.hasItemsSource
+                container=container
+                isSelected=container.isSelected
+                item=container.item
+                header=container.header
+                content=container.content
+                classNamesBuilder=this.classNamesBuilder
+                headerTemplateName=this.headerTemplateName
+                contentTemplateName=this.contentTemplateName
               }}
             {{/each}}
           </div>
@@ -30,8 +29,7 @@
       </ScrollPort>
     {{else}}
       {{#each this.children as |container|}}
-       {{component 
-          this.itemTemplateName
+        {{component this.itemTemplateName
           visualParent=this
           logicalParent=this.logicalParent
           hasItemsSource=this.hasItemsSource

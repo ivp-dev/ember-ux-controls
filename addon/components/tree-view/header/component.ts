@@ -9,10 +9,7 @@ interface ITreeViewHeaderArgs extends IUXElementArgs {
 
 export class TreeViewHeader extends UXElement<ITreeViewHeaderArgs> {
   public get classNamesBuilder() {
-    return (
-      this.args.classNamesBuilder ?? 
-      this.props?.classNamesBuilder
-    );
+    return this.args.classNamesBuilder;
   }
 
   public get classNames()

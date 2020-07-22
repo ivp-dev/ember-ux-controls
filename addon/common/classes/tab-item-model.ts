@@ -2,9 +2,6 @@ import { ISelectable } from 'ember-ux-core/common/types'
 import { notifyPropertyChange } from '@ember/object';
 
 export default class TabItemModel implements ISelectable {
-  constructor(
-  ) { }
-
   public get item() {
     return this._item;
   }

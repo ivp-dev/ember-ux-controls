@@ -1,10 +1,9 @@
 <div class={{this.classNames}}>
   {{#if this.hasItemsSource}}
     {{#each this.children as |container|}}
-      {{component 
-        this.itemTemplateName
+      {{component this.itemTemplateName
         visualParent=this
-        logicalParent=this.logicalParent
+        logicalParent=this.visualParent
         isRoot=this.isRoot
         isExpanded=this.isExpanded
         item=container.item

@@ -19,73 +19,51 @@ interface ITabPaneArgs extends IPanelArgs {
 export class TabPane extends Panel<ITabPaneArgs> {
   constructor(
     owner: any,
-    args: ITabPaneArgs,
-    props?: ITabPaneArgs
+    args: ITabPaneArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   @computed('args.{itemTemplateName}')
   public get itemTemplateName()
     : string | undefined {
-    return (
-      this.args.itemTemplateName ||
-      this.props?.itemTemplateName
-    );
+    return this.args.itemTemplateName;
   }
 
   @computed('args.{headerTemplateName}')
   public get headerTemplateName()
     : string | undefined {
-    return (
-      this.args.headerTemplateName ||
-      this.props?.headerTemplateName
-    );
+    return  this.args.headerTemplateName;
   }
 
   @computed('args.{contentTemplateName}')
   public get contentTemplateName()
     : string | undefined {
-    return (
-      this.args.contentTemplateName ||
-      this.props?.contentTemplateName
-    );
+    return this.args.contentTemplateName;
   }
 
   @computed('args.{scrollable}')
   public get scrollable()
     : boolean | undefined {
-    return (
-      this.args.scrollable ||
-      this.props?.scrollable
-    );
+    return this.args.scrollable;
   }
 
   @computed('args.{hasItemsSource}')
   public get hasItemsSource()
     : boolean | undefined {
-    return (
-      this.args.hasItemsSource ||
-      this.props?.hasItemsSource
-    );
+    return this.args.hasItemsSource;
   }
 
   @computed('args.{scrollAxis}')
   public get scrollAxis()
     : Axes | undefined {
-    return (
-      this.args.scrollAxis ??
-      this.props?.scrollAxis
-    );
+    return this.args.scrollAxis;
   }
 
   @computed('args.{classNamesBuilder}')
   public get classNamesBuilder()
     : ClassNamesBuilder | undefined {
-    return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
-    );
+    return this.args.classNamesBuilder;
   }
 
   public get scrollPortClassNames()

@@ -1,10 +1,7 @@
 import Panel, { IPanelArgs } from 'ember-ux-core/components/panel';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import { TreeView } from '../component';
 // @ts-ignore
 import layout from './template';
-
-
 
 interface ITreeViewPaneArgs extends IPanelArgs {
   isRoot?: boolean,
@@ -18,52 +15,33 @@ interface ITreeViewPaneArgs extends IPanelArgs {
 export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
   constructor(
     owner: any,
-    args: ITreeViewPaneArgs,
-    props?: ITreeViewPaneArgs
+    args: ITreeViewPaneArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   public get classNamesBuilder() {
-    return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
-    )
+    return this.args.classNamesBuilder
   }
 
   public get itemTemplateName() {
-    return (
-      this.args.itemTemplateName ??
-      this.props?.itemTemplateName
-    )
+    return this.args.itemTemplateName;
   }
 
   public get hasItemsSource() {
-    return (
-      this.args.hasItemsSource ??
-      this.props?.hasItemsSource
-    )
+    return this.args.hasItemsSource;
   }
 
   public get isExpanded() {
-    return (
-      this.args.isExpanded ??
-      this.props?.isExpanded
-    )
+    return this.args.isExpanded;
   }
 
   public get isRoot() {
-    return (
-      this.args.isRoot ?? 
-      this.props?.isRoot
-    );
+    return this.args.isRoot;
   }
 
   public get multipleSelectionEnable() {
-    return (
-      this.args.multipleSelectionEnable ??
-      this.props?.multipleSelectionEnable
-    )
+    return this.args.multipleSelectionEnable;
   }
 
   public get classNames() {

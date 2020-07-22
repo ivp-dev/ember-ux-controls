@@ -1,15 +1,12 @@
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-core/components/select-items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
-import EmberArray from '@ember/array';
 import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types';
 import { A } from '@ember/array';
 import { action } from '@ember/object';
-import { scheduleOnce } from '@ember/runloop';
+import { next } from '@ember/runloop';
 import { notifyPropertyChange } from '@ember/object';
-import { TreeViewPane } from 'ember-ux-controls/components/tree-view/pane/component';
 import { computed } from '@ember/object';
-import { assign } from '@ember/polyfills';
 
 // @ts-ignore
 import layout from './template';
@@ -31,26 +28,38 @@ export interface ITreeViewArgs extends ISelectItemsControlArgs {
   expanderTemplateName?: string,
   hasItemsSource?: boolean
   getHeader?: (data: unknown) => unknown
-  getItems?: (data: unknown) => EmberArray<unknown>
+  getItems?: (data: unknown) => Array<unknown>
 }
 
 export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   constructor(
     owner: unknown,
-    args: ITreeViewArgs,
-    props?: ITreeViewArgs
+    args: ITreeViewArgs
   ) {
-    super(owner, args, assign({
-      itemTemplateName: 'tree-view',
-      titleTemplateName: 'tree-view/title',
-      headerTemplateName: 'tree-view/header',
-      expanderTemplateName: 'tree-view/expander'
-    }, props ?? {}));
+    super(owner, args);
+
+    this.itemTemplateName = 'tree-view';
+    this.titleTemplateName = 'tree-view/title';
+    this.headerTemplateName = 'tree-view/header';
+    this.expanderTemplateName = 'tree-view/expander';
   }
 
+  @computed('args.{header}')
   public get header()
     : unknown {
-    return this.args.header;
+    return (
+      this._header ??
+      this.args.header
+    );
+  }
+
+  public set header(
+    value: unknown
+  ) {
+    if (this.header !== value) {
+      this._header = value;
+      notifyPropertyChange(this, 'header')
+    }
   }
 
   @computed('args.container')
@@ -61,13 +70,21 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     )
   }
 
-  @computed('args.item')
+  @computed('args.{item}')
   public get item()
-    : unknown {
+    : unknown | this {
     return (
-      this.args.item ??
-      this
+      this._item ?? this
     );
+  }
+
+  public set item(
+    value: unknown
+  ) {
+    if (this._item !== value) {
+      this._item = value;
+      notifyPropertyChange(this, 'item');
+    }
   }
 
   public get isExpanded() {
@@ -93,6 +110,10 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ) {
     if (this._isSelected !== value) {
       this._isSelected = value;
+
+      if (this._skipIsSelectedBehavior) {
+        return;
+      }
 
       if (this._isSelected) {
         if (
@@ -130,7 +151,12 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return bem('tree-view');
   }
 
-  @computed('isRoot', 'isSelected')
+  @computed(
+    'isRoot',
+    'isSelected',
+    'hasSelectedItems',
+    'multipleSelectionEnable'
+  )
   public get classNames()
     : string {
     if (this.isRoot) {
@@ -138,7 +164,8 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     }
 
     return `${this.classNamesBuilder('item', {
-      [`$selected`]: this.isSelected
+      [`$selected`]: this.isSelected,
+      [`$partial-selected`]: this.multipleSelectionEnable && !this.isSelected && this.hasSelectedItems
     })}`;
   }
 
@@ -146,24 +173,52 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   public get titleTemplateName() {
     return (
       this.args.titleTemplateName ??
-      this.props?.titleTemplateName
+      this._titleTemplateName
     );
   }
+
+  public set titleTemplateName(
+    value: string | null
+  ) {
+    if (this._titleTemplateName !== value) {
+      this._titleTemplateName = value;
+      notifyPropertyChange(this, 'titleTemplateName')
+    }
+  }
+
 
   @computed('args.expanderTemplateName')
   public get expanderTemplateName() {
     return (
       this.args.expanderTemplateName ??
-      this.props?.expanderTemplateName
+      this._expanderTemplateName
     );
+  }
+
+  public set expanderTemplateName(
+    value: string | null
+  ) {
+    if (this._expanderTemplateName !== value) {
+      this._expanderTemplateName = value;
+      notifyPropertyChange(this, 'expanderTemplateName')
+    }
   }
 
   @computed('args.headerTemplateName')
   public get headerTemplateName() {
     return (
       this.args.headerTemplateName ??
-      this.props?.headerTemplateName
+      this._headerTemplateName
     );
+  }
+
+  public set headerTemplateName(
+    value: string | null
+  ) {
+    if (this._headerTemplateName !== value) {
+      this._headerTemplateName = value;
+      notifyPropertyChange(this, 'headerTemplateName')
+    }
   }
 
   protected get root() {
@@ -189,14 +244,15 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ): void {
     if (
       !this.itemItsOwnContainer(item) &&
-      container instanceof TreeViewItemModel
+      container instanceof TreeViewItemModel ||
+      container instanceof TreeView
     ) {
       container.item = item;
     }
   }
 
   public prepareItemContainer(
-    container: TreeViewItemModel
+    container: TreeViewItemModel | TreeView
   ): void {
     let
       item: unknown;
@@ -207,20 +263,24 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       return;
     }
 
-    if (!(container instanceof TreeViewItemModel)) {
-      return;
-    }
-
-    if (isHeaderElement(item)) {
-      container.header = item.header
-    } else if (typeof this.args.getHeader === 'function') {
+    if (typeof this.args.getHeader === 'function') {
       container.header = this.args.getHeader(item);
+    } else if (isHeaderElement(item)) {
+      container.header = item.header
     }
 
-    if (isItemsElement(item)) {
-      container.items = A(item.items)
-    } else if (typeof this.args.getItems === 'function') {
-      container.items = this.args.getItems(item);
+    if (typeof this.args.getItems === 'function') {
+      if (container instanceof TreeViewItemModel) {
+        container.items = A(this.args.getItems(item))
+      } else {
+        container.itemsSource = A(this.args.getItems(item))
+      }
+    } else if (isItemsElement(item)) {
+      if (container instanceof TreeViewItemModel) {
+        container.items = A(item.items)
+      } else {
+        container.itemsSource = A(item.items)
+      }
     }
   }
 
@@ -230,11 +290,10 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   ): void {
     container.item = null;
     container.header = null;
-    container.items = null;
   }
 
   public readItemFromContainer(
-    container: TreeViewItemModel
+    container: TreeViewItemModel | TreeView
   ): unknown {
     return container.item;
   }
@@ -256,6 +315,13 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       if (this.isSelected) {
         if (this.selectedItems.count === 0) {
           this.logicalParent.onUnselect(this.container);
+        } else if (this.selectedItems.count < this.items.count) {
+          try {
+            this._skipIsSelectedBehavior = true;
+            this.logicalParent.onUnselect(this.container);
+          } finally {
+            this._skipIsSelectedBehavior = false;
+          }
         }
       } else {
         if (this.selectedItems.count === this.items.count) {
@@ -274,11 +340,11 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
 
       this.setRoot(parent);
 
-      scheduleOnce('afterRender', this, () => {
+      next(this, () => {
         if (parent.hasItemsSource === false) {
           parent.addChild(this);
         }
-      });
+      })
     }
   }
 
@@ -397,9 +463,16 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return root;
   }
 
+  private _titleTemplateName: string | null = null
+  private _headerTemplateName: string | null = null
+  private _expanderTemplateName: string | null = null
+
   private _root: TreeView | null = null;
   private _isSelected: boolean = false;
   private _isExpanded: boolean = false;
+  private _skipIsSelectedBehavior: boolean = false;
+  private _item: unknown
+  private _header: unknown
 }
 
 function isItemsElement(obj: any)

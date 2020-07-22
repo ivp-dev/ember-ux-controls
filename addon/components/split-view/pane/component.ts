@@ -1,28 +1,28 @@
 import { guidFor } from '@ember/object/internals';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
-// @ts-ignore
-import layout from './template';
 import { SplitView } from '../component';
 import { action } from '@ember/object';
-import { scheduleOnce } from '@ember/runloop';
-import ItemsControl from 'ember-ux-core/components/items-control';
+import { next } from '@ember/runloop';
 import PaneModel from 'ember-ux-controls/common/classes/split-view-pane-model';
+// @ts-ignore
+import layout from './template';
+
 
 interface ISplitViewPaneArgs extends IUXElementArgs {
   pane?: PaneModel
   content?: unknown
   fixed?: boolean;
+  hasItemsSource?: boolean
   classNamesBuilder?: ClassNamesBuilder
 }
 
 export class Pane extends UXElement<ISplitViewPaneArgs> {
   constructor(
     owner: any,
-    args: ISplitViewPaneArgs,
-    props?: ISplitViewPaneArgs
+    args: ISplitViewPaneArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   public get fixed() {
@@ -30,16 +30,13 @@ export class Pane extends UXElement<ISplitViewPaneArgs> {
   }
 
   public get hasItemsSource()
-    : boolean {
-    return this.parentElement instanceof ItemsControl && this.parentElement.hasItemsSource
+    : boolean | undefined {
+    return this.args.hasItemsSource
   } 
 
   public get classNames()
     : string {
-    if (this.parentElement instanceof SplitView) {
-      return `${this.parentElement.classNamesBuilder('pane', { '$fixed': this.args.fixed })}`
-    }
-
+    
     if (this.args.classNamesBuilder) {
       return `${this.args.classNamesBuilder('pane', { '$fixed': this.args.fixed })}`;
     }
@@ -74,13 +71,13 @@ export class Pane extends UXElement<ISplitViewPaneArgs> {
     element: HTMLElement
   ): void {
     const
-      parentElement: unknown = this.parentElement;
+      parentElement: unknown = this.logicalParent;
 
     if (
       parentElement instanceof SplitView &&
       !parentElement.hasItemsSource
     ) {
-      scheduleOnce('afterRender', this, () => {
+      next(this, () => {
         parentElement.addChild(this);
       })
     }

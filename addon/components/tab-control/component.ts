@@ -10,8 +10,7 @@ import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import { notifyPropertyChange } from '@ember/object';
 import { find } from 'ember-ux-core/utils/dom'
 import { action } from '@ember/object';
-import { assign } from '@ember/polyfills';
-import { addObserver } from '@ember/object/observers';
+
 // @ts-ignore
 import layout from './template';
 
@@ -30,15 +29,11 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   constructor(
     owner: unknown,
-    args: ITabControlArgs,
-    props?: ITabControlArgs
+    args: ITabControlArgs
   ) {
-    super(owner, args, assign({
-      itemTemplateName: 'tab-control/tab-item',
-      direction: Direction.Forward,
-      scrollable: false,
-      side: Side.Top,
-    }, props ?? {}));
+    super(owner, args);
+
+    this.itemTemplateName = 'tab-control/tab-item';
 
     this.itemContainerGenerator.eventHandler.addEventListener(
       this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
@@ -63,25 +58,19 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   @computed('args.{contentTemplateName}')
   public get contentTemplateName() {
-    return (
-      this.args.contentTemplateName ??
-      this.props?.contentTemplateName
-    );
+    return this.args.contentTemplateName;
   }
 
   @computed('args.{headerTemplateName}')
   public get headerTemplateName() {
-    return (
-      this.args.headerTemplateName ??
-      this.props?.headerTemplateName
-    );
+    return this.args.headerTemplateName;
   }
 
   @computed('args.{direction}')
   public get direction() {
     return (
       this.args.direction ??
-      this.props?.direction
+      Direction.Forward
     );
   }
 
@@ -89,7 +78,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public get scrollable() {
     return (
       this.args.scrollable ??
-      this.props?.scrollable
+      false
     );
   }
 
@@ -97,7 +86,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public get side() {
     return (
       this.args.side ??
-      this.props?.side
+      Side.Top
     );
   }
 
@@ -144,8 +133,13 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return result;
   }
 
-  public createContainerForItem()
+  public createContainerForItem(
+    _item: unknown
+  )
     : TabItemModel {
+    //it`s better to create new component as a container, 
+    //but unfortunately it's impossible in code. This question
+    //mentioned in https://github.com/emberjs/rfcs/issues/434
     return new TabItemModel();
   }
 
@@ -190,7 +184,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   ): void {
     if (
       !this.itemItsOwnContainer(item) && (
-        container instanceof TabItemModel || 
+        container instanceof TabItemModel ||
         container instanceof TabControlItem
       )
     ) {
@@ -202,7 +196,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     container: unknown
   ): unknown {
     if (
-      container instanceof TabItemModel || 
+      container instanceof TabItemModel ||
       container instanceof TabControlItem
     ) {
       return container.item;

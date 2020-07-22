@@ -26,43 +26,43 @@ interface ITabControlItemArgs extends IUXElementArgs {
 export class TabControlItem extends UXElement<ITabControlItemArgs> {
   constructor(
     owner: any,
-    args: ITabControlItemArgs,
-    props?: ITabControlItemArgs
+    args: ITabControlItemArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
 
     this._openNode = document.createTextNode('');
     this._closeNode = document.createTextNode('');
   }
 
+  @computed('args.{container}')
+  public get container()
+    : TabItemModel | this {
+    return this.args.container ?? this;
+  }
+
+
   @computed('args.{headerTemplateName}')
   public get headerTemplateName()
     : string | undefined {
-    return this.args.headerTemplateName ?? this.props?.contentTemplateName;
+    return this.args.headerTemplateName;
   }
 
   @computed('args.{contentTemplateName}')
   public get contentTemplateName()
     : string | undefined {
-    return this.args.contentTemplateName ?? this.props?.contentTemplateName;
+    return this.args.contentTemplateName;
   }
 
   @computed('args.{classNamesBuilder}')
   public get classNamesBuilder()
     : ClassNamesBuilder | undefined {
-    return this.args.classNamesBuilder ?? this.props?.classNamesBuilder;
+    return this.args.classNamesBuilder;
   }
 
   @computed('args.{hasItemsSource}')
   public get hasItemsSource()
     : boolean | undefined {
-    return this.args.hasItemsSource ?? this.props?.hasItemsSource;
-  }
-
-  @computed('args.{isSelected}')
-  public get isSelected()
-    : boolean {
-    return this.args.isSelected ?? this._isSelected;
+    return this.args.hasItemsSource;
   }
 
   @computed('args.{header}')
@@ -74,8 +74,10 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     );
   }
 
-  public set header(value: unknown) {
-    if(this.header !== value) {
+  public set header(
+    value: unknown
+  ) {
+    if (this.header !== value) {
       this._header = value;
       notifyPropertyChange(this, 'header')
     }
@@ -85,13 +87,15 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   public get content()
     : unknown {
     return (
-      this._content??
+      this._content ??
       this.args.content
     );
   }
 
-  public set content(value: unknown) {
-    if(this.content !== value) {
+  public set content(
+    value: unknown
+  ) {
+    if (this.content !== value) {
       this._content = value;
       notifyPropertyChange(this, 'content')
     }
@@ -105,17 +109,22 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     );
   }
 
-  public set item(value: unknown) {
-    if(this._item !== value) {
+  public set item(
+    value: unknown
+  ) {
+    if (this._item !== value) {
       this._item = value;
       notifyPropertyChange(this, 'item');
     }
   }
 
-  @computed('args.{container}')
-  public get container()
-    : TabItemModel | this {
-    return this.args.container ?? this;
+  @computed('args.{isSelected}')
+  public get isSelected()
+    : boolean {
+    return (
+      this.args.isSelected ??
+      this._isSelected
+    );
   }
 
   public set isSelected(value: boolean) {
@@ -173,7 +182,7 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     ) {
       next(this, () => {
         parent.addChild(this);
-      }); 
+      });
     }
 
     this.html = element;

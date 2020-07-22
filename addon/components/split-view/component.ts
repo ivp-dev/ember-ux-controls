@@ -34,10 +34,9 @@ export interface ISplitViewArgs extends IItemsControlArgs {
 export class SplitView extends ItemsControl<ISplitViewArgs> {
   constructor(
     owner: any,
-    args: ISplitViewArgs,
-    props?: ISplitViewArgs
+    args: ISplitViewArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   public get itemTemplateName() {
@@ -61,7 +60,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
     : boolean {
     return (
       this.args.responsive ??
-      this.props?.responsive ??
       false
     );
   }
@@ -70,7 +68,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
     : boolean {
     return (
       this.args.fluent ??
-      this.props?.fluent ??
       false
     );
   }
@@ -82,7 +79,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
 
     return (
       this.args.barSize ??
-      this.props?.barSize ??
       barSize
     );
   }
@@ -94,7 +90,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
 
     return (
       this.args.minPaneSize ??
-      this.props?.minPaneSize ??
       minPaneSize
     );
   }
@@ -103,7 +98,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
     : Axes {
     return (
       this.args.axis ??
-      this.props?.axis ??
       Axes.X
     );
   }

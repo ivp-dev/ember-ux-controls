@@ -1,9 +1,5 @@
 import UXElement, { IUXElementArgs } from "ember-ux-core/components/ux-element";
-import {
-  Axes,
-  Side,
-  Size
-} from 'ember-ux-core/common/types';
+import { Axes, Side, Size} from 'ember-ux-core/common/types';
 import { camelize } from '@ember/string';
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 // @ts-ignore
@@ -46,7 +42,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
     : boolean {
     return (
       this.args.responsive ??
-      this.props?.responsive ??
       false
     );
   }
@@ -55,7 +50,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
     : boolean {
     return (
       this.args.fluent ??
-      this.props?.fluent ??
       false
     );
   }
@@ -67,7 +61,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
 
     return (
       this.args.barSize ??
-      this.props?.barSize ??
       barSize
     );
   }
@@ -79,7 +72,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
 
     return (
       this.args.minPaneSize ??
-      this.props?.minPaneSize ??
       minPaneSize
     );
   }
@@ -88,7 +80,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
     : Axes {
     return (
       this.args.axis ??
-      this.props?.axis ??
       Axes.X
     );
   }

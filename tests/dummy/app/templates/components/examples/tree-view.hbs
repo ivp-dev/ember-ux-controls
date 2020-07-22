@@ -20,6 +20,14 @@
               <Input @type="checkbox" @checked={{this.multipleSelectionEnable}}/>
             </div>
           </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@itemsSource</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.itemsSourceEnable}}/>
+            </div>
+          </div>
         </div>
       </div>
     </Splitter.Pane>
@@ -27,6 +35,7 @@
       <ComponentObserver>
         <TreeView 
           @multipleSelectionEnable={{this.multipleSelectionEnable}} 
+          @itemsSource={{this.itemsSource}}
           as |Tree|  
         >
           <Tree.Item @header="Level 1" 
@@ -47,14 +56,6 @@
           </Tree.Item>
           <Tree.Item @header="Level 2"/>
         </TreeView>
-        
-        <br/>
-        
-        <TreeView 
-          @itemsSource={{@tree}} 
-          @multipleSelectionEnable={{this.multipleSelectionEnable}} 
-        />
-        
       </ComponentObserver>
     </Splitter.Pane>
   </SplitView::Light>

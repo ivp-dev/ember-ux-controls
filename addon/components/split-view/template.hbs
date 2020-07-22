@@ -9,17 +9,14 @@
   ...attributes
   >
   <SplitView::SplitPanel
-    @parentElement={{this}}
+    @visualParent={{this}}
+    @hasItemsSource={{this.hasItemsSource}}
   >
     {{#unless this.hasItemsSource}}
-      {{yield (
-        hash
-          Pane=(
-            component this.itemTemplateName
-            parentElement=this
-            content=@content
-          )
-        )
+      {{yield (hash Pane=(
+        component this.itemTemplateName
+        visualParent=this
+        content=@content))
       }}
     {{/unless}}
   </SplitView::SplitPanel>
