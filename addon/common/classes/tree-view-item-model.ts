@@ -3,6 +3,8 @@ import { notifyPropertyChange } from '@ember/object';
 import { TreeView } from 'ember-ux-controls/components/tree-view/component';
 
 class TreeViewItemModel {
+  
+
   public get item() {
     return this._item;
   }
@@ -51,6 +53,11 @@ class TreeViewItemModel {
   ) {
     if (this._isSelected !== value) {
       this._isSelected = value;
+
+      if(this.item instanceof TreeView) {
+        this.item.onSelectPropertyChanged(value);
+      }
+
       notifyPropertyChange(this, 'isSelected');
     }
   }

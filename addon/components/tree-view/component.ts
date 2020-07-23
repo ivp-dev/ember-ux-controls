@@ -61,8 +61,9 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return container;
   }
 
+  @computed('args.header')
   public get header() {
-    return this._header ?? this.args.header ;
+    return this.args.header ?? this._header;
   }
 
   public set header(
@@ -75,7 +76,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   }
 
   public get isSelected() {
-    return this._isSelected ?? this.args.isSelected;
+    return this.args.isSelected ?? this._isSelected;
   }
 
   public set isSelected(
@@ -88,7 +89,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   }
 
   public get isExpanded() {
-    return this._isExpanded ?? this.args.isExpanded;
+    return this.args.isExpanded ?? this._isExpanded;
   }
 
   public set isExpanded(
@@ -199,8 +200,8 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
 
   public itemItsOwnContainer(
     item: unknown
-  ): item is TreeViewItemModel {
-    return item instanceof TreeViewItemModel;
+  ): item is TreeView {
+    return item instanceof TreeView;
   }
 
   public createContainerForItem()
@@ -222,6 +223,10 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       item: unknown;
 
     item = this.readItemFromContainer(container);
+
+    if(this.itemItsOwnContainer(item)) {
+      return;
+    }
 
     if (typeof this.args.getHeader === 'function') {
       container.header = this.args.getHeader(item);
@@ -294,7 +299,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
 
       next(this, () => {
         if (parent.hasItemsSource === false) {
-          parent.addChild(this.container);
+          parent.addChild(this);
         }
       })
     }

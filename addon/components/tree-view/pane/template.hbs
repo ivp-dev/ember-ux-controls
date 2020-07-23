@@ -1,17 +1,18 @@
 <div class={{this.classNames}}>
   {{#if this.hasItemsSource}}
-    {{#each this.children as |container|}}
-      {{component this.itemTemplateName
-        visualParent=this
-        logicalParent=this.visualParent
-        isRoot=this.isRoot
-        isSelected=container.isSelected
-        isExpanded=container.isExpanded
-        header=container.header
-        itemsSource=container.itemsSource
-        multipleSelectionEnable=this.multipleSelectionEnable
-      }}
-    {{/each}}
+    {{#let (component this.itemTemplateName) as |template|}}
+      {{#each this.children as |container|}}
+        {{template
+          visualParent=this
+          logicalParent=this.visualParent
+          isRoot=this.isRoot
+          container=container
+          header=container.header
+          itemsSource=container.itemsSource
+          multipleSelectionEnable=this.multipleSelectionEnable
+        }}
+      {{/each}}
+    {{/let}}
   {{else}}
     {{yield}}
   {{/if}}
