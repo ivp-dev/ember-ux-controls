@@ -1,10 +1,8 @@
-import EmberArray from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
-import { TreeView } from 'ember-ux-controls/components/tree-view/component';
+import NativeArray from "@ember/array/-private/native-array";
 
 class TreeViewItemModel {
-  
-
+ 
   public get item() {
     return this._item;
   }
@@ -23,7 +21,7 @@ class TreeViewItemModel {
   }
 
   public set itemsSource(
-    value: EmberArray<unknown> | null
+    value: NativeArray<unknown> | null
   ) {
     if (this._itemsSource !== value) {
       this._itemsSource = value;
@@ -53,11 +51,6 @@ class TreeViewItemModel {
   ) {
     if (this._isSelected !== value) {
       this._isSelected = value;
-
-      if(this.item instanceof TreeView) {
-        this.item.onSelectPropertyChanged(value);
-      }
-
       notifyPropertyChange(this, 'isSelected');
     }
   }
@@ -75,46 +68,11 @@ class TreeViewItemModel {
     }
   }
 
-  public static Create(): TreeViewItemModel {
-    let
-      instance = new this();
-
-    return new Proxy(instance, {
-      get: function (
-        target: TreeViewItemModel,
-        prop: keyof TreeViewItemModel
-      ) {
-
-        if (target.item instanceof TreeView && Reflect.has(target.item, prop)) {
-          return Reflect.get(target.item, prop);
-        }
-
-        return target[prop];
-      },
-
-      set: function (
-        target: TreeViewItemModel,
-        prop: keyof TreeViewItemModel,
-        value: any
-      ) {
-
-        if (target.item instanceof TreeView && Reflect.has(target.item, prop)) {
-          Reflect.set(target.item, prop, value);
-        } else {
-          target[prop] = value;
-        }
-
-        return true;
-      }
-    })
-  }
-
   private _item: unknown
   private _isExpanded: boolean = false
   private _isSelected: boolean = false
-  private _itemsSource: EmberArray<unknown> | null = null
+  private _itemsSource: NativeArray<unknown> | null = null
   private _header: unknown
-
 }
 
 export default TreeViewItemModel;

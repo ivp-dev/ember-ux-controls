@@ -17,13 +17,9 @@
   }}
   ...attributes
   >
-  {{yield (
-    hash
-      Pane=(
-        component "split-view/pane"
-        content=@content
-        classNamesBuilder=this.classNamesBuilder
-      )
-    )
+  {{yield (hash Pane=(
+    component "split-view/pane"
+    content=@content
+    classNamesBuilder=this.classNamesBuilder))
   }}
 </div>
