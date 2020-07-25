@@ -22,6 +22,7 @@ export interface ITreeViewArgs extends ISelectItemsControlArgs {
   header?: unknown,
   isSelected?: boolean,
   isExpanded?: boolean,
+  hasSelectedNodes?: boolean,
   container?: TreeViewItemModel,
   titleTemplateName?: string,
   headerTemplateName?: string,
@@ -80,6 +81,23 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     }
   }
 
+  @computed('args.container.hasSelectedNodes')
+  public get hasSelectedNodes() {
+    if (this.container instanceof TreeView) {
+      return this._hasSelectedNodes;
+    }
+    return !!this.args.hasSelectedNodes;
+  }
+
+  public set hasSelectedNodes(
+    value: boolean
+  ) {
+    if (this._hasSelectedNodes !== value) {
+      this._hasSelectedNodes = value;
+      notifyPropertyChange(this, 'hasSelectedNodes');
+    }
+  }
+
   @computed('args.container.isExpanded')
   public get isExpanded() {
     if (this.container instanceof TreeView) {
@@ -115,7 +133,7 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
   @computed(
     'isRoot',
     'isSelected',
-    'hasSelectedItems',
+    'hasSelectedNodes',
     'multipleSelectionEnable'
   )
   public get classNames()
@@ -128,8 +146,8 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       [`$selected`]: this.isSelected,
       [`$partial-selected`]: (
         this.multipleSelectionEnable &&
-        !this.isSelected &&
-        this.hasSelectedItems
+        this.isSelected === false &&
+        this.hasSelectedNodes
       )
     })}`;
   }
@@ -262,29 +280,43 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     selectedItems: unknown[],
     unselectedItems: unknown[]
   ) {
+    if (
+      this.multipleSelectionEnable &&
+      this.hasChilds &&
+      this.logicalParent instanceof TreeView) {
+      if (this.selectedItems.count < this.items.count) {
+        this.logicalParent.onUnselect(this.container)
+      } else {
+        this.logicalParent.onSelect(this.container);
+      }
+    }
+
     super.onSelectionChanged(
       selectedItems,
       unselectedItems
-    );
-
-    this.logicalParent.eventHandler.emitEvent(
-      new TreeViewRootSelectionChangedEventArgs(
-        this,
-        isSelected
-      )
     );
   }
 
   @action
   public didInsert() {
-    if (!(this.logicalParent instanceof TreeView)) {
+    if (
+      !(this.logicalParent instanceof TreeView)
+    ) {
       return;
     }
 
-    this.logicalParent.eventHandler.addEventListener(
+    this.root = this.findParent(this, parent =>
+      parent !== null && parent.isRoot
+    );
+
+    if (!this.root) {
+      throw new Error('Can`t find root');
+    }
+
+    this.root.eventHandler.addEventListener(
       this,
       TreeViewRootSelectionChangedEventArgs,
-      this.onParentSelectionChanged
+      this.onRootSelectionChanged
     );
 
     next(this, () => {
@@ -302,65 +334,130 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
       return;
     }
 
-    if (this.logicalParent instanceof TreeView) {
-      this.logicalParent.eventHandler.removeEventListener(
+    if (this.root instanceof TreeView) {
+      this.root.eventHandler.removeEventListener(
         this,
         TreeViewRootSelectionChangedEventArgs
       );
     }
   }
 
-  private onParentSelectionChanged(
+  private onRootSelectionChanged(
     args: TreeViewRootSelectionChangedEventArgs
   ) {
-    let { sender, value } = args;
-    debugger
+    let {
+      sender, value } = args,
+      head: TreeView | null;
+
+    if (!(this.logicalParent instanceof TreeView)) {
+      return;
+    }
+
+    if (
+      this.multipleSelectionEnable === false &&
+      this.logicalParent !== sender.logicalParent &&
+      this.logicalParent.hasChilds
+    ) {
+      this.logicalParent.unselectAllInternal();
+    }
+
+    head = this.findParent(
+      this.logicalParent,
+      parent =>
+        parent === sender
+    );
+
+    if (
+      this.multipleSelectionEnable &&
+      this.isRoot === false &&
+      head !== null
+    ) {
+      if (value) {
+        this.logicalParent.onSelect(this.container);
+
+      } else {
+        this.logicalParent.onUnselect(this.container);
+      }
+    }
+
+    this.updateHasSelectedNodes(sender, sender.isSelected);
   }
 
   @action
   public toggleExpander(
     event: Event
   ) {
-    if (this.container instanceof TreeView) {
-      this.isExpanded = !this.isExpanded;
-    } else {
-      this.container.isExpanded = !this.container.isExpanded;
-    }
-
+    this.container.isExpanded = !this.container.isExpanded;
     event.preventDefault();
   }
 
   @action
   public changeSelection(
-    isSelected: boolean
+    isSelected: boolean,
   ) {
-    if (
-      this.logicalParent instanceof TreeView
-    ) {
-      if (isSelected) {
-        this.logicalParent.onSelect(this.container);
-      } else {
-        this.logicalParent.onUnselect(this.container);
-      }
-    }
-  }
-
-  private onSelectedPropertyChanged(value: boolean) {
-    if (
-      this._skipIsSelectedBehavior ||
-      !this.multipleSelectionEnable ||
-      !this.hasChilds
-    ) {
+    if (!(this.logicalParent instanceof TreeView)) {
       return;
     }
 
-    if (value) {
-      if (this.selectedItems.count !== this.items.count) {
-        this.selectAllInternal();
-      }
+    if (isSelected) {
+      this.logicalParent.onSelect(this.container);
     } else {
-      this.unselectAllInternal();
+      this.logicalParent.onUnselect(this.container);
     }
+
+    if (!this.root) {
+      return;
+    }
+
+    this.root.eventHandler.emitEvent(
+      new TreeViewRootSelectionChangedEventArgs(
+        this,
+        isSelected
+      )
+    );
+  }
+
+  protected updateHasSelectedNodes(
+    sender: TreeView,
+    value: boolean
+  ) {
+    let
+      parent: unknown;
+
+    parent = sender.logicalParent;
+    if (parent instanceof TreeView) {
+      parent.hasSelectedNodes = value;
+      this.updateHasSelectedNodes(parent, value);
+    }
+  }
+
+  protected findParent(
+    parentElement: any,
+    filter: (element: TreeView | null) => boolean
+  ): TreeView | null {
+    let
+      result: TreeView | null = null;
+
+    if (!parentElement) {
+      return result;
+    }
+
+    if (
+      parentElement instanceof TreeView &&
+      filter(parentElement)
+    ) {
+      result = parentElement;
+    } else {
+      result = this.findParent(
+        Reflect.get(
+          parentElement,
+          'logicalParent'
+        ),
+        filter
+      );
+    }
+
+    return result;
   }
 
   protected findRoot(
@@ -390,14 +487,13 @@ export class TreeView extends SelectItemsControl<ITreeViewArgs> {
     return root;
   }
 
-
   private _titleTemplateName: string | null = null
   private _headerTemplateName: string | null = null
   private _expanderTemplateName: string | null = null
   private _root: TreeView | null = null;
   private _isSelected: boolean = false;
+  private _hasSelectedNodes: boolean = false;
   private _isExpanded: boolean = false;
-  private _skipIsSelectedBehavior: boolean = false;
 }
 
 function isItemsElement(obj: any)

@@ -55,6 +55,19 @@ class TreeViewItemModel {
     }
   }
 
+  public get hasSelectedNodes() {
+    return this._hasSelectedNodes;
+  }
+
+  public set hasSelectedNodes(
+    value: boolean
+  ) {
+    if (this._hasSelectedNodes !== value) {
+      this._hasSelectedNodes = value;
+      notifyPropertyChange(this, 'hasSelectedNodes');
+    }
+  }
+
   public get isExpanded() {
     return this._isExpanded;
   }
@@ -71,6 +84,7 @@ class TreeViewItemModel {
   private _item: unknown
   private _isExpanded: boolean = false
   private _isSelected: boolean = false
+  private _hasSelectedNodes: boolean = false
   private _itemsSource: NativeArray<unknown> | null = null
   private _header: unknown
 }
