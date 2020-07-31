@@ -1,14 +1,36 @@
 <div 
   class={{this.classNames}}
+  {{did-insert this.didInsert}}
 >
+  {{#component 
+    this.headerTemplateName
+    classNamesBuilder=this.classNamesBuilder
+  }}
+    {{component 
+      this.expanderTemplateName
+      hasChilds=this.hasChilds
+      isExpanded=this.isExpanded
+      toggleExpander=this.toggleExpander
+      classNamesBuilder=this.classNamesBuilder}}
+    {{component 
+      this.titleTemplateName
+      header=this.header
+      isSelected=this.isSelected
+      changeSelection=this.changeSelection
+      classNamesBuilder=this.classNamesBuilder}}
+    ({{this.items.count}}:{{this.selectedItems.count}})
+  {{/component}}
+
   <TreeView::Pane
-    @visualParent={{this}}
     @getHeader={{@getHeader}}
     @getItems={{@getItems}}
+    @visualParent={{this}}
+    @hasChilds={{this.hasChilds}}
+    @isExpanded={{this.isExpanded}}
     @hasItemsSource={{this.hasItemsSource}}
     @itemTemplateName={{this.itemTemplateName}}
-    @titleTemplateName={{this.titleTemplateName}}
     @headerTemplateName={{this.headerTemplateName}}
+    @titleTemplateName={{this.titleTemplateName}}
     @expanderTemplateName={{this.expanderTemplateName}}
     @classNamesBuilder={{this.classNamesBuilder}}
     @multipleSelectionEnable={{this.multipleSelectionEnable}}
@@ -21,11 +43,11 @@
             this.itemTemplateName
             visualParent=this
             header=this.header
+            classNamesBuilder=this.classNamesBuilder
             itemTemplateName=this.itemTemplateName
             titleTemplateName=this.titleTemplateName
             headerTemplateName=this.headerTemplateName
             expanderTemplateName=this.expanderTemplateName
-            classNamesBuilder=this.classNamesBuilder
             multipleSelectionEnable=this.multipleSelectionEnable
           )
         )

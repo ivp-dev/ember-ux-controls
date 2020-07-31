@@ -1,13 +1,16 @@
 import Panel, { IPanelArgs } from 'ember-ux-core/components/panel';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { TreeView } from 'ember-ux-controls/components/tree-view/component';
 // @ts-ignore
 import layout from './template';
 
 interface ITreeViewPaneArgs extends IPanelArgs {
-  isRoot?: boolean,
   isExpanded?: boolean,
   hasItemsSource?: boolean,
   itemTemplateName?: string
+  titleTemplateName?: string
+  headerTemplateName?:string
+  expanderTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder,
   multipleSelectionEnable?: boolean
 }
@@ -20,6 +23,14 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
     super(owner, args);
   }
 
+  public get isRoot() {
+    return this.visualParent instanceof TreeView
+  }
+
+  public get isExpanded() {
+    return this.args.isExpanded;
+  }
+
   public get classNamesBuilder() {
     return this.args.classNamesBuilder
   }
@@ -28,16 +39,20 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
     return this.args.itemTemplateName;
   }
 
+  public get headerTemplateName() {
+    return this.args.headerTemplateName;
+  }
+
+  public get expanderTemplateName() {
+    return this.args.expanderTemplateName;
+  }
+
+  public get titleTemplateName() {
+    return this.args.titleTemplateName;
+  }
+
   public get hasItemsSource() {
     return this.args.hasItemsSource;
-  }
-
-  public get isExpanded() {
-    return this.args.isExpanded;
-  }
-
-  public get isRoot() {
-    return this.args.isRoot;
   }
 
   public get multipleSelectionEnable() {

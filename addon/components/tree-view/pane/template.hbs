@@ -5,12 +5,16 @@
         {{template
           visualParent=this
           logicalParent=this.visualParent
-          isRoot=this.isRoot
           container=container
+          header=container.header
           isSelected=container.isSelected
           isExpanded=container.isExpanded
           itemsSource=container.itemsSource
-          hasSelectedNodes=container.hasSelectedNodes
+          classNamesBuilder=this.classNamesBuilder
+          itemTemplateName=this.itemTemplateName
+          titleTemplateName=this.titleTemplateName
+          headerTemplateName=this.headerTemplateName
+          expanderTemplateName=this.expanderTemplateName
           multipleSelectionEnable=this.multipleSelectionEnable
         }}
       {{/each}}
