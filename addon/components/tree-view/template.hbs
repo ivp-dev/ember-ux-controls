@@ -1,35 +1,18 @@
-<div 
-  class={{this.classNames}}
->
-  <TreeView::Pane
-    @visualParent={{this}}
-    @getHeader={{@getHeader}}
-    @getItems={{@getItems}}
-    @hasItemsSource={{this.hasItemsSource}}
-    @itemTemplateName={{this.itemTemplateName}}
-    @titleTemplateName={{this.titleTemplateName}}
-    @headerTemplateName={{this.headerTemplateName}}
-    @expanderTemplateName={{this.expanderTemplateName}}
-    @classNamesBuilder={{this.classNamesBuilder}}
-    @multipleSelectionEnable={{this.multipleSelectionEnable}}
-  >
-    {{#unless this.hasItemsSource}}
-      {{yield (
-        hash
-          Item=(
-            component
-            this.itemTemplateName
-            visualParent=this
-            header=this.header
-            itemTemplateName=this.itemTemplateName
-            titleTemplateName=this.titleTemplateName
-            headerTemplateName=this.headerTemplateName
-            expanderTemplateName=this.expanderTemplateName
-            classNamesBuilder=this.classNamesBuilder
-            multipleSelectionEnable=this.multipleSelectionEnable
-          )
-        )
-      }}
-    {{/unless}}
-  </TreeView::Pane>
-</div>
+{{#component 
+  this.itemTemplateName
+  visualParent=this
+  getHeader=@getHeader
+  getItems=@getItems
+  itemsSource=this.itemsSource
+  itemTemplateName=this.itemTemplateName
+  titleTemplateName=this.titleTemplateName
+  headerTemplateName=this.headerTemplateName
+  expanderTemplateName=this.expanderTemplateName
+  classNamesBuilder=this.classNamesBuilder
+  multipleSelectionEnable=this.multipleSelectionEnable 
+  as |Root|
+}}
+  {{#unless this.hasItemsSource}}
+    {{yield Root}}
+  {{/unless}}
+{{/component}}

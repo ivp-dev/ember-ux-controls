@@ -1,15 +1,15 @@
-import ItemsControl, { IItemsControlArgs } from 'ember-ux-core/components/items-control'
+import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element'
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
 import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types';
-import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { TreeViewItem } from 'ember-ux-controls/components/tree-view/item/component';
 import { IEventArgs } from 'ember-ux-core/common/classes/-private/event-emmiter';
+import NativeArray from "@ember/array/-private/native-array";
+import { reads } from '@ember/object/computed';
+import { isArray } from '@ember/array';
 // @ts-ignore
 import layout from './template';
-
 
 export class TreeViewSelectionChangedEventArgs {
   constructor(
@@ -18,21 +18,18 @@ export class TreeViewSelectionChangedEventArgs {
   ) { }
 }
 
-export interface ITreeViewArgs extends IItemsControlArgs {
-  isSelected?: boolean,
-  isExpanded?: boolean,
-  hasSelectedNodes?: boolean,
-  container?: TreeViewItemModel,
+export interface ITreeViewArgs extends IUXElementArgs {
+  itemsSource?: NativeArray<unknown>;
+  itemTemplateName?: string
   titleTemplateName?: string,
   headerTemplateName?: string,
   expanderTemplateName?: string,
-  multipleSelectionEnable?: boolean
-  hasItemsSource?: boolean
+  multipleSelectionEnable?: boolean, 
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => Array<unknown>
 }
 
-export class TreeView extends ItemsControl<ITreeViewArgs> {
+export class TreeView extends UXElement<ITreeViewArgs> {
   constructor(
     owner: unknown,
     args: ITreeViewArgs
@@ -45,12 +42,11 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     this.expanderTemplateName = 'tree-view/expander';
   }
 
+  @reads('args.itemsSource')
+  itemsSource: NativeArray<unknown> | null = null
+
   public get multipleSelectionEnable() {
     return this.args.multipleSelectionEnable ?? false;
-  }
-
-  public get hasChilds() {
-    return this.items.count > 0;
   }
 
   public get classNamesBuilder()
@@ -58,9 +54,25 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     return bem('tree-view');
   }
 
-  public get classNames()
-    : string {
-    return `${this.classNamesBuilder}`;
+  public get hasItemsSource() {
+    return isArray(this.itemsSource);
+  }
+
+  @computed('args.itemTemplateName')
+  public get itemTemplateName() {
+    return (
+      this.args.itemTemplateName ??
+      this._itemTemplateName
+    );
+  }
+
+  public set itemTemplateName(
+    value: string | null
+  ) {
+    if (this._itemTemplateName !== value) {
+      this._itemTemplateName = value;
+      notifyPropertyChange(this, 'itemTemplateName')
+    }
   }
 
   @computed('args.titleTemplateName')
@@ -137,72 +149,10 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     this.eventHandler.removeEventListener(context, args)
   }
 
-  public itemItsOwnContainer(
-    item: unknown
-  ): item is TreeViewItem {
-    return item instanceof TreeViewItem;
-  }
-
-  public createContainerForItem()
-    : TreeViewItemModel {
-    return new TreeViewItemModel();
-  }
-
-  public linkContainerToItem(
-    container: TreeViewItemModel,
-    item: unknown
-  ): void {
-    if (!this.itemItsOwnContainer(item)) {
-      container.item = item;
-    }
-  }
-
-  public prepareItemContainer(
-    container: TreeViewItemModel
-  ): void {
-    let
-      item: unknown;
-
-    item = this.readItemFromContainer(container);
-
-    if (this.itemItsOwnContainer(item)) {
-      return;
-    }
-
-    if (typeof this.args.getHeader === 'function') {
-      container.header = this.args.getHeader(item);
-    } else if (isHeaderElement(item)) {
-      container.header = item.header
-    }
-
-    if (typeof this.args.getItems === 'function') {
-      container.itemsSource = A(this.args.getItems(item))
-    } else if (isItemsElement(item)) {
-      container.itemsSource = A(item.items)
-    }
-  }
-
-  public clearContainerForItem(
-    container: TreeViewItemModel | TreeViewItem
-    /*item: unknown*/
-  ): void {
-    if (container instanceof TreeViewItemModel) {
-      container.item = null;
-      container.header = null;
-    }
-  }
-
-  public readItemFromContainer(
-    container: TreeViewItemModel
-  ): unknown {
-    return container.item;
-  }
-
   public willDestroy() {
     if (this.isDestroyed) {
       return;
     }
-
   }
 
   private static NodeSelectionChanger = class {
@@ -233,7 +183,7 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
 
     public end() {
       try {
- 
+
       } finally {
         this.isActive = false;
         this.cleanup();
@@ -248,6 +198,7 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
 
   private _selectedNodes: Array<TreeViewItem> | null = null
   private _nodeSelectionChanger: NodeSelectionChanger | null = null
+  private _itemTemplateName: string | null = null
   private _titleTemplateName: string | null = null
   private _headerTemplateName: string | null = null
   private _expanderTemplateName: string | null = null

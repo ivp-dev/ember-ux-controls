@@ -10,6 +10,7 @@ import { action } from '@ember/object';
 import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
 import ItemsControl from 'ember-ux-core/components/items-control';
+
 // @ts-ignore
 import layout from './template';
 
@@ -51,6 +52,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   @reads('args.getItems')
   public getItems?: (data: unknown) => Array<unknown>
 
+  public get isRoot() {
+    return this.visualParent instanceof TreeView;
+  }
 
   public get item() {
     return this;
@@ -62,13 +66,17 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   public get classNames()
     : string {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('item', {
-        '$selected': this.isSelected
-      })}`;
+    if (!this.classNamesBuilder) {
+      return '';
     }
 
-    return ''
+    if(this.isRoot) {
+      return `${this.classNamesBuilder}`;
+    }
+    
+    return `${this.classNamesBuilder('item', {
+      '$selected': this.isSelected
+    })}`;
   }
 
   public get container()
@@ -92,7 +100,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @computed('args.isExpanded')
   public get isExpanded() {
-    return this.args.isExpanded ?? this._isExpanded
+    return this.isRoot || (this.args.isExpanded ?? this._isExpanded)
   }
 
   public set isExpanded(
