@@ -2,24 +2,18 @@
   class={{this.classNames}}
   {{did-insert this.didInsert}}
 >
-  {{#component 
+  {{component 
     this.headerTemplateName
+    header=this.header
+    hasChilds=this.hasChilds
+    isSelected=this.isSelected
+    isExpanded=this.isExpanded
+    toggleExpander=this.toggleExpander
+    changeSelection=this.changeSelection
     classNamesBuilder=this.classNamesBuilder
+    titleTemplateName=this.titleTemplateName
+    expanderTemplateName=this.expanderTemplateName
   }}
-    {{component 
-      this.expanderTemplateName
-      hasChilds=this.hasChilds
-      isExpanded=this.isExpanded
-      toggleExpander=this.toggleExpander
-      classNamesBuilder=this.classNamesBuilder}}
-    {{component 
-      this.titleTemplateName
-      header=this.header
-      isSelected=this.isSelected
-      changeSelection=this.changeSelection
-      classNamesBuilder=this.classNamesBuilder}}
-    ({{this.items.count}}:{{this.selectedItems.count}})
-  {{/component}}
 
   <TreeView::Pane
     @getHeader={{@getHeader}}

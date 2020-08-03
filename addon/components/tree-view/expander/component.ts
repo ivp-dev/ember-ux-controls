@@ -1,37 +1,50 @@
 
-import Component from '@glimmer/component';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import { computed } from '@ember/object';
-// @ts-ignore
-import { setComponentTemplate } from '@ember/component';
+import { reads } from '@ember/object/computed';
+import { action } from '@ember/object';
+import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
 // @ts-ignore
 import layout from './template';
 
-
-interface ITreeViewExpanderArgs {
+interface ITreeViewExpanderArgs extends IUXElementArgs {
   isExpanded?: boolean,
   hasChilds?: boolean,
+  toggleExpander?: () => void;
   classNamesBuilder?: ClassNamesBuilder
 }
- 
-class TreeViewExpander extends Component<ITreeViewExpanderArgs> {
 
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
+class TreeViewExpander extends UXElement<ITreeViewExpanderArgs> {
+  @reads('args.isExpanded') 
+  public isExpanded?: boolean
 
-  @computed('args.{isExpanded,hasChilds}')
+  @reads('args.hasChilds') 
+  public hasChilds?: boolean
+
+  @reads('args.toggleExpander') 
+  public toggleExpander?: () => void;
+
+  @reads('args.classNamesBuilder') 
+  classNamesBuilder?: ClassNamesBuilder
+
   public get classNames() {
-    if(this.classNamesBuilder) {
+    if (this.classNamesBuilder) {
       return this.classNamesBuilder('expander', {
-        [`$toggled`]: this.args.isExpanded,
-        [`$toggleable`]: this.args.hasChilds, 
+        [`$toggled`]: this.isExpanded,
+        [`$toggleable`]: this.hasChilds,
       });
     }
 
     return '';
   }
+
+  @action
+  onClick(event: Event) {
+    if (this.toggleExpander) {
+      this.toggleExpander();
+    }
+    event.preventDefault();
+  }
 }
 
-export default setComponentTemplate(layout, TreeViewExpander)
+export default TreeViewExpander.RegisterTemplate(layout);
 

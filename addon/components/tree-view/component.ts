@@ -3,17 +3,17 @@ import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
 import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types';
 import { A } from '@ember/array';
-import { action } from '@ember/object';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { TreeViewItem } from 'ember-ux-controls/components/tree-view/item/component';
-
+import { IEventArgs } from 'ember-ux-core/common/classes/-private/event-emmiter';
 // @ts-ignore
 import layout from './template';
 
-export class TreeViewRootSelectionChangedEventArgs {
+
+export class TreeViewSelectionChangedEventArgs {
   constructor(
-    public sender: TreeView,
+    public sender: TreeViewItem,
     public value: boolean
   ) { }
 }
@@ -45,7 +45,6 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     this.expanderTemplateName = 'tree-view/expander';
   }
 
-  @computed('args.multipleSelectionEnable')
   public get multipleSelectionEnable() {
     return this.args.multipleSelectionEnable ?? false;
   }
@@ -59,12 +58,6 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     return bem('tree-view');
   }
 
-  @computed(
-    'isRoot',
-    'isSelected',
-    'hasSelectedNodes',
-    'multipleSelectionEnable'
-  )
   public get classNames()
     : string {
     return `${this.classNamesBuilder}`;
@@ -121,12 +114,27 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     }
   }
 
-  protected get nodeSelectionChanger()
+  public get nodeSelectionChanger()
     : NodeSelectionChanger {
     if (!this._nodeSelectionChanger) {
       this._nodeSelectionChanger = new TreeView.NodeSelectionChanger(this);
     }
     return this._nodeSelectionChanger;
+  }
+
+  public addEventListener(
+    context: TreeViewItem,
+    args: IEventArgs,
+    callback: (sender: TreeViewItem, args: IEventArgs) => void
+  ) {
+    this.eventHandler.addEventListener(context, args, callback)
+  }
+
+  public removeEventListener(
+    context: TreeViewItem,
+    args: IEventArgs
+  ) {
+    this.eventHandler.removeEventListener(context, args)
   }
 
   public itemItsOwnContainer(
@@ -199,7 +207,7 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
 
   private static NodeSelectionChanger = class {
     constructor(
-      public owner: TreeView 
+      public owner: TreeView
     ) {
       this.isActive = false;
       this.toSelect = [];
@@ -211,12 +219,10 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     public isActive: boolean;
 
     public select(node: TreeViewItem) {
-
       this.toSelect.push(node);
     }
 
     public unselect(node: TreeViewItem) {
-
       this.toUnselect.push(node);
     }
 
@@ -227,7 +233,7 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
 
     public end() {
       try {
-
+ 
       } finally {
         this.isActive = false;
         this.cleanup();
@@ -240,6 +246,7 @@ export class TreeView extends ItemsControl<ITreeViewArgs> {
     }
   }
 
+  private _selectedNodes: Array<TreeViewItem> | null = null
   private _nodeSelectionChanger: NodeSelectionChanger | null = null
   private _titleTemplateName: string | null = null
   private _headerTemplateName: string | null = null

@@ -8,18 +8,7 @@ interface ITreeViewTitleArgs extends IUXElementArgs {
 }
 
 export class TreeViewTitle extends UXElement<ITreeViewTitleArgs> {
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
-
-  public get classNames()
-    : string {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('title')}`;
-    }
-
-    return ''
-  }
+  
 }
 
 export default TreeViewTitle.RegisterTemplate(layout);

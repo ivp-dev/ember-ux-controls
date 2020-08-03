@@ -1,6 +1,17 @@
-<div
+{{component 
+  this.expanderTemplateName
+  hasChilds=this.hasChilds
+  isExpanded=this.isExpanded
+  toggleExpander=this.toggleExpander
+  classNamesBuilder=this.classNamesBuilder}}
+<a 
+  href="#" 
   class={{this.classNames}}
+  {{on 'click' this.onClick}}
 >
-  {{yield}}
-</div>
-
+  {{component 
+    this.titleTemplateName
+    header=this.header
+    isSelected=this.isSelected
+    classNamesBuilder=this.classNamesBuilder}}
+</a>
