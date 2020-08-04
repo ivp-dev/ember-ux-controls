@@ -57,7 +57,6 @@ export class TreeViewHeader extends UXElement<ITreeViewHeaderArgs> {
   @action
   onClick(e: Event) {
     if (this.changeSelection) {
-      debugger
       this.changeSelection(!this.isSelected)
     }
 

@@ -24,7 +24,7 @@ export interface ITreeViewArgs extends IUXElementArgs {
   titleTemplateName?: string,
   headerTemplateName?: string,
   expanderTemplateName?: string,
-  multipleSelectionEnable?: boolean, 
+  multipleSelectionEnable?: boolean,
   getHeader?: (data: unknown) => unknown
   getItems?: (data: unknown) => Array<unknown>
 }
@@ -139,20 +139,53 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     args: IEventArgs,
     callback: (sender: TreeViewItem, args: IEventArgs) => void
   ) {
-    this.eventHandler.addEventListener(context, args, callback)
+    this.eventHandler.addEventListener(
+      context,
+      args,
+      callback
+    );
   }
 
   public removeEventListener(
     context: TreeViewItem,
     args: IEventArgs
   ) {
-    this.eventHandler.removeEventListener(context, args)
+    this.eventHandler.removeEventListener(
+      context,
+      args
+    );
   }
 
   public willDestroy() {
     if (this.isDestroyed) {
       return;
     }
+  }
+
+  public onSelect(node: TreeViewItem) {
+    try {
+      this.nodeSelectionChanger.begin();
+    } finally {
+      this.nodeSelectionChanger.end();
+    }
+
+    this.eventHandler.emitEvent(
+      new TreeViewSelectionChangedEventArgs(node, true)
+    );
+  }
+
+  public onUnselect(
+    node: TreeViewItem
+  ) {
+    try {
+      this.nodeSelectionChanger.begin();
+    } finally {
+      this.nodeSelectionChanger.end();
+    }
+
+    this.eventHandler.emitEvent(
+      new TreeViewSelectionChangedEventArgs(node, false)
+    );
   }
 
   private static NodeSelectionChanger = class {
@@ -169,6 +202,13 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     public isActive: boolean;
 
     public select(node: TreeViewItem) {
+      if (
+        this.toSelect.some(alreadySelectedNode =>
+          alreadySelectedNode === node
+        )
+      ) {
+      }
+      
       this.toSelect.push(node);
     }
 
@@ -183,7 +223,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
     public end() {
       try {
-
+        for
       } finally {
         this.isActive = false;
         this.cleanup();
@@ -196,7 +236,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     }
   }
 
-  private _selectedNodes: Array<TreeViewItem> | null = null
+  private _selectedNodes: NativeArray<TreeViewItem> | null = null
   private _nodeSelectionChanger: NodeSelectionChanger | null = null
   private _itemTemplateName: string | null = null
   private _titleTemplateName: string | null = null

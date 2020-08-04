@@ -70,10 +70,10 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       return '';
     }
 
-    if(this.isRoot) {
+    if (this.isRoot) {
       return `${this.classNamesBuilder}`;
     }
-    
+
     return `${this.classNamesBuilder('item', {
       '$selected': this.isSelected
     })}`;
@@ -113,11 +113,32 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   }
 
   protected get root() {
-    if (!this._root) {
-      throw new Error('Root was not found');
-    }
-
     return this._root;
+  }
+
+  protected set root(
+    value: TreeView | null
+  ) {
+    if (this._root !== value) {
+
+      if (this._root) {
+        this._root.removeEventListener(
+          this,
+          TreeViewSelectionChangedEventArgs
+        );
+      }
+
+      if (value) {
+        value.addEventListener(
+          this,
+          TreeViewSelectionChangedEventArgs,
+          this.onRootSelectionChanged
+        );
+      }
+
+      this._root = value;
+      notifyPropertyChange(this, 'root');
+    }
   }
 
   public itemItsOwnContainer(
@@ -188,13 +209,17 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @action
   changeSelection(value: boolean) {
+    if (!this.root) {
+      throw new Error('Root was not found');
+    }
+
     if (this.logicalParent instanceof SelectItemsControl) {
       if (value) {
         this.logicalParent.onSelect(this.container);
-        this.root.nodeSelectionChanger.select(this);
+        this.root.onSelect(this);
       } else {
         this.logicalParent.onUnselect(this.container);
-        this.root.nodeSelectionChanger.unselect(this);
+        this.root.onUnselect(this);
       }
     }
   }
@@ -204,14 +229,13 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     sender: TreeViewItem,
     args: TreeViewSelectionChangedEventArgs
   ) {
-    debugger
   }
 
   @action
   public didInsert() {
-    this._root = this.findRoot();
+    this.root = this.findRoot();
 
-    this._root.addEventListener(
+    this.root.addEventListener(
       this,
       TreeViewSelectionChangedEventArgs,
       this.onRootSelectionChanged
