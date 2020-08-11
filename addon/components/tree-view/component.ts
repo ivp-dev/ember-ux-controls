@@ -223,7 +223,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
     public end() {
       try {
-        for
+        
       } finally {
         this.isActive = false;
         this.cleanup();
