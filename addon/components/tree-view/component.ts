@@ -188,6 +188,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     );
   }
 
+
   private static NodeSelectionChanger = class {
     constructor(
       public owner: TreeView
@@ -233,6 +234,15 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     public cleanup() {
       this.toSelect.length = 0;
       this.toUnselect.length = 0;
+    }
+
+    public applyCanSelectMultipe() {
+      let
+        count: number;
+
+      if (this.owner.multipleSelectionEnable) {
+        return;
+      }
     }
   }
 
