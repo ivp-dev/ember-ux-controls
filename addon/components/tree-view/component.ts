@@ -8,11 +8,13 @@ import { IEventArgs } from 'ember-ux-core/common/classes/-private/event-emmiter'
 import NativeArray from "@ember/array/-private/native-array";
 import { reads } from '@ember/object/computed';
 import { isArray } from '@ember/array';
+import { A } from '@ember/array';
 // @ts-ignore
 import layout from './template';
 
 export class TreeViewSelectionChangedEventArgs {
   constructor(
+    public owner: TreeView,
     public sender: TreeViewItem,
     public value: boolean
   ) { }
@@ -44,6 +46,14 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
   @reads('args.itemsSource')
   itemsSource: NativeArray<unknown> | null = null
+
+  public get selectedNodes() {
+    if (!this._selectedNodes) {
+      this._selectedNodes = A();
+    }
+
+    return this._selectedNodes;
+  }
 
   public get multipleSelectionEnable() {
     return this.args.multipleSelectionEnable ?? false;
@@ -164,13 +174,18 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
   public onSelect(node: TreeViewItem) {
     try {
-      this.nodeSelectionChanger.begin();
+      if (this.nodeSelectionChanger.isActive === false) {
+        this.nodeSelectionChanger.begin();
+      }
+      this.nodeSelectionChanger.select(node);
     } finally {
-      this.nodeSelectionChanger.end();
+      if (this.nodeSelectionChanger.isActive) {
+        this.nodeSelectionChanger.end();
+      }
     }
 
     this.eventHandler.emitEvent(
-      new TreeViewSelectionChangedEventArgs(node, true)
+      new TreeViewSelectionChangedEventArgs(this, node, false)
     );
   }
 
@@ -178,16 +193,22 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     node: TreeViewItem
   ) {
     try {
-      this.nodeSelectionChanger.begin();
+      if (this.nodeSelectionChanger.isActive === false) {
+        this.nodeSelectionChanger.begin();
+      }
+      this.nodeSelectionChanger.unselect(node);
+
+      //this.eventHandler.emitEvent(
+      //  new TreeViewSelectionChangedEventArgs(this, node, false)
+      //);
     } finally {
       this.nodeSelectionChanger.end();
     }
 
     this.eventHandler.emitEvent(
-      new TreeViewSelectionChangedEventArgs(node, false)
+      new TreeViewSelectionChangedEventArgs(this, node, false)
     );
   }
-
 
   private static NodeSelectionChanger = class {
     constructor(
@@ -204,16 +225,27 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
     public select(node: TreeViewItem) {
       if (
-        this.toSelect.some(alreadySelectedNode =>
-          alreadySelectedNode === node
+        this.toSelect.some(selected =>
+          selected === node
         )
       ) {
+        this.toUnselect.push(node);
+        return;
       }
-      
+
       this.toSelect.push(node);
     }
 
     public unselect(node: TreeViewItem) {
+      if (
+        this.toUnselect.some(unselected =>
+          unselected === node
+        )
+      ) {
+        this.toSelect.push(node);
+        return;
+      }
+
       this.toUnselect.push(node);
     }
 
@@ -223,8 +255,19 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     }
 
     public end() {
+      let
+        selected: Array<unknown>,
+        unselected: Array<unknown>
+
+      selected = [];
+      unselected = [];
+
       try {
-        
+        this.applyCanSelectMultiple();
+        this.createDelta(
+          selected,
+          unselected
+        );
       } finally {
         this.isActive = false;
         this.cleanup();
@@ -236,12 +279,72 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       this.toUnselect.length = 0;
     }
 
-    public applyCanSelectMultipe() {
+    public applyCanSelectMultiple() {
       let
         count: number;
 
       if (this.owner.multipleSelectionEnable) {
         return;
+      }
+
+      if (this.toSelect.length === 1) {
+        if (this.owner.selectedNodes.length > 0) {
+          this.toUnselect.length = 0;
+          this.toUnselect.push(...this.owner.selectedNodes);
+        }
+        return;
+      }
+
+      count = this.owner.selectedNodes.length;
+      // if multipleSelectionEnable changed from true to false
+      if (count > 1 && count != this.toUnselect.length + 1) {
+        this.toUnselect.length = 0;
+        // unselect all but the first
+        this.toUnselect.push(
+          ...this.owner.selectedNodes.without(
+            this.owner.selectedNodes[0]
+          )
+        );
+      }
+    }
+
+    public createDelta(
+      selected: Array<unknown>,
+      unselected: Array<unknown>
+    ) {
+      let
+        idx: number,
+        node: TreeViewItem;
+
+      for (
+        idx = 0;
+        idx < this.toUnselect.length;
+        idx++
+      ) {
+        node = this.toUnselect[idx];
+        // if toSelect contains node with the same parent as unselected
+        // we no need to unselect it by parent because the parent
+        // will take care of it 
+
+        // if (!this.toSelect.some(toSelectNode =>
+        //   toSelectNode.parentNode === node.parentNode
+        // )) {
+        //  node.updateParentSelection(false);
+        // }
+        node.updateParentSelection(false);
+        this.owner.selectedNodes.removeObject(node);
+        unselected.push(node);
+      }
+
+      for (
+        idx = 0;
+        idx < this.toSelect.length;
+        idx++
+      ) {
+        node = this.toSelect[idx];
+        node.updateParentSelection(true);
+        this.owner.selectedNodes.pushObject(node);
+        selected.push(node);
       }
     }
   }

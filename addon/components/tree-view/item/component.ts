@@ -53,11 +53,19 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   public getItems?: (data: unknown) => Array<unknown>
 
   public get isRoot() {
-    return this.visualParent instanceof TreeView;
+    return this.logicalParent instanceof TreeView;
   }
 
   public get item() {
     return this;
+  }
+
+  public get parentNode() {
+    if (this.logicalParent instanceof TreeViewItem) {
+      return this.logicalParent;
+    }
+
+    return null;
   }
 
   public get hasChilds() {
@@ -75,8 +83,13 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     }
 
     return `${this.classNamesBuilder('item', {
+      '$partial-selected': this.containsSelection,
       '$selected': this.isSelected
     })}`;
+  }
+
+  public get containsSelection() {
+    return '';
   }
 
   public get container()
@@ -120,7 +133,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     value: TreeView | null
   ) {
     if (this._root !== value) {
-
+      this._root = value;
       if (this._root) {
         this._root.removeEventListener(
           this,
@@ -135,8 +148,6 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
           this.onRootSelectionChanged
         );
       }
-
-      this._root = value;
       notifyPropertyChange(this, 'root');
     }
   }
@@ -202,44 +213,59 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     return container.item;
   }
 
-  @action
-  public toggleExpander() {
-    this.container.isExpanded = !this.container.isExpanded;
-  }
-
-  @action
-  changeSelection(value: boolean) {
-    if (!this.root) {
-      throw new Error('Root was not found');
-    }
-
-    if (this.logicalParent instanceof SelectItemsControl) {
+  public updateParentSelection(
+    value: boolean
+  ) {
+    if (this.logicalParent instanceof TreeViewItem) {
       if (value) {
         this.logicalParent.onSelect(this.container);
-        this.root.onSelect(this);
       } else {
         this.logicalParent.onUnselect(this.container);
-        this.root.onUnselect(this);
       }
     }
   }
 
   @action
   onRootSelectionChanged(
-    sender: TreeViewItem,
     args: TreeViewSelectionChangedEventArgs
   ) {
+    if (
+      args.sender !== this.logicalParent ||
+      !(this.logicalParent instanceof TreeViewItem)
+    ) {
+      return;
+    }
+
+    if (args.value) {
+      this.logicalParent.onSelect(this.container);
+    } else {
+      this.logicalParent.onUnselect(this.container);
+    }
+  }
+
+  @action
+  public toggleExpander() {
+    this.container.isExpanded = !this.container.isExpanded;
+  }
+
+  @action
+  public changeSelection(value: boolean) {
+    if (!this.root) {
+      throw new Error('Root was not found');
+    }
+
+    if (this.logicalParent instanceof TreeViewItem) {
+      if (value) {
+        this.root.onSelect(this);
+      } else {
+        this.root.onUnselect(this);
+      }
+    }
   }
 
   @action
   public didInsert() {
     this.root = this.findRoot();
-
-    this.root.addEventListener(
-      this,
-      TreeViewSelectionChangedEventArgs,
-      this.onRootSelectionChanged
-    )
 
     next(this, () => {
       if (
