@@ -31,7 +31,7 @@
     "ember-cli-babel": "^7.18.0",
     "ember-cli-htmlbars": "^4.2.3",
     "ember-cli-typescript": "^3.1.4",
-    "ember-ux-core": "^1.0.0-build.57",
+    "ember-ux-core": "^1.0.0-build.58",
     "sass": "^1.26.3"
   },
   "devDependencies": {

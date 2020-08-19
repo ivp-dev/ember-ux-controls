@@ -3,18 +3,22 @@ import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import { isHeaderElement, isItemsElement, TreeView } from 'ember-ux-controls/components/tree-view/component'
 import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
-import { TreeViewSelectionChangedEventArgs } from 'ember-ux-controls/components/tree-view/component';
 import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { action } from '@ember/object';
 import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
 import ItemsControl from 'ember-ux-core/components/items-control';
+import { IEventArgs } from 'ember-ux-core/common/classes/-private/event-emmiter';
 
 // @ts-ignore
 import layout from './template';
 
-
+export class TreeViewRootSelectionChangedEventArgs {
+  constructor(
+    public value: boolean
+  ) { }
+}
 
 interface ITreeViewItemArgs extends ISelectItemsControlArgs {
   header?: unknown,
@@ -30,6 +34,12 @@ interface ITreeViewItemArgs extends ISelectItemsControlArgs {
 }
 
 export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
+  constructor(
+    owner: unknown,
+    args: ITreeViewItemArgs
+  ) {
+    super(owner, args);
+  }
 
   @reads('args.header')
   public header?: unknown
@@ -134,20 +144,6 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   ) {
     if (this._root !== value) {
       this._root = value;
-      if (this._root) {
-        this._root.removeEventListener(
-          this,
-          TreeViewSelectionChangedEventArgs
-        );
-      }
-
-      if (value) {
-        value.addEventListener(
-          this,
-          TreeViewSelectionChangedEventArgs,
-          this.onRootSelectionChanged
-        );
-      }
       notifyPropertyChange(this, 'root');
     }
   }
@@ -225,21 +221,55 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     }
   }
 
-  @action
-  onRootSelectionChanged(
-    args: TreeViewSelectionChangedEventArgs
+  public updateContainsSelection() {
+    let
+      parent = this.logicalParent;
+
+    while (parent instanceof TreeViewItem) {
+      if (parent.selectedItems.count === parent.items.count) {
+        if (!parent.isSelected) {
+          parent.changeSelectionInternal(true, true);
+        }
+      } else {
+        if (parent.isSelected) {
+          parent.changeSelectionInternal(false, true);
+        }
+      }
+      parent = parent.logicalParent;
+    }
+  }
+
+  protected onSelectionChanged(
+    selected: unknown[],
+    unselected: unknown[]
   ) {
+    super.onSelectionChanged(selected, unselected);
+
+    return
+
     if (
-      args.sender !== this.logicalParent ||
-      !(this.logicalParent instanceof TreeViewItem)
+      !this.multipleSelectionEnable &&
+      !this.hasChilds
     ) {
       return;
     }
 
-    if (args.value) {
-      this.logicalParent.onSelect(this.container);
-    } else {
-      this.logicalParent.onUnselect(this.container);
+    this.changeSelectionInternal(
+      this.selectedItems.count === this.items.count,
+      true
+    );
+  }
+
+  public willDestroy() {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    if (this.logicalParent instanceof TreeViewItem) {
+      this.logicalParent.removeEventListener(
+        this,
+        TreeViewRootSelectionChangedEventArgs
+      )
     }
   }
 
@@ -250,22 +280,20 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @action
   public changeSelection(value: boolean) {
-    if (!this.root) {
-      throw new Error('Root was not found');
-    }
-
-    if (this.logicalParent instanceof TreeViewItem) {
-      if (value) {
-        this.root.onSelect(this);
-      } else {
-        this.root.onUnselect(this);
-      }
-    }
+    this.changeSelectionInternal(value);
   }
 
   @action
   public didInsert() {
     this.root = this.findRoot();
+
+    if (this.logicalParent instanceof TreeViewItem) {
+      this.logicalParent.addEventListener(
+        this,
+        TreeViewRootSelectionChangedEventArgs,
+        this.onRootSelectionChanged
+      );
+    }
 
     next(this, () => {
       if (
@@ -275,6 +303,71 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
         this.logicalParent.addChild(this);
       }
     })
+  }
+
+  @action
+  private onRootSelectionChanged(
+    _: TreeViewItem,
+    args: TreeViewRootSelectionChangedEventArgs
+  ) {
+    if (!this.multipleSelectionEnable) {
+      return;
+    }
+
+    this.changeSelectionInternal(args.value);
+  }
+
+  private addEventListener(
+    context: TreeViewItem,
+    args: IEventArgs,
+    callback: (sender: TreeViewItem, args: IEventArgs) => void
+  ) {
+    this.eventHandler.addEventListener(
+      context,
+      args,
+      callback
+    );
+  }
+
+  private removeEventListener(
+    context: TreeViewItem,
+    args: IEventArgs
+  ) {
+    this.eventHandler.removeEventListener(
+      context,
+      args
+    );
+  }
+
+  private changeSelectionInternal(
+    value: boolean,
+    skipChildNotification: boolean = false
+  ) {
+    let
+      args: TreeViewRootSelectionChangedEventArgs;
+
+    if (!this.root) {
+      throw new Error('Root was not found');
+    }
+
+    if (
+      this.logicalParent instanceof TreeViewItem
+    ) {
+      if (value) {
+        this.root.onSelect(this);
+      } else {
+        this.root.onUnselect(this);
+      }
+    }
+    
+    if (skipChildNotification) {
+      return;
+    }
+
+    if (this.hasChilds) {
+      args = new TreeViewRootSelectionChangedEventArgs(value);
+      this.eventHandler.emitEvent(this, args);
+    }
   }
 
   private findRoot()

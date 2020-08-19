@@ -1,7 +1,7 @@
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-core/components/select-items-control';
 import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-core/common/types';
 import { scheduleOnce } from '@ember/runloop';
-import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
+import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
 import { TabControlItem } from './tab-item/component';
 import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { computed } from '@ember/object';
@@ -205,6 +205,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   private onGeneratorStatusChanged(
+    _: ItemContainerGenerator,
     args: GeneratorStatusEventArgs
   ): void {
     if (

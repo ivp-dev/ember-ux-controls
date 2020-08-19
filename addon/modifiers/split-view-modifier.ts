@@ -26,7 +26,7 @@ import {
   ISplitViewArgs,
   SplitView
 } from '../components/split-view/component';
-import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
+import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
@@ -137,7 +137,7 @@ export class SplitViewBehavior {
 
   get parentElement()
     : object | undefined {
-    return this.args.parentElement;
+    return this.args.visualParent;
   }
 
   get axis()
@@ -236,6 +236,7 @@ export class SplitViewBehavior {
   }
 
   private onGeneratorStatusChanged(
+    _: object,
     args: GeneratorStatusEventArgs
   ): void {
     if (

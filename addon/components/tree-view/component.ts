@@ -4,21 +4,12 @@ import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types'
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { TreeViewItem } from 'ember-ux-controls/components/tree-view/item/component';
-import { IEventArgs } from 'ember-ux-core/common/classes/-private/event-emmiter';
 import NativeArray from "@ember/array/-private/native-array";
 import { reads } from '@ember/object/computed';
 import { isArray } from '@ember/array';
 import { A } from '@ember/array';
 // @ts-ignore
 import layout from './template';
-
-export class TreeViewSelectionChangedEventArgs {
-  constructor(
-    public owner: TreeView,
-    public sender: TreeViewItem,
-    public value: boolean
-  ) { }
-}
 
 export interface ITreeViewArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>;
@@ -42,6 +33,11 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     this.titleTemplateName = 'tree-view/title';
     this.headerTemplateName = 'tree-view/header';
     this.expanderTemplateName = 'tree-view/expander';
+  }
+
+  @computed('selectedNodes.[]')
+  public get selectedPath() {
+    return this.selectedNodes.map(node => node.header).join('/');
   }
 
   @reads('args.itemsSource')
@@ -144,28 +140,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     return this._nodeSelectionChanger;
   }
 
-  public addEventListener(
-    context: TreeViewItem,
-    args: IEventArgs,
-    callback: (sender: TreeViewItem, args: IEventArgs) => void
-  ) {
-    this.eventHandler.addEventListener(
-      context,
-      args,
-      callback
-    );
-  }
-
-  public removeEventListener(
-    context: TreeViewItem,
-    args: IEventArgs
-  ) {
-    this.eventHandler.removeEventListener(
-      context,
-      args
-    );
-  }
-
   public willDestroy() {
     if (this.isDestroyed) {
       return;
@@ -178,15 +152,12 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         this.nodeSelectionChanger.begin();
       }
       this.nodeSelectionChanger.select(node);
+      node.updateContainsSelection();
     } finally {
       if (this.nodeSelectionChanger.isActive) {
         this.nodeSelectionChanger.end();
       }
     }
-
-    this.eventHandler.emitEvent(
-      new TreeViewSelectionChangedEventArgs(this, node, false)
-    );
   }
 
   public onUnselect(
@@ -197,17 +168,10 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         this.nodeSelectionChanger.begin();
       }
       this.nodeSelectionChanger.unselect(node);
-
-      //this.eventHandler.emitEvent(
-      //  new TreeViewSelectionChangedEventArgs(this, node, false)
-      //);
+      node.updateContainsSelection();
     } finally {
       this.nodeSelectionChanger.end();
     }
-
-    this.eventHandler.emitEvent(
-      new TreeViewSelectionChangedEventArgs(this, node, false)
-    );
   }
 
   private static NodeSelectionChanger = class {
