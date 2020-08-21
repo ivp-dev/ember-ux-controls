@@ -152,11 +152,8 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         this.nodeSelectionChanger.begin();
       }
       this.nodeSelectionChanger.select(node);
-      node.updateContainsSelection();
     } finally {
-      if (this.nodeSelectionChanger.isActive) {
-        this.nodeSelectionChanger.end();
-      }
+      this.nodeSelectionChanger.end();
     }
   }
 
@@ -168,7 +165,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         this.nodeSelectionChanger.begin();
       }
       this.nodeSelectionChanger.unselect(node);
-      node.updateContainsSelection();
     } finally {
       this.nodeSelectionChanger.end();
     }
@@ -194,10 +190,10 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         )
       ) {
         this.toUnselect.push(node);
-        return;
+      } else {
+        this.toSelect.push(node);
       }
-
-      this.toSelect.push(node);
+      node.updateParentSelection(true);
     }
 
     public unselect(node: TreeViewItem) {
@@ -207,10 +203,10 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         )
       ) {
         this.toSelect.push(node);
-        return;
+      } else {
+        this.toUnselect.push(node);
       }
-
-      this.toUnselect.push(node);
+      node.updateParentSelection(false);
     }
 
     public begin() {
@@ -245,23 +241,34 @@ export class TreeView extends UXElement<ITreeViewArgs> {
 
     public applyCanSelectMultiple() {
       let
-        count: number;
+        idx: number,
+        count: number,
+        node: TreeViewItem;
 
       if (this.owner.multipleSelectionEnable) {
         return;
       }
 
+      count = this.owner.selectedNodes.length;
+
       if (this.toSelect.length === 1) {
-        if (this.owner.selectedNodes.length > 0) {
-          this.toUnselect.length = 0;
-          this.toUnselect.push(...this.owner.selectedNodes);
+        if (count > 0) {
+          for(
+            idx = 0;
+            idx < count;
+            idx++ 
+          ) {
+            node = this.owner.selectedNodes[idx];
+            this.toUnselect.push(node);
+            node.updateParentSelection(false);
+          }
         }
         return;
       }
 
-      count = this.owner.selectedNodes.length;
+      
       // if multipleSelectionEnable changed from true to false
-      if (count > 1 && count != this.toUnselect.length + 1) {
+      if (count > 1 && count !== this.toUnselect.length + 1) {
         this.toUnselect.length = 0;
         // unselect all but the first
         this.toUnselect.push(
@@ -295,7 +302,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         // )) {
         //  node.updateParentSelection(false);
         // }
-        node.updateParentSelection(false);
         this.owner.selectedNodes.removeObject(node);
         unselected.push(node);
       }
@@ -306,7 +312,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         idx++
       ) {
         node = this.toSelect[idx];
-        node.updateParentSelection(true);
         this.owner.selectedNodes.pushObject(node);
         selected.push(node);
       }
