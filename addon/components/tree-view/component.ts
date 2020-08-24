@@ -293,15 +293,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
         idx++
       ) {
         node = this.toUnselect[idx];
-        // if toSelect contains node with the same parent as unselected
-        // we no need to unselect it by parent because the parent
-        // will take care of it 
-
-        // if (!this.toSelect.some(toSelectNode =>
-        //   toSelectNode.parentNode === node.parentNode
-        // )) {
-        //  node.updateParentSelection(false);
-        // }
         this.owner.selectedNodes.removeObject(node);
         unselected.push(node);
       }

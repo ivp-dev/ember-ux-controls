@@ -242,6 +242,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     selected: unknown[],
     unselected: unknown[]
   ) {
+    let
+      shouldBeSelected: boolean;
+
     super.onSelectionChanged(selected, unselected);
 
     if (this.nodeSelectionChanger.isActive) {
@@ -252,9 +255,13 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       return;
     }
 
-    this.changeSelectionInternal(
-      this.selectedItems.count === this.items.count
-    );
+    shouldBeSelected = this.selectedItems.count === this.items.count;
+
+    if (shouldBeSelected !== this.isSelected) {
+      this.changeSelectionInternal(
+        shouldBeSelected
+      );
+    }
   }
 
   public willDestroy() {
@@ -277,7 +284,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @action
   public changeSelection(value: boolean) {
-    if(!this.root) {
+    if (!this.root) {
       throw new Error('Root was not found');
     }
 
@@ -316,7 +323,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     _: TreeViewItem,
     args: TreeViewItemParentSelectionChangedEventArgs
   ) {
-    this.changeSelectionInternal(args.value);
+    if(this.isSelected !== args.value) {
+      this.changeSelectionInternal(args.value);
+    }
   }
 
   private addEventListener(
@@ -344,7 +353,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   private changeSelectionInternal(
     value: boolean
   ) {
-    let 
+    let
       args: TreeViewItemParentSelectionChangedEventArgs;
 
     if (this.nodeSelectionChanger.isActive) {
@@ -426,19 +435,21 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       }
 
       if (this.toSelect.length) {
-        this.root.onSelect(this.owner);
+        //this.root.onSelect(this.owner);
       } else if (this.toUnselect.length) {
-        this.root.onUnselect(this.owner);
+        //this.root.onUnselect(this.owner);
       }
 
       this.cleanup();
     }
 
     public unselect() {
+      this.root.onUnselect(this.owner);
       this.toUnselect.push(this.owner);
     }
 
     public select() {
+      this.root.onSelect(this.owner);
       this.toSelect.push(this.owner);
     }
   }
