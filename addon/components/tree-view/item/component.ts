@@ -242,9 +242,6 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     selected: unknown[],
     unselected: unknown[]
   ) {
-    let
-      shouldBeSelected: boolean;
-
     super.onSelectionChanged(selected, unselected);
 
     if (this.nodeSelectionChanger.isActive) {
@@ -255,13 +252,14 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       return;
     }
 
-    shouldBeSelected = this.selectedItems.count === this.items.count;
-
-    if (shouldBeSelected !== this.isSelected) {
-      this.changeSelectionInternal(
-        shouldBeSelected
-      );
+    if (this.isRoot) {
+      return;
     }
+
+    this.changeSelectionInternal(
+      this.selectedItems.count === this.items.count,
+      true
+    );
   }
 
   public willDestroy() {
@@ -323,9 +321,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     _: TreeViewItem,
     args: TreeViewItemParentSelectionChangedEventArgs
   ) {
-    if(this.isSelected !== args.value) {
-      this.changeSelectionInternal(args.value);
-    }
+    this.changeSelectionInternal(args.value);
   }
 
   private addEventListener(
@@ -351,28 +347,37 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   }
 
   private changeSelectionInternal(
-    value: boolean
+    newValue: boolean,
+    ignoreChildrenNotification: boolean = false
   ) {
     let
       args: TreeViewItemParentSelectionChangedEventArgs;
 
-    if (this.nodeSelectionChanger.isActive) {
+    if (
+      this.nodeSelectionChanger.isActive ||
+      this.isSelected === newValue
+    ) {
       return;
     }
 
     try {
       this.nodeSelectionChanger.begin();
-      if (value) {
+      if (newValue === true) {
         this.nodeSelectionChanger.select();
       } else {
         this.nodeSelectionChanger.unselect();
       }
-
-      args = new TreeViewItemParentSelectionChangedEventArgs(value);
-      this.eventHandler.emitEvent(this, args);
+      this.nodeSelectionChanger.end();
+      if (
+        !ignoreChildrenNotification &&
+        this.multipleSelectionEnable
+      ) {
+        args = new TreeViewItemParentSelectionChangedEventArgs(newValue);
+        this.eventHandler.emitEvent(this, args);
+      };
 
     } finally {
-      this.nodeSelectionChanger.end();
+      this.nodeSelectionChanger.cleanup();
     }
   }
 
@@ -382,7 +387,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       visualParent = this.visualParent;
 
     while (visualParent) {
-      if (visualParent instanceof TreeView) {
+      if (
+        visualParent instanceof TreeView
+      ) {
         return visualParent;
       }
 
@@ -394,7 +401,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   private static NodeSelectionChanger = class {
     constructor(
-      public owner: TreeViewItem
+      public owner: TreeViewItem,
     ) {
       this.isActive = false;
       this.toSelect = [];
@@ -435,21 +442,19 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       }
 
       if (this.toSelect.length) {
-        //this.root.onSelect(this.owner);
+        this.root.onSelect(this.owner);
       } else if (this.toUnselect.length) {
-        //this.root.onUnselect(this.owner);
+        this.root.onUnselect(this.owner);
       }
-
-      this.cleanup();
     }
 
     public unselect() {
-      this.root.onUnselect(this.owner);
+      this.owner.updateParentSelection(false);
       this.toUnselect.push(this.owner);
     }
 
     public select() {
-      this.root.onSelect(this.owner);
+      this.owner.updateParentSelection(true);
       this.toSelect.push(this.owner);
     }
   }

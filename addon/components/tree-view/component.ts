@@ -147,27 +147,19 @@ export class TreeView extends UXElement<ITreeViewArgs> {
   }
 
   public onSelect(node: TreeViewItem) {
-    try {
-      if (this.nodeSelectionChanger.isActive === false) {
-        this.nodeSelectionChanger.begin();
-      }
-      this.nodeSelectionChanger.select(node);
-    } finally {
-      this.nodeSelectionChanger.end();
+    if (!this.nodeSelectionChanger.isActive) {
+      throw new Error('Selection should be already started');
     }
+    this.nodeSelectionChanger.select(node);
   }
 
   public onUnselect(
     node: TreeViewItem
   ) {
-    try {
-      if (this.nodeSelectionChanger.isActive === false) {
-        this.nodeSelectionChanger.begin();
-      }
-      this.nodeSelectionChanger.unselect(node);
-    } finally {
-      this.nodeSelectionChanger.end();
+    if (!this.nodeSelectionChanger.isActive) {
+      throw new Error('Selection should be already started');
     }
+    this.nodeSelectionChanger.unselect(node);
   }
 
   private static NodeSelectionChanger = class {
@@ -193,7 +185,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       } else {
         this.toSelect.push(node);
       }
-      node.updateParentSelection(true);
     }
 
     public unselect(node: TreeViewItem) {
@@ -206,7 +197,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       } else {
         this.toUnselect.push(node);
       }
-      node.updateParentSelection(false);
     }
 
     public begin() {
@@ -223,7 +213,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       unselected = [];
 
       try {
-        this.applyCanSelectMultiple();
         this.createDelta(
           selected,
           unselected
@@ -237,46 +226,6 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     public cleanup() {
       this.toSelect.length = 0;
       this.toUnselect.length = 0;
-    }
-
-    public applyCanSelectMultiple() {
-      let
-        idx: number,
-        count: number,
-        node: TreeViewItem;
-
-      if (this.owner.multipleSelectionEnable) {
-        return;
-      }
-
-      count = this.owner.selectedNodes.length;
-
-      if (this.toSelect.length === 1) {
-        if (count > 0) {
-          for(
-            idx = 0;
-            idx < count;
-            idx++ 
-          ) {
-            node = this.owner.selectedNodes[idx];
-            this.toUnselect.push(node);
-            node.updateParentSelection(false);
-          }
-        }
-        return;
-      }
-
-      
-      // if multipleSelectionEnable changed from true to false
-      if (count > 1 && count !== this.toUnselect.length + 1) {
-        this.toUnselect.length = 0;
-        // unselect all but the first
-        this.toUnselect.push(
-          ...this.owner.selectedNodes.without(
-            this.owner.selectedNodes[0]
-          )
-        );
-      }
     }
 
     public createDelta(
