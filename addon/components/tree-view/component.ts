@@ -167,35 +167,37 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       public owner: TreeView
     ) {
       this.isActive = false;
-      this.toSelect = [];
-      this.toUnselect = [];
+      this.toSelect = A();
+      this.toUnselect = A();
     }
 
-    public toSelect: Array<TreeViewItem>
-    public toUnselect: Array<TreeViewItem>
+    public toSelect: NativeArray<TreeViewItem>
+    public toUnselect: NativeArray<TreeViewItem>
     public isActive: boolean;
 
     public select(node: TreeViewItem) {
-      if (
-        this.toSelect.some(selected =>
-          selected === node
-        )
-      ) {
-        this.toUnselect.push(node);
+      // ignore if already selected
+      if(this.owner.selectedNodes.includes(node)) {
+        return;
+      }
+
+      if (this.toSelect.includes(node)) {
+        this.toUnselect.pushObject(node);
       } else {
-        this.toSelect.push(node);
+        this.toSelect.pushObject(node);
       }
     }
 
     public unselect(node: TreeViewItem) {
-      if (
-        this.toUnselect.some(unselected =>
-          unselected === node
-        )
-      ) {
-        this.toSelect.push(node);
+      // ignore if not selected
+      if(!this.owner.selectedNodes.includes(node)) {
+        return;
+      }
+
+      if (this.toSelect.includes(node)) {
+        this.toSelect.pushObject(node);
       } else {
-        this.toUnselect.push(node);
+        this.toUnselect.pushObject(node);
       }
     }
 
@@ -213,6 +215,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
       unselected = [];
 
       try {
+        this.applyCanSelectMultiple();
         this.createDelta(
           selected,
           unselected
@@ -224,36 +227,50 @@ export class TreeView extends UXElement<ITreeViewArgs> {
     }
 
     public cleanup() {
-      this.toSelect.length = 0;
-      this.toUnselect.length = 0;
+      this.toSelect.clear();
+      this.toUnselect.clear();
     }
 
     public createDelta(
       selected: Array<unknown>,
       unselected: Array<unknown>
     ) {
-      let
-        idx: number,
-        node: TreeViewItem;
+      this.owner.selectedNodes.removeObjects(this.toUnselect);
+      unselected.push(this.toUnselect.map(
+        tvi => tvi.container.item
+      ));
 
-      for (
-        idx = 0;
-        idx < this.toUnselect.length;
-        idx++
-      ) {
-        node = this.toUnselect[idx];
-        this.owner.selectedNodes.removeObject(node);
-        unselected.push(node);
+      this.owner.selectedNodes.pushObjects(this.toSelect);
+      selected.push(this.toSelect.map(
+        tvi => tvi.container.item
+      ));
+    }
+
+    public applyCanSelectMultiple() {
+      let
+        count: number;
+
+      if (this.owner.multipleSelectionEnable) {
+        return;
       }
 
-      for (
-        idx = 0;
-        idx < this.toSelect.length;
-        idx++
-      ) {
-        node = this.toSelect[idx];
-        this.owner.selectedNodes.pushObject(node);
-        selected.push(node);
+      count = this.owner.selectedNodes.length;
+
+      if (this.toSelect.length === 1) {
+        if (count > 0) {
+          this.owner.selectedNodes.forEach(node => {
+            node.changeSelectionInternal(false);
+          })
+        }
+      }
+
+      // if multipleSelectionEnable changed from true to false
+      if (count > 1 && count !== this.toUnselect.length + 1) {
+        this.owner.selectedNodes.without(
+          this.owner.selectedNodes[0]
+        ).forEach(node => {
+          node.changeSelectionInternal(false);
+        });
       }
     }
   }
@@ -282,8 +299,8 @@ export function isHeaderElement(obj: any)
 
 type NodeSelectionChanger = {
   isActive: boolean;
-  toSelect: Array<TreeViewItem>
-  toUnselect: Array<TreeViewItem>
+  toSelect: NativeArray<TreeViewItem>
+  toUnselect: NativeArray<TreeViewItem>
   begin: () => void
   end: () => void
   select: (node: TreeViewItem) => void
