@@ -26,7 +26,7 @@ import {
   ISplitViewArgs,
   SplitView
 } from '../components/split-view/component';
-import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
+import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {

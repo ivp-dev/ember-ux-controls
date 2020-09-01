@@ -14,25 +14,22 @@ interface IBarArgs extends IUXElementArgs {
 class Bar extends UXElement<IBarArgs> {
   constructor(
     owner: any,
-    args: IBarArgs,
-    props?: IBarArgs
+    args: IBarArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
     return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
+      this.args.classNamesBuilder
     );
   }
 
   @computed('args.{axis}')
   get axis() {
     return (
-      this.args.axis ??
-      this.props?.axis
+      this.args.axis
     );
   }
 

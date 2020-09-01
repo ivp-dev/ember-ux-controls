@@ -12,17 +12,15 @@ interface IScreenArgs extends IUXElementArgs {
 class Screen extends UXElement<IScreenArgs> {
   constructor(
     owner: any,
-    args: IScreenArgs,
-    props?: IScreenArgs
+    args: IScreenArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
     return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
+      this.args.classNamesBuilder
     );
   }
 

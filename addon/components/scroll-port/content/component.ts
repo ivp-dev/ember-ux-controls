@@ -16,16 +16,14 @@ class Content extends UXElement<IContentArgs> {
   @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
     return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
+      this.args.classNamesBuilder
     );
   }
 
   @computed('args.{axis}')
   get axis() {
     return (
-      this.args.axis ??
-      this.props?.axis
+      this.args.axis
     );
   }
 

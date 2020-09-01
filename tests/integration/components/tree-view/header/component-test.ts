@@ -12,7 +12,7 @@ module('Integration | Component | tree-view/header', function(hooks) {
 
     await render(hbs`{{tree-view/header}}`);
 
-    assert.equal(this.element.textContent.trim(), '');
+    assert.equal(this.element.textContent?.trim(), '');
 
     // Template block usage:
     await render(hbs`
@@ -21,6 +21,6 @@ module('Integration | Component | tree-view/header', function(hooks) {
       {{/tree-view/header}}
     `);
 
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.equal(this.element.textContent?.trim(), 'template block text');
   });
 });

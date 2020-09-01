@@ -14,25 +14,22 @@ interface ITrackArgs extends IUXElementArgs {
 export class Track extends UXElement<ITrackArgs> {
   constructor(
     owner: any,
-    args: ITrackArgs,
-    props?: ITrackArgs
+    args: ITrackArgs
   ) {
-    super(owner, args, props);
+    super(owner, args);
   }
 
   @computed('args.{classNamesBuilder}')
   get classNamesBuilder() {
     return (
-      this.args.classNamesBuilder ??
-      this.props?.classNamesBuilder
+      this.args.classNamesBuilder
     );
   }
 
   @computed('args.{axis}')
   get axis() {
     return (
-      this.args.axis ??
-      this.props?.axis
+      this.args.axis
     );
   }
 

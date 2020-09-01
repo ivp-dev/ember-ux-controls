@@ -9,7 +9,7 @@ interface ITreeViewPaneArgs extends IPanelArgs {
   hasItemsSource?: boolean,
   itemTemplateName?: string
   titleTemplateName?: string
-  headerTemplateName?:string
+  headerTemplateName?: string
   expanderTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder,
   multipleSelectionEnable?: boolean
@@ -59,11 +59,12 @@ export class TreeViewPane extends Panel<ITreeViewPaneArgs> {
     return this.args.multipleSelectionEnable;
   }
 
-  public get classNames() {
+  public get classNames()
+    : string {
     if (this.classNamesBuilder) {
-      return this.classNamesBuilder('container', {
+      return `${this.classNamesBuilder('container', {
         [`$visible`]: this.isRoot || this.isExpanded
-      })
+      })}`
     }
     return '';
   }
