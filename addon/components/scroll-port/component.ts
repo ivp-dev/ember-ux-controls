@@ -1,6 +1,7 @@
 import { tracked } from '@glimmer/tracking';
 import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element'
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { action } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
@@ -21,10 +22,18 @@ export class ScrollPort extends UXElement<IScrollPortArgs> {
     super(owner, args);
   }
 
-  @tracked 
+  public get delta() {
+    return this.args.delta ?? 50;
+  }
+
+  public get scrollAxis() {
+    return this.args.scrollAxis;
+  }
+
+  @tracked
   public isX: boolean = false
-  
-  @tracked 
+
+  @tracked
   public isY: boolean = false
 
   public get classNamesBuilder()
@@ -38,6 +47,15 @@ export class ScrollPort extends UXElement<IScrollPortArgs> {
   public get classNames()
     : string {
     return `${this.classNamesBuilder}`;
+  }
+
+  @action
+  public updatePublicProperties(
+    isX: boolean,
+    isY: boolean
+  ) {
+    this.isX = isX;
+    this.isY = isY;
   }
 }
 

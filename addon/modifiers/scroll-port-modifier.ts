@@ -10,7 +10,9 @@ import off from 'ember-ux-core/utils/dom/off';
 import { scheduleOnce } from '@ember/runloop';
 import setReadOnly from 'ember-ux-core/utils/set-read-only';
 import rect from 'ember-ux-core/utils/dom/rect';
-import Modifier from 'ember-ux-core/modifiers/base-modifier';
+import Modifier from 'ember-modifier';
+import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { action } from '@ember/object';
 
 import {
   Axes,
@@ -23,16 +25,13 @@ import {
   IDimensions
 } from 'ember-ux-controls/common/types';
 
-import {
-  IScrollPortArgs, ScrollPort
-} from 'ember-ux-controls/components/scroll-port/component';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+
 
 const
   //'onorientationchange' don't update width and height 
   __changePortSizesEvents = [
     'resize',
-    'resize.split-view'
+    //'resize.split-view'
   ].join(' '),
   __startMoveEvents = [
     'mousedown',
@@ -56,44 +55,52 @@ const
   @public
 */
 
-interface IScrollPortBehaviorArgs extends IScrollPortArgs {
-  owner: object,
-  classNamesBuilder?: ClassNamesBuilder
-}
+type UpdatePublicPropertiesCallback = (isX: boolean, isY: boolean) => void
 
 export default class ScrollPortModifier extends Modifier {
   private behavior: ScrollPortBehavior | null = null
-  constructor(
-    owner: any,
-    args: any
-  ) {
-    super(owner, args);
 
-    this.didInsert = () => {
-      if (this.element === null) {
-        return;
-      }
+  didInstall() {
+    scheduleOnce('afterRender', this, this.didRender)
+  }
 
-      this.behavior = new ScrollPortBehavior(
-        this.element,
-        this.args.named
-      )
+  didUpdateArguments() {
+    this.didRender();
+  }
+
+  didRender() {
+    let
+      namedArgs: Record<string, unknown>;
+
+    if (
+      this.element === null ||
+      !(this.element instanceof HTMLElement)
+    ) {
+      throw new Error('Element was not set');
     }
 
-    this.didUpdate = () => {
-      if(!this.behavior) {
-        return;
-      }
+    namedArgs = this.args.named;
 
-      this.behavior.update();
+    if (this.behavior) {
+      this.behavior.update(
+        namedArgs.delta as number,
+        namedArgs.scrollAxis as Axes,
+      );
+      return;
     }
 
-    //TODO: set didUpdate
-    this.willRemove = () => {
-      if (this.behavior !== null) {
-        this.behavior.deactivate();
-        this.behavior = null;
-      }
+    this.behavior = new ScrollPortBehavior(
+      this.element,
+      namedArgs.delta as number,
+      namedArgs.scrollAxis as Axes,
+      namedArgs.updatePublicProperties as UpdatePublicPropertiesCallback
+    );
+  }
+  
+  willRemove() {
+    if (this.behavior !== null) {
+      this.behavior.deactivate();
+      this.behavior = null;
     }
   }
 }
@@ -108,13 +115,18 @@ class ScrollPortBehavior {
   private scrollEventHandler: () => void
   private resizeEventHandler: () => void
   private startDragEventHandler: () => void
+  private classNamesBuilder: ClassNamesBuilder
 
   constructor(
     private port: HTMLElement,
-    private args: IScrollPortBehaviorArgs
+    private delta: number,
+    private scrollAxis: Axes,
+    private updatePublicProperties: UpdatePublicPropertiesCallback
   ) {
     let
       bars: Array<Element>;
+
+    this.classNamesBuilder = bem('scroll-port');
 
     this.screen = find(
       port,
@@ -146,27 +158,13 @@ class ScrollPortBehavior {
     this.scrollEventHandler = this.onScroll.bind(this);
 
     on([this.barX, this.barY], __startMoveEvents, this.startDragEventHandler);
-
     on(window, __changePortSizesEvents, this.resizeEventHandler);
-
     on(port, __scrollEvents, this.scrollEventHandler);
 
     this.update();
   }
 
   bar: Bar | null = null
-
-  get classNamesBuilder() {
-    if (this.owner instanceof ScrollPort) {
-      return this.owner.classNamesBuilder;
-    }
-
-    if (this.args.classNamesBuilder) {
-      return this.args.classNamesBuilder;
-    }
-
-    throw new Error('ClassNamesBuilder required');
-  }
 
   get portOffset() {
     let
@@ -187,18 +185,6 @@ class ScrollPortBehavior {
     }
 
     return offset;
-  }
-
-  get delta() {
-    return this.args.delta ?? 50;
-  }
-
-  get scrollAxis() {
-    return this.args.scrollAxis;
-  }
-
-  get owner() {
-    return this.args.owner;
   }
 
   get scrollX() {
@@ -225,11 +211,11 @@ class ScrollPortBehavior {
     return this.dimensions?.ratioY ?? 1
   }
 
-  get hasContextX() {
+  get hasContentX() {
     return this.contentX?.length > 0 ?? 0;
   }
 
-  get hasContextY() {
+  get hasContentY() {
     return this.contentY?.length > 0 ?? 0;
   }
 
@@ -289,11 +275,17 @@ class ScrollPortBehavior {
     return size
   }
 
-  public update(){
+  public update(
+    delta = this.delta,
+    scrollAxis = this.scrollAxis
+  ) {
+    if (this.delta !== delta) this.delta = delta
+    if (this.scrollAxis !== scrollAxis) this.scrollAxis = scrollAxis
+
     scheduleOnce('afterRender', this, () => {
       this.measure();
       this.render();
-    })
+    });
   }
 
   public deactivate() {
@@ -326,70 +318,64 @@ class ScrollPortBehavior {
   */
   private measure(): void {
     const
-      dimensions = {} as Readonly<IDimensions>;
+      dim = {} as Readonly<IDimensions>;
 
-    setReadOnly(dimensions, 'portOffset', this.portOffset);
+    setReadOnly(dim, 'portOffset', this.portOffset);
 
-    setReadOnly(dimensions, 'contentSize', this.contentSizes);
+    setReadOnly(dim, 'contentSize', this.contentSizes);
 
-    setReadOnly(dimensions, 'screenSize', this.screenSizes);
+    setReadOnly(dim, 'screenSize', this.screenSizes);
 
-    setReadOnly(dimensions, 'isX', ({ contentSize, screenSize }) =>
-      contentSize.width > screenSize.width
+    setReadOnly(dim, 'isX', ({ contentSize, screenSize }) =>
+      this.scrollAxis !== Axes.Y && contentSize.width > screenSize.width
     );
 
-    setReadOnly(dimensions, 'isY', ({ contentSize, screenSize }) =>
-      contentSize.height > screenSize.height
+    setReadOnly(dim, 'isY', ({ contentSize, screenSize }) =>
+      this.scrollAxis !== Axes.X && contentSize.height > screenSize.height
     );
 
-    setReadOnly(dimensions, 'ratioX', ({ contentSize, screenSize }) =>
+    setReadOnly(dim, 'ratioX', ({ contentSize, screenSize }) =>
       contentSize.width > 0 && screenSize.width > 0
         ? screenSize.width / contentSize.width
         : 1
     );
 
-    setReadOnly(dimensions, 'ratioY', ({ contentSize, screenSize }) =>
+    setReadOnly(dim, 'ratioY', ({ contentSize, screenSize }) =>
       contentSize.height > 0 && screenSize.height > 0
         ? screenSize.height / contentSize.height
         : 1
     );
 
-    setReadOnly(dimensions, 'barSizeX', ({ screenSize, ratioX }) =>
+    setReadOnly(dim, 'barSizeX', ({ screenSize, ratioX }) =>
       screenSize.width * ratioX
     );
 
-    setReadOnly(dimensions, 'barSizeY', ({ screenSize, ratioY }) =>
+    setReadOnly(dim, 'barSizeY', ({ screenSize, ratioY }) =>
       screenSize.height * ratioY
     );
 
-    setReadOnly(dimensions, 'maxScrollX', ({ screenSize, ratioX }) =>
+    setReadOnly(dim, 'maxScrollX', ({ screenSize, ratioX }) =>
       Math.max(screenSize.width - screenSize.width * ratioX, 0)
     );
 
-    setReadOnly(dimensions, 'maxScrollY', ({ screenSize, ratioY }) =>
+    setReadOnly(dim, 'maxScrollY', ({ screenSize, ratioY }) =>
       Math.max(screenSize.height - screenSize.height * ratioY, 0)
     );
 
-    setReadOnly(dimensions, 'scrollX', ({ ratioX, maxScrollX }) =>
+    setReadOnly(dim, 'scrollX', ({ ratioX, maxScrollX }) =>
       Math.min(this.scrollX * ratioX / this.ratioX, maxScrollX)
     );
 
-    setReadOnly(dimensions, 'scrollY', ({ ratioY, maxScrollY }) =>
+    setReadOnly(dim, 'scrollY', ({ ratioY, maxScrollY }) =>
       Math.min(this.scrollY * ratioY / this.ratioY, maxScrollY)
     );
 
-    this.updatePublicProperties(dimensions);
+    this.dimensions = dim;
 
-    this.dimensions = dimensions;
-  }
-
-  private updatePublicProperties(
-    dim: Readonly<IDimensions>
-  ) {
-    if (this.owner instanceof ScrollPort) {
-      this.owner.isX = dim.isX;
-      this.owner.isY = dim.isY;
-    }
+    this.updatePublicProperties(
+      dim.isX,
+      dim.isY
+    );
   }
 
   private onMouseMove(
@@ -428,7 +414,7 @@ class ScrollPortBehavior {
       )
     }
 
-    scheduleOnce('afterRender', this, this.render);
+    this.getElementWindow(this.port).requestAnimationFrame(this.render)
   }
 
   private onStartDrag(
@@ -495,13 +481,7 @@ class ScrollPortBehavior {
   }
 
   private onResize() {
-    scheduleOnce(
-      'afterRender',
-      this,
-      () => {
-        this.measure();
-        this.render();
-      });
+    this.update();
   }
 
   private onScroll(event: WheelEvent) {
@@ -514,6 +494,7 @@ class ScrollPortBehavior {
   /**
    * Apply sizes for contents
    */
+  @action
   private render(): void {
     const
       dimensions = this.dimensions;
@@ -552,10 +533,10 @@ class ScrollPortBehavior {
   }
 
   private scroll(_: number, deltaY: number)
-  : void {
+    : void {
     if (this.dimensions !== null) {
       if (this.scrollAxis === Axes.X) {
-        if (this.hasContextX && deltaY) {
+        if (this.hasContentX && deltaY) {
           setReadOnly(
             this.dimensions,
             'scrollX',
@@ -566,7 +547,7 @@ class ScrollPortBehavior {
             )
           )
         }
-      } else if (this.hasContextY && deltaY) {
+      } else if (this.hasContentY && deltaY) {
         setReadOnly(
           this.dimensions,
           'scrollY',
@@ -579,7 +560,7 @@ class ScrollPortBehavior {
       }
     }
 
-    scheduleOnce('afterRender', this, this.render);
+    this.getElementWindow(this.port).requestAnimationFrame(this.render);
   }
 
   private calculateDelta(
@@ -594,6 +575,17 @@ class ScrollPortBehavior {
       Math.max(scroll + target, 0),
       maxScroll
     );
+  }
+
+  private getElementWindow(element: HTMLElement) {
+    if (
+      !element ||
+      !element.ownerDocument ||
+      !element.ownerDocument.defaultView
+    ) {
+      return window;
+    }
+    return element.ownerDocument.defaultView;
   }
 
   private clientAxis(

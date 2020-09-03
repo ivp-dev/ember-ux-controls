@@ -11,7 +11,7 @@ import addClass from 'ember-ux-core/utils/dom/add-class';
 import trigger from 'ember-ux-core/utils/dom/trigger';
 import setReadOnly from 'ember-ux-core/utils/set-read-only';
 import rect from 'ember-ux-core/utils/dom/rect';
-import Modifier from 'ember-ux-core/modifiers/base-modifier';
+import Modifier from 'ember-modifier';
 import { scheduleOnce } from '@ember/runloop';
 
 import {
@@ -30,6 +30,7 @@ import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
+  host: unknown
   classNamesBuilder: ClassNamesBuilder
 }
 
@@ -79,32 +80,32 @@ const
 export default class SplitViewModifier extends Modifier {
   private behavior: SplitViewBehavior | null = null
 
-  constructor(
-    owner: any,
-    args: any
-  ) {
-    super(owner, args);
-
-    this.didInsert = () => {
-      if (this.element === null) {
-        return;
-      }
-
-      this.behavior = new SplitViewBehavior(
-        this.element,
-        this.args.named
-      );
-
-      this.behavior.subscribe();
+  public didInstall() {
+    if (
+      this.element === null ||
+      !(this.element instanceof HTMLElement)
+    ) {
+      return;
     }
 
-    //TODO: set didUpdate if it's need
+    this.behavior = new SplitViewBehavior(
+      this.element,
+      this.args.named
+    );
 
-    this.willRemove = () => {
-      if (this.behavior !== null) {
-        this.behavior.unsubscribe(true);
-        this.behavior = null;
-      }
+    this.behavior.subscribe();
+  }
+
+  public didUpdateArguments() {
+    if (this.behavior) {
+      this.behavior.update(this.args.named);
+    }
+  }
+
+  public willRemove() {
+    if (this.behavior !== null) {
+      this.behavior.unsubscribe(true);
+      this.behavior = null;
     }
   }
 }
@@ -123,7 +124,7 @@ export class SplitViewBehavior {
 
   constructor(
     private element: HTMLElement,
-    private args: ISplitViewModifierArgs
+    private args: Record<string, unknown>
   ) {
     this.init();
 
@@ -135,9 +136,9 @@ export class SplitViewBehavior {
     this.applySizes();
   }
 
-  get parentElement()
-    : object | undefined {
-    return this.args.visualParent;
+  get host()
+    : unknown {
+    return this.getRequiredProperty('host');
   }
 
   get axis()
@@ -191,29 +192,33 @@ export class SplitViewBehavior {
   }
 
   public subscribe() {
-    if (this.parentElement instanceof SplitView) {
-      this.parentElement.itemContainerGenerator.eventHandler.addEventListener(
+    if (this.host instanceof SplitView) {
+      this.host.itemContainerGenerator.eventHandler.addEventListener(
         this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
       );
     }
   }
 
+  public update(
+    args = this.args
+  ) {
+    if (this.args !== args) {
+      this.args = args;
+    }
+
+    this.init();
+    this.setupBars();
+    this.clearSizes();
+    this.applySizes();
+  }
+
+
   public unsubscribe(
     willRemove = false
   ): void {
     if (this.drag) {
-      off(
-        document,
-        __moveEvents,
-        this.moveHandler
-      );
-
-      off(
-        document,
-        __endMoveEvents,
-        this.endMoveHandler
-      );
-
+      off(document, __moveEvents, this.moveHandler);
+      off(document, __endMoveEvents, this.endMoveHandler);
       this.drag = null;
     }
 
@@ -226,8 +231,10 @@ export class SplitViewBehavior {
         this.startMoveHandler
       );
 
-      if (this.parentElement instanceof SplitView) {
-        this.parentElement.itemContainerGenerator.eventHandler.removeEventListener(
+      if (
+        this.host instanceof SplitView
+      ) {
+        this.host.itemContainerGenerator.eventHandler.removeEventListener(
           this,
           GeneratorStatusEventArgs
         );
@@ -247,6 +254,10 @@ export class SplitViewBehavior {
   }
 
   private init() {
+    let
+      sizes: unknown,
+      minPaneSizes: unknown;
+
     this.ids = children(
       this.element,
       `.${this.classNamesBuilder('pane')}`
@@ -256,21 +267,25 @@ export class SplitViewBehavior {
       find(this.element, `#${id}`)[0]
     )] as HTMLElement[];
 
-    this.sizes = this.args.sizes ?? this.ids.map(() =>
-      100 / this.ids.length
-    );
+    sizes = this.args.sizes;
+    if (Array.isArray(sizes)) {
+      this.sizes = sizes;
+    } else {
+      this.sizes = this.ids.map(() =>
+        100 / this.ids.length
+      );
+    }
 
-    this.minPaneSizes = this.args.minPaneSizes ?? this.ids.map(() =>
-      this.minPaneSize
-    );
+    minPaneSizes = this.args.minPaneSizes;
+    if (Array.isArray(minPaneSizes)) {
+      this.minPaneSizes = minPaneSizes;
+    } else {
+      this.minPaneSizes = this.ids.map(() =>
+        this.minPaneSize
+      );
+    }
 
     this.calcBarSize = this.barSize * (this.ids.length - 1) / this.ids.length;
-  }
-
-  private update() {
-    this.init()
-    this.setupBars();
-    this.applySizes();
   }
 
   private clearBars() {
@@ -285,6 +300,8 @@ export class SplitViewBehavior {
       off(bar, __startEvents, this.startMoveHandler);
       bar.remove();
     }
+
+    this.bars.length = 0;
   }
 
   private setupBars(
@@ -330,6 +347,24 @@ export class SplitViewBehavior {
 
         this.bars.push(bar);
       }
+    }
+  }
+
+  private clearSizes() {
+    let
+      style: { [K in Size]?: string },
+      idx: number;
+
+    style = {};
+
+    for (
+      idx = 0;
+      idx < this.panes.length;
+      idx++
+    ) {
+      style[Size.Height] = 'inherit';
+      style[Size.Width] = 'inherit';
+      css(this.panes[idx], style);
     }
   }
 
@@ -479,7 +514,7 @@ export class SplitViewBehavior {
 
       reducedSize = blockSizes.size - reducedSize;
     }
-    
+
     sum = sizes.reduce((a, b) => a + b, 0);
     if (sum !== portSize) {
       sizes = sizes.map((size) => size * portSize / sum)
@@ -821,18 +856,12 @@ export class SplitViewBehavior {
       result: T[K];
 
     result = Reflect.get(this.args, key);
-    if (typeof result !== 'undefined') {
-      return result;
+    if (typeof result === 'undefined') {
+      throw new Error(`${key} was not found`);
+
     }
 
-    if (this.parentElement instanceof SplitView) {
-      result = Reflect.get(this.parentElement, key);
-      if (typeof result !== 'undefined') {
-        return result;
-      }
-    }
-
-    throw new Error(`${key} was not found`);
+    return result;
   }
 
 }

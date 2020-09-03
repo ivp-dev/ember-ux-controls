@@ -1,19 +1,20 @@
 <div 
   class={{this.classNames}}
   {{split-view-modifier
-    fluent=this.fluent
-    responsive=this.responsive
-    axis=this.axis
-    minPaneSize=this.minPaneSize
-    barSize=this.barSize
-    sizeTarget=this.sizeTarget
-    sideTarget=this.sideTarget
-    sideOrigin=this.sideOrigin
-    classNamesBuilder=this.classNamesBuilder
-    maxSizeTarget=this.maxSizeTarget
+    host=this
     minPaneSizes=@minPaneSizes
     sizes=@sizes
     onSizeChanged=@onSizeChanged
+    axis=this.axis
+    classNamesBuilder=this.classNamesBuilder
+    barSize=this.barSize
+    fluent=this.fluent
+    sizeTarget=this.sizeTarget
+    maxSizeTarget=this.maxSizeTarget
+    minPaneSize=this.minPaneSize
+    responsive=this.responsive
+    sideOrigin=this.sideOrigin
+    sideTarget=this.sideTarget
   }}
   ...attributes
   >

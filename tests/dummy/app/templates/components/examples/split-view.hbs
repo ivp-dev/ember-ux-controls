@@ -79,40 +79,32 @@
       </div>
     </Splitter.Pane>
     <Splitter.Pane>
-      <ComponentObserver 
+      <SplitView::Light
         @axis={{this.axis}}
         @minPaneSize={{this.minPaneSize}} 
-        @barSize={{this.barSize}}
-        @fluent={{this.fluent}}
+        @sizes={{this.sizes}}
+        @barSize={{this.barSize}} 
+        @fluent={{this.fluent}} 
         @responsive={{this.responsive}}
+        @onSizeChanged={{this.onSizeChanged}}
+        as |SplitterInter|
       >
-        <SplitView::Light
-          @axis={{this.axis}}
-          @minPaneSize={{this.minPaneSize}} 
-          @sizes={{this.sizes}}
-          @barSize={{this.barSize}} 
-          @fluent={{this.fluent}} 
-          @responsive={{this.responsive}}
-          @onSizeChanged={{this.onSizeChanged}}
-          as |SplitterInter|
-        >
-          <SplitterInter.Pane>
-            <div class="left-panel">
-              <span>Left panel</span>
-            </div>
-          </SplitterInter.Pane>
-          <SplitterInter.Pane>
-            <div class="middle-panel">
-              <span>Middle panel</span>
-            </div>
-          </SplitterInter.Pane>
-          <SplitterInter.Pane>
-            <div class="right-panel">
-              <span>Right panel</span>
-            </div>
-          </SplitterInter.Pane>
-        </SplitView::Light>
-      </ComponentObserver> 
+        <SplitterInter.Pane>
+          <div class="left-panel">
+            <span>Left panel</span>
+          </div>
+        </SplitterInter.Pane>
+        <SplitterInter.Pane>
+          <div class="middle-panel">
+            <span>Middle panel</span>
+          </div>
+        </SplitterInter.Pane>
+        <SplitterInter.Pane>
+          <div class="right-panel">
+            <span>Right panel</span>
+          </div>
+        </SplitterInter.Pane>
+      </SplitView::Light>
     </Splitter.Pane>
   </SplitView::Light>
 </div>

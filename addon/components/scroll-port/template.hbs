@@ -1,8 +1,8 @@
 <div class="{{this.classNames}}" 
-  {{scroll-port-modifier 
-    owner=this
-    scrollAxis = @scrollAxis
-    delta = @delta
+  {{scroll-port-modifier
+    updatePublicProperties=this.updatePublicProperties
+    scrollAxis=this.scrollAxis
+    delta=this.delta
   }}
   ...attributes
 >
