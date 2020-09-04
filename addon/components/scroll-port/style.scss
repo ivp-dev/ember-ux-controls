@@ -32,7 +32,7 @@ $scroll-port__bar_outstand:        2px !default;
     right:                 0;
     overflow:              hidden;
     display:               none;
-    z-index:               100;
+    z-index:               0;
     background:            transparent;
     > .scroll-port__bar {
       position:            absolute;
@@ -40,7 +40,7 @@ $scroll-port__bar_outstand:        2px !default;
       background:        black;
       border-radius:       4px;
       user-select:         none;
-      z-index:             2;
+      z-index:             1;
       &:hover {
         opacity:           1;
         transition:        opacity 0.2s linear;

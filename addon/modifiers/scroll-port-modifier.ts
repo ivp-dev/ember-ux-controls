@@ -61,14 +61,14 @@ export default class ScrollPortModifier extends Modifier {
   private behavior: ScrollPortBehavior | null = null
 
   didInstall() {
-    scheduleOnce('afterRender', this, this.didRender)
+    this.update();
   }
 
   didUpdateArguments() {
-    this.didRender();
+    this.update();
   }
 
-  didRender() {
+  update() {
     let
       namedArgs: Record<string, unknown>;
 
@@ -96,7 +96,7 @@ export default class ScrollPortModifier extends Modifier {
       namedArgs.updatePublicProperties as UpdatePublicPropertiesCallback
     );
   }
-  
+
   willRemove() {
     if (this.behavior !== null) {
       this.behavior.deactivate();
@@ -109,6 +109,7 @@ class ScrollPortBehavior {
   private screen: HTMLElement
   private contentX: Array<HTMLElement>
   private contentY: Array<HTMLElement>
+  private bar: Bar | null = null
   private barX: HTMLElement
   private barY: HTMLElement
   private dimensions: Readonly<IDimensions> | null = null
@@ -116,6 +117,7 @@ class ScrollPortBehavior {
   private resizeEventHandler: () => void
   private startDragEventHandler: () => void
   private classNamesBuilder: ClassNamesBuilder
+  private resizeObserver: ResizeObserver | null
 
   constructor(
     private port: HTMLElement,
@@ -161,10 +163,12 @@ class ScrollPortBehavior {
     on(window, __changePortSizesEvents, this.resizeEventHandler);
     on(port, __scrollEvents, this.scrollEventHandler);
 
-    this.update();
-  }
+    this.resizeObserver = new ResizeObserver(() => {
+      this.update();
+    });
 
-  bar: Bar | null = null
+    this.resizeObserver.observe(this.port);
+  }
 
   get portOffset() {
     let
@@ -275,6 +279,7 @@ class ScrollPortBehavior {
     return size
   }
 
+  @action
   public update(
     delta = this.delta,
     scrollAxis = this.scrollAxis
@@ -310,7 +315,12 @@ class ScrollPortBehavior {
       [this.barX, this.barY],
       __startMoveEvents,
       this.startDragEventHandler
-    )
+    );
+
+    if (this.resizeObserver) {
+      this.resizeObserver.unobserve(this.port);
+      this.resizeObserver = null;
+    }
   }
 
   /**
