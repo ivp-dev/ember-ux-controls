@@ -13,6 +13,7 @@ import { action } from '@ember/object';
 
 // @ts-ignore
 import layout from './template';
+import Component from '@glimmer/component';
 
 export interface ITabControlArgs extends ISelectItemsControlArgs {
   direction?: Direction,
@@ -170,12 +171,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public clearContainerForItem(
-    container: TabItemModel
-    /*item: unknown*/
+    _: TabItemModel | Component,
+    _item: unknown
   ): void {
-    container.item = null;
-    container.content = null;
-    container.header = null;
+    
   }
 
   public linkContainerToItem(

@@ -800,7 +800,8 @@ export class SplitViewBehavior {
   }
 
   private clientAxis(
-    axis: Axes, event: MouseEvent | TouchEvent
+    axis: Axes, 
+    event: MouseEvent | TouchEvent
   ): number {
     let
       isX: boolean,
