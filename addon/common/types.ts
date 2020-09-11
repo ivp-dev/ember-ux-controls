@@ -36,4 +36,5 @@ export interface IContentElement {
 }
 
 export interface IHeaderContentElement
-  extends IHeaderedElement, IContentElement {  }
+  extends IHeaderedElement, IContentElement {
+}

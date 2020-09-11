@@ -12,7 +12,8 @@
     @headerTemplateName={{this.headerTemplateName}}
     @contentTemplateName={{this.contentTemplateName}}
     @classNamesBuilder={{this.classNamesBuilder}}
-  as |Tabs|>
+    as |Tabs|
+  >
     {{#unless this.hasItemsSource}}
       {{yield Tabs}}
     {{/unless}}

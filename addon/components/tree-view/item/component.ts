@@ -1,9 +1,8 @@
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-core/components/select-items-control';
 import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import { isHeaderElement, isItemsElement, TreeView } from 'ember-ux-controls/components/tree-view/component'
+import { isHeaderElement, isItemsElement, TreeView, TreeViewItemModel } from 'ember-ux-controls/components/tree-view/component'
 import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
-import TreeViewItemModel from 'ember-ux-controls/common/classes/tree-view-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { action } from '@ember/object';
 import { next } from '@ember/runloop';

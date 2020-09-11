@@ -9,11 +9,43 @@ import {
   Size
 } from 'ember-ux-core/common/types';
 import { Pane } from './pane/component';
-import SplitViewPaneModel from 'ember-ux-controls/common/classes/split-view-pane-model';
 import { IContentElement } from 'ember-ux-controls/common/types';
 
 // @ts-ignore
 import layout from './template';
+
+import { notifyPropertyChange } from '@ember/object';
+
+export class PaneModel {
+  constructor(
+    public owner: object,
+  ) { }
+
+  public get content() {
+    return this._content;
+  }
+
+  public set content(value: unknown) {
+    if (this._content !== value) {
+      this._content = value;
+      notifyPropertyChange(this, 'content');
+    }
+  }
+
+  public get item() {
+    return this._item;
+  }
+
+  public set item(value: unknown) {
+    if (this._item !== value) {
+      this._item = value;
+      notifyPropertyChange(this, 'item');
+    }
+  }
+
+  private _item: unknown;
+  private _content: unknown;
+}
 
 export interface ISplitViewArgs extends IItemsControlArgs {
   axis?: Axes
@@ -140,12 +172,12 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
   }
 
   public createContainerForItem()
-    : SplitViewPaneModel {
-    return new SplitViewPaneModel(this);
+    : PaneModel {
+    return new PaneModel(this);
   }
 
   public prepareItemContainer(
-    container: SplitViewPaneModel
+    container: PaneModel
   ): void {
     let
       item: unknown;
@@ -168,21 +200,21 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
   }
 
   public clearContainerForItem(
-    container: SplitViewPaneModel
+    container: PaneModel
   ): void {
     container.item = null;
     container.content = null;
   }
 
   public linkContainerToItem(
-    container: SplitViewPaneModel,
+    container: PaneModel,
     item: unknown
   ): void {
     container.item = item;
   }
 
   public readItemFromContainer(
-    container: SplitViewPaneModel
+    container: PaneModel
   ): unknown {
     return container.item;
   }

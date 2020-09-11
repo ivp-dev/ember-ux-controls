@@ -3,17 +3,74 @@ import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-core/common/typ
 import { scheduleOnce } from '@ember/runloop';
 import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
 import { TabControlItem } from './tab-item/component';
-import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
 import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
 import { notifyPropertyChange } from '@ember/object';
 import { find } from 'ember-ux-core/utils/dom'
 import { action } from '@ember/object';
+import Component from '@glimmer/component';
+import { ISelectable } from 'ember-ux-core/common/types'
 
 // @ts-ignore
 import layout from './template';
-import Component from '@glimmer/component';
+
+export class TabItemModel implements ISelectable {
+  public get item() {
+    return this._item;
+  }
+
+  public set item(value: unknown) {
+    if (this._item !== value) {
+      this._item = value;
+      notifyPropertyChange(this, 'item');
+    }
+  }
+
+  public get header() {
+    return this._header;
+  }
+
+  public set header(
+    value: unknown
+  ) {
+    if (this._header !== value) {
+      this._header = value;
+      notifyPropertyChange(this, 'header');
+    }
+  }
+
+  public get content() {
+    return this._content;
+  }
+
+  public set content(
+    value: unknown
+  ) {
+    if (this._content !== value) {
+      this._content = value;
+      notifyPropertyChange(this, 'content');
+    }
+  }
+
+  public get isSelected() {
+    return this._isSelected;
+  }
+
+  public set isSelected(
+    value: boolean
+  ) {
+    if (this._isSelected != value) {
+      this._isSelected = value;
+      notifyPropertyChange(this, 'isSelected');
+    }
+  }
+
+  private _header: unknown = null
+  private _content: unknown = null
+  private _item: unknown = null
+  private _isSelected = false;
+}
 
 export interface ITabControlArgs extends ISelectItemsControlArgs {
   direction?: Direction,
