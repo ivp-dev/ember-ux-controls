@@ -1,16 +1,16 @@
 // @ts-ignore
 import { setModifierManager, capabilities } from '@ember/modifier';
-import children from 'ember-ux-core/utils/dom/children';
-import find from 'ember-ux-core/utils/dom/find';
-import on from 'ember-ux-core/utils/dom/on';
-import off from 'ember-ux-core/utils/dom/off';
-import css from 'ember-ux-core/utils/dom/css';
-import hasClass from 'ember-ux-core/utils/dom/has-class';
-import appendTo from 'ember-ux-core/utils/dom/append-to';
-import addClass from 'ember-ux-core/utils/dom/add-class';
-import trigger from 'ember-ux-core/utils/dom/trigger';
-import setReadOnly from 'ember-ux-core/utils/set-read-only';
-import rect from 'ember-ux-core/utils/dom/rect';
+import children from 'ember-ux-controls/utils/dom/children';
+import find from 'ember-ux-controls/utils/dom/find';
+import on from 'ember-ux-controls/utils/dom/on';
+import off from 'ember-ux-controls/utils/dom/off';
+import css from 'ember-ux-controls/utils/dom/css';
+import hasClass from 'ember-ux-controls/utils/dom/has-class';
+import appendTo from 'ember-ux-controls/utils/dom/append-to';
+import addClass from 'ember-ux-controls/utils/dom/add-class';
+import trigger from 'ember-ux-controls/utils/dom/trigger';
+import setReadOnly from 'ember-ux-controls/utils/set-read-only';
+import rect from 'ember-ux-controls/utils/dom/rect';
 import Modifier from 'ember-modifier';
 import { scheduleOnce } from '@ember/runloop';
 
@@ -20,14 +20,14 @@ import {
   IPointer,
   Size,
   GeneratorStatus
-} from 'ember-ux-core/common/types';
+} from 'ember-ux-controls/common/types';
 
 import {
   ISplitViewArgs,
   SplitView
 } from '../components/split-view/component';
-import { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { GeneratorStatusEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
   host: unknown

@@ -1,5 +1,5 @@
-import Panel, { IPanelArgs } from 'ember-ux-core/components/panel';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { TreeView } from 'ember-ux-controls/components/tree-view/component';
 // @ts-ignore
 import layout from './template';

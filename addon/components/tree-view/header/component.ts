@@ -1,5 +1,5 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
 import { reads } from '@ember/object/computed';
 // @ts-ignore

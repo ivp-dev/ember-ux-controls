@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import { Axes } from 'ember-ux-core/common/types';
+import { Axes } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
 
 interface SplitViewExampleArgs { }

@@ -1,8 +1,8 @@
 
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { reads } from '@ember/object/computed';
 import { action } from '@ember/object';
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 // @ts-ignore
 import layout from './template';
 

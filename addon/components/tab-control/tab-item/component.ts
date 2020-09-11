@@ -1,12 +1,12 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { action } from '@ember/object';
-import { on, off, appendBetween } from 'ember-ux-core/utils/dom';
+import { on, off, appendBetween } from 'ember-ux-controls/utils/dom';
 import { scheduleOnce } from '@ember/runloop';
 import { TabControl } from '../component';
 import TabItemModel from 'ember-ux-controls/common/classes/tab-item-model';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { next } from '@ember/runloop';
 // @ts-ignore
 import layout from './template';

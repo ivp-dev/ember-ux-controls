@@ -1,16 +1,16 @@
-import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-core/components/select-items-control';
-import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-core/common/types';
+import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
+import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-controls/common/types';
 import { scheduleOnce } from '@ember/runloop';
-import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-core/common/classes/-private/item-container-generator';
+import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import { TabControlItem } from './tab-item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
-import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { notifyPropertyChange } from '@ember/object';
-import { find } from 'ember-ux-core/utils/dom'
+import { find } from 'ember-ux-controls/utils/dom'
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
-import { ISelectable } from 'ember-ux-core/common/types'
+import { ISelectable } from 'ember-ux-controls/common/types'
 
 // @ts-ignore
 import layout from './template';

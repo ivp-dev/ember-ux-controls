@@ -1,13 +1,13 @@
 import { tracked } from '@glimmer/tracking';
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element'
-import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element'
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
 import {
   Axes
-} from 'ember-ux-core/common/types';
+} from 'ember-ux-controls/common/types';
 
 export interface IScrollPortArgs extends IUXElementArgs {
   scrollAxis?: Axes,

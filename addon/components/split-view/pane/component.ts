@@ -1,10 +1,10 @@
 import { guidFor } from '@ember/object/internals';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { SplitView } from '../component';
 import { action } from '@ember/object';
 import { next } from '@ember/runloop';
-import PaneModel from 'ember-ux-controls/common/classes/split-view-pane-model';
+import {PaneModel} from 'ember-ux-controls/components/split-view/component';
 // @ts-ignore
 import layout from './template';
 

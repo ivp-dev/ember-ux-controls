@@ -1,24 +1,24 @@
 // @ts-ignore
 import { setModifierManager, capabilities } from '@ember/modifier';
-import hasClass from 'ember-ux-core/utils/dom/has-class';
-import addClass from 'ember-ux-core/utils/dom/add-class';
-import removeClass from 'ember-ux-core/utils/dom/remove-class';
-import css from 'ember-ux-core/utils/dom/css';
-import find from 'ember-ux-core/utils/dom/find';
-import on from 'ember-ux-core/utils/dom/on';
-import off from 'ember-ux-core/utils/dom/off';
+import hasClass from 'ember-ux-controls/utils/dom/has-class';
+import addClass from 'ember-ux-controls/utils/dom/add-class';
+import removeClass from 'ember-ux-controls/utils/dom/remove-class';
+import css from 'ember-ux-controls/utils/dom/css';
+import find from 'ember-ux-controls/utils/dom/find';
+import on from 'ember-ux-controls/utils/dom/on';
+import off from 'ember-ux-controls/utils/dom/off';
 import { scheduleOnce } from '@ember/runloop';
-import setReadOnly from 'ember-ux-core/utils/set-read-only';
-import rect from 'ember-ux-core/utils/dom/rect';
+import setReadOnly from 'ember-ux-controls/utils/set-read-only';
+import rect from 'ember-ux-controls/utils/dom/rect';
 import Modifier from 'ember-modifier';
-import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
 
 import {
   Axes,
   ISize,
   IPointer
-} from 'ember-ux-core/common/types';
+} from 'ember-ux-controls/common/types';
 
 import {
   IOffset,

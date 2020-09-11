@@ -1,6 +1,6 @@
-import Panel, { IPanelArgs } from 'ember-ux-core/components/panel';
-import { Axes } from 'ember-ux-core/common/types';
-import { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
+import { Axes } from 'ember-ux-controls/common/types';
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { computed } from '@ember/object';
 // @ts-ignore
 import layout from './template';

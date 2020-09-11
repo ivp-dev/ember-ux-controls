@@ -1,13 +1,13 @@
 import ItemsControl, {
   IItemsControlArgs,
-} from 'ember-ux-core/components/items-control'
+} from 'ember-ux-controls/common/classes/items-control'
 import { camelize } from '@ember/string';
-import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import {
   Axes,
   Side,
   Size
-} from 'ember-ux-core/common/types';
+} from 'ember-ux-controls/common/types';
 import { Pane } from './pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
 

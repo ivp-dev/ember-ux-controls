@@ -1,5 +1,5 @@
 import Controller from '@ember/controller';
-import { Axes } from 'ember-ux-core/common/types'
+import { Axes } from 'ember-ux-controls/common/types'
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 

@@ -1,5 +1,5 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-core/components/ux-element'
-import bem, { ClassNamesBuilder } from 'ember-ux-core/utils/bem';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element'
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { IHeaderedElement, IItemsElement } from 'ember-ux-controls/common/types';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';

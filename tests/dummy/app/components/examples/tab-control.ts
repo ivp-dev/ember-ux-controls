@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
-import { Side, Direction } from 'ember-ux-core/common/types';
+import { Side, Direction } from 'ember-ux-controls/common/types';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
 interface TabControlExampleArgs { }
