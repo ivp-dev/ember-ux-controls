@@ -1,6 +1,6 @@
 {
   "name": "ember-ux-controls",
-  "version": "1.0.0-build.4",
+  "version": "1.0.0-build.6",
   "description": "Ember controls",
   "keywords": [
     "ember-addon"
@@ -30,11 +30,11 @@
     "ember-cli-sass": "^10.0.1",
     "ember-cli-typescript": "^4.0.0",
     "ember-modifier": "^2.1.0",
+    "@ember/render-modifiers": "^1.0.2",
     "sass": "^1.26.10"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
-    "@ember/render-modifiers": "^1.0.2",
     "@types/resize-observer-browser": "^0.1.3",
     "@glimmer/component": "^1.0.1",
     "@glimmer/tracking": "^1.0.1",
