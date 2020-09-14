@@ -52,5 +52,16 @@
         @responsive={{this.responsive}}
       />
     </Menu.Tab>
+    <Menu.Tab @header="Table - developing">
+      <Examples::DataTable 
+        @onSizeChanged={{this.onSizeChanged}}
+        @axis={{this.axis}}
+        @sizes={{this.sizes}}
+        @minPaneSize={{this.minPaneSize}} 
+        @barSize={{this.barSize}} 
+        @fluent={{this.fluent}} 
+        @responsive={{this.responsive}}
+      />
+    </Menu.Tab>
   </TabControl>
 </div>

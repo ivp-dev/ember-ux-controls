@@ -1,0 +1,36 @@
+<div
+  class="{{this.classNames}}"
+  ...attributes
+>
+  {{#with 
+    (hash
+      Head=(component this.headTemplateName)
+      Body=(component this.bodyTemplateName)
+      Foot=(component this.footTemplateName)
+    ) as |Table|
+  }}
+
+    <Table.Head 
+      @columns={{this.columns}}
+      @classNamesBuilder={{this.classNamesBuilder}}
+    />
+    
+    <Table.Body 
+      @visualParent={{this}}
+      @scrollable={{this.scrollable}}
+      @scrollAxis={{this.scrollAxis}}
+      @hasItemsSource={{this.hasItemsSource}}
+      @itemTemplateName={{this.itemTemplateName}}
+      @classNamesBuilder={{this.classNamesBuilder}}
+      @cellTamplateName={{this.cellTamplateName}}
+    />
+
+    <Table.Foot 
+      @classNamesBuilder={{this.classNamesBuilder}}
+    />
+
+  {{/with}}
+</div>
+
+
+    

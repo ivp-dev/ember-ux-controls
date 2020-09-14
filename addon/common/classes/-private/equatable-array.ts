@@ -27,7 +27,7 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
     } else if (isArray(objects)) {
       return super.pushObjects(A(objects.toArray()));
     }
-    throw Error('objects should be array')
+    throw 'objects should be an array'
   }
 
   public indexOf(

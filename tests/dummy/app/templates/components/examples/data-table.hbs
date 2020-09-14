@@ -1,0 +1,32 @@
+<div class="example__table">
+  <SplitView::Light
+    @axis={{@axis}}
+    @sizes={{@sizes}}
+    @minPaneSize={{@minPaneSize}} 
+    @onSizeChanged={{@onSizeChanged}}
+    @barSize={{@barSize}} 
+    @fluent={{@fluent}} 
+    @responsive={{@responsive}}
+    as |Splitter|
+  >
+    <Splitter.Pane>
+      <div class="example__properties">
+        <div class="grid">
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@scrollable</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.scrollable}}/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Splitter.Pane>
+    <Splitter.Pane>
+      <div class="example__control">
+        <DataTable @itemsSource={{this.itemsSource}}/>
+      </div>
+    </Splitter.Pane>
+  </SplitView::Light>
+</div>

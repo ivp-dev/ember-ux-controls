@@ -1,0 +1,55 @@
+{{#with 
+  (hash
+    Item=(component this.headTemplateName)
+  ) as |Body|
+}}
+
+  <div class="{{this.classNames}}">
+    {{#if this.scrollable}}
+      <ScrollPort 
+        @scrollAxis={{this.scrollAxis}} 
+        as |Port|
+      >
+        <Port.Content 
+          @axis={{this.scrollAxis}}
+        >
+          <div
+            class="{{this.scrollPortClassNames}}"
+          >
+            {{#each this.children as |container|}}
+              <Body.Item
+                @visualParent={{this}}
+                @logicalParent={{this.logicalParent}}
+                @hasItemsSource={{this.hasItemsSource}}
+                @container={{container}}
+                @isSelected={{container.isSelected}}
+                @item={{container.item}}
+                @header={{container.header}}
+                @content={{container.content}}
+                @classNamesBuilder={{this.classNamesBuilder}}
+                @cellTemplateName={{this.cellTemplateName}}
+              />
+            {{/each}}
+          </div>
+        </Port.Content>
+      </ScrollPort>
+    {{else}}
+      {{#each this.children as |container|}}
+        <Body.Item
+          @visualParent={{this}}
+          @logicalParent={{this.logicalParent}}
+          @hasItemsSource={{this.hasItemsSource}}
+          @container={{container}}
+          @isSelected={{container.isSelected}}
+          @item={{container.item}}
+          @header={{container.header}}
+          @content={{container.content}}
+          @classNamesBuilder={{this.classNamesBuilder}}
+          @cellTemplateName={{this.cellTemplateName}}
+        />
+      {{/each}}
+    {{/if}}
+  </div>
+
+{{/with}}
+
