@@ -53,7 +53,6 @@ export interface ISplitViewArgs extends IItemsControlArgs {
   fluent?: boolean,
   barSize?: number,
   sizeTarget?: Size,
-  maxSizeTarget?: Size,
   sideTarget?: Side,
   sideOrigin?: Side,
   minPaneSize?: number,
@@ -63,10 +62,10 @@ export interface ISplitViewArgs extends IItemsControlArgs {
   onSizeChanged?: (sizes: Array<number>) => void
 }
 
-export class SplitView extends ItemsControl<ISplitViewArgs> {
+export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   constructor(
     owner: any,
-    args: ISplitViewArgs
+    args: T
   ) {
     super(owner, args);
   }
@@ -88,76 +87,12 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
     return `${this.classNamesBuilder}`;
   }
 
-  public get responsive()
-    : boolean {
-    return (
-      this.args.responsive ??
-      false
-    );
-  }
-
-  public get fluent()
-    : boolean {
-    return (
-      this.args.fluent ??
-      false
-    );
-  }
-
-  public get barSize()
-    : number {
-    const
-      barSize = 2;
-
-    return (
-      this.args.barSize ??
-      barSize
-    );
-  }
-
-  public get minPaneSize()
-    : number {
-    const
-      minPaneSize = 0;
-
-    return (
-      this.args.minPaneSize ??
-      minPaneSize
-    );
-  }
-
   public get axis()
     : Axes {
     return (
       this.args.axis ??
       Axes.X
     );
-  }
-
-  public get maxSizeTarget()
-    : string {
-    return camelize('max-' + this.sizeTarget);
-  }
-
-  public get sideOrigin()
-    : Side {
-    return this.axis === Axes.X
-      ? Side.Left
-      : Side.Top;
-  }
-
-  public get sideTarget()
-    : Side {
-    return this.axis === Axes.X
-      ? Side.Right
-      : Side.Bottom;
-  }
-
-  public get sizeTarget()
-    : Size {
-    return this.axis === Axes.X
-      ? Size.Width
-      : Size.Height;
   }
 
   public itemItsOwnContainer(
@@ -220,8 +155,6 @@ export class SplitView extends ItemsControl<ISplitViewArgs> {
   }
 }
 
-export default SplitView.RegisterTemplate(layout)
-
 function isContentElement(
   obj: unknown
 ): obj is IContentElement {
@@ -229,3 +162,6 @@ function isContentElement(
     typeof (<IContentElement>obj).content !== 'undefined'
   );
 }
+
+export default SplitView.RegisterTemplate(layout)
+

@@ -8,11 +8,11 @@ import css from 'ember-ux-controls/utils/dom/css';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import appendTo from 'ember-ux-controls/utils/dom/append-to';
 import addClass from 'ember-ux-controls/utils/dom/add-class';
-import trigger from 'ember-ux-controls/utils/dom/trigger';
 import setReadOnly from 'ember-ux-controls/utils/set-read-only';
 import rect from 'ember-ux-controls/utils/dom/rect';
 import Modifier from 'ember-modifier';
 import { scheduleOnce } from '@ember/runloop';
+import { camelize } from '@ember/string';
 
 import {
   Side,
@@ -27,10 +27,11 @@ import {
   SplitView
 } from '../components/split-view/component';
 import { GeneratorStatusEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
   host: unknown
+  paneClassName?: string
   classNamesBuilder: ClassNamesBuilder
 }
 
@@ -138,57 +139,68 @@ export class SplitViewBehavior {
 
   get host()
     : unknown {
-    return this.getRequiredProperty('host');
+    return this.getProperty('host');
   }
 
   get axis()
     : Axes {
-    return this.getRequiredProperty('axis');
+    return this.getProperty('axis', Axes.X);
   }
 
   get classNamesBuilder()
     : ClassNamesBuilder {
-    return this.getRequiredProperty('classNamesBuilder');
+    return this.getProperty('classNamesBuilder', bem('split-view'));
   }
 
   get barSize()
     : number {
-    return this.getRequiredProperty('barSize');
+    return this.getProperty('barSize', 3);
   }
 
   get fluent()
     : boolean {
-    return this.getRequiredProperty('fluent');
+    return this.getProperty('fluent', false);
   }
 
   get sizeTarget()
     : Size {
-    return this.getRequiredProperty('sizeTarget');
+    return this.axis === Axes.X
+      ? Size.Width
+      : Size.Height;
   }
 
   get maxSizeTarget()
-    : Size {
-    return this.getRequiredProperty('maxSizeTarget');
+    : string {
+    return camelize('max-' + this.sizeTarget);
   }
 
   get minPaneSize()
     : number {
-    return this.getRequiredProperty('minPaneSize');
+    return this.getProperty('minPaneSize', 0);
   }
 
   get responsive()
     : boolean {
-    return this.getRequiredProperty('responsive');
+    return this.getProperty('responsive', false);
   }
 
   get sideOrigin()
     : Side {
-    return this.getRequiredProperty('sideOrigin');
+    return this.axis === Axes.X
+      ? Side.Left
+      : Side.Top;
   }
 
   get sideTarget()
     : Side {
-    return this.getRequiredProperty('sideTarget');
+    return this.getProperty('sideTarget', this.axis === Axes.X
+      ? Side.Right
+      : Side.Bottom
+    );
+  }
+
+  get paneClassName() {
+    return this.getProperty('paneClassName', 'pane');
   }
 
   public subscribe() {
@@ -260,7 +272,7 @@ export class SplitViewBehavior {
 
     this.ids = children(
       this.element,
-      `.${this.classNamesBuilder('pane')}`
+      `.${this.classNamesBuilder(this.paneClassName)}`
     ).map((e: Element) => e.id);
 
     this.panes = [...this.ids.map(id =>
@@ -322,7 +334,7 @@ export class SplitViewBehavior {
       if (index < this.panes.length - 1) {
         isFixed = hasClass(
           this.panes[index],
-          `${this.classNamesBuilder('pane', '$fixed')}`
+          `${this.classNamesBuilder(this.paneClassName, '$fixed')}`
         );
 
         bar = document.createElement('div');
@@ -386,8 +398,6 @@ export class SplitViewBehavior {
       style[this.sizeTarget] = `calc(${size}% - ${this.calcBarSize}px)`;
       css(this.panes[idx], style);
     }
-
-    trigger(this.element, 'resize.split-view');
   }
 
   private activate(
@@ -800,7 +810,7 @@ export class SplitViewBehavior {
   }
 
   private clientAxis(
-    axis: Axes, 
+    axis: Axes,
     event: MouseEvent | TouchEvent
   ): number {
     let
@@ -848,18 +858,24 @@ export class SplitViewBehavior {
       : firstTouch.clientY - targetRect.top;
   }
 
-  private getRequiredProperty<
+  private getProperty<
     T extends ISplitViewModifierArgs,
     K extends keyof { [P in keyof T]-?: T[P] }
-  >(key: K)
+  >(
+    key: K,
+    def?: T[K]
+  )
     : { [P in keyof T]-?: T[P] }[K] {
     let
       result: T[K];
 
     result = Reflect.get(this.args, key);
     if (typeof result === 'undefined') {
-      throw new Error(`${key} was not found`);
+      if (typeof def !== 'undefined') {
+        return def;
+      }
 
+      throw new Error(`${key} was not found and default value was not set`);
     }
 
     return result;

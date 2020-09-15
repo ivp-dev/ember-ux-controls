@@ -1,6 +1,6 @@
 {{#with 
   (hash
-    Item=(component this.headTemplateName)
+    Row=(component this.itemTemplateName)
   ) as |Body|
 }}
 
@@ -13,37 +13,35 @@
         <Port.Content 
           @axis={{this.scrollAxis}}
         >
-          <div
-            class="{{this.scrollPortClassNames}}"
-          >
-            {{#each this.children as |container|}}
-              <Body.Item
-                @visualParent={{this}}
-                @logicalParent={{this.logicalParent}}
-                @hasItemsSource={{this.hasItemsSource}}
-                @container={{container}}
-                @isSelected={{container.isSelected}}
-                @item={{container.item}}
-                @header={{container.header}}
-                @content={{container.content}}
-                @classNamesBuilder={{this.classNamesBuilder}}
-                @cellTemplateName={{this.cellTemplateName}}
-              />
-            {{/each}}
-          </div>
+          {{#each this.children as |container|}}
+            <Body.Row
+              @visualParent={{this}}
+              @container={{container}}
+              @isSelected={{container.isSelected}}
+              @item={{container.item}}
+              @header={{container.header}}
+              @content={{container.content}}
+              @columns={{this.columns}}
+              @logicalParent={{this.logicalParent}}
+              @hasItemsSource={{this.hasItemsSource}}
+              @classNamesBuilder={{this.classNamesBuilder}}
+              @cellTemplateName={{this.cellTemplateName}}
+            />
+          {{/each}}
         </Port.Content>
       </ScrollPort>
     {{else}}
       {{#each this.children as |container|}}
-        <Body.Item
+        <Body.Row
           @visualParent={{this}}
-          @logicalParent={{this.logicalParent}}
-          @hasItemsSource={{this.hasItemsSource}}
           @container={{container}}
           @isSelected={{container.isSelected}}
           @item={{container.item}}
           @header={{container.header}}
           @content={{container.content}}
+          @columns={{this.columns}}
+          @logicalParent={{this.logicalParent}}
+          @hasItemsSource={{this.hasItemsSource}}
           @classNamesBuilder={{this.classNamesBuilder}}
           @cellTemplateName={{this.cellTemplateName}}
         />

@@ -1,11 +1,11 @@
 import UXElement, { IUXElementArgs } from "ember-ux-controls/common/classes/ux-element";
-import { Axes, Side, Size} from 'ember-ux-controls/common/types';
+import { Axes, Side, Size } from 'ember-ux-controls/common/types';
 import { camelize } from '@ember/string';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 // @ts-ignore
 import layout from './template';
 
-interface ISplitViewLightArgs extends IUXElementArgs {
+export interface ISplitViewLightArgs extends IUXElementArgs {
   axis?: Axes
   responsive?: boolean,
   fluent?: boolean,
@@ -17,63 +17,26 @@ interface ISplitViewLightArgs extends IUXElementArgs {
   maxSizeTarget?: string,
   sizes?: Array<number>,
   minPaneSizes?: Array<number>,
+  bemBlockName?: string
   onSizeChanged?: (sizes: Array<number>) => void
 }
 
-class SplitViewLight extends UXElement<ISplitViewLightArgs>{
+export class SplitViewLight<T extends ISplitViewLightArgs> extends UXElement<T>{
   constructor(
     owner: any,
-    args: ISplitViewLightArgs
+    args: T
   ) {
     super(owner, args)
   }
 
   public get classNamesBuilder()
     : ClassNamesBuilder {
-    return bem(`split-view`, `$${this.axis}`);
+    return bem(this.args.bemBlockName ?? `split-view`, `$${this.axis}`);
   }
 
   public get classNames()
     : string {
     return `${this.classNamesBuilder}`;
-  }
-
-  public get responsive()
-    : boolean {
-    return (
-      this.args.responsive ??
-      false
-    );
-  }
-
-  public get fluent()
-    : boolean {
-    return (
-      this.args.fluent ??
-      false
-    );
-  }
-
-  public get barSize()
-    : number {
-    const
-      barSize = 2;
-
-    return (
-      this.args.barSize ??
-      barSize
-    );
-  }
-
-  public get minPaneSize()
-    : number {
-    const
-      minPaneSize = 0;
-
-    return (
-      this.args.minPaneSize ??
-      minPaneSize
-    );
   }
 
   public get axis()
@@ -84,31 +47,6 @@ class SplitViewLight extends UXElement<ISplitViewLightArgs>{
     );
   }
 
-  public get maxSizeTarget()
-    : string {
-    return camelize('max-' + this.sizeTarget);
-  }
-
-  public get sideOrigin()
-    : Side {
-    return this.axis === Axes.X
-      ? Side.Left
-      : Side.Top;
-  }
-
-  public get sideTarget()
-    : Side {
-    return this.axis === Axes.X
-      ? Side.Right
-      : Side.Bottom;
-  }
-
-  public get sizeTarget()
-    : Size {
-    return this.axis === Axes.X
-      ? Size.Width
-      : Size.Height;
-  }
 }
 
 export default SplitViewLight.RegisterTemplate(layout)

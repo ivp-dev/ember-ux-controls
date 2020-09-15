@@ -1,4 +1,4 @@
-<div class="example__table">
+<div class="example__data-table">
   <SplitView::Light
     @axis={{@axis}}
     @sizes={{@sizes}}
@@ -25,7 +25,19 @@
     </Splitter.Pane>
     <Splitter.Pane>
       <div class="example__control">
-        <DataTable @itemsSource={{this.itemsSource}}/>
+        <DataTable 
+          @itemsSource={{this.itemsSource}}
+          @columnBarSize={{5}}
+          @fluent={{true}}
+          @responsive={{true}}
+          as |Table|
+        >
+          <Table.Columns as |Columns|>
+            <Columns.Column @path="id" @title="Code"/>
+            <Columns.Column @path="name" @title="Name"/>
+            <Columns.Column @path="age" @title="Age"/>
+          </Table.Columns>
+        </DataTable>
       </div>
     </Splitter.Pane>
   </SplitView::Light>

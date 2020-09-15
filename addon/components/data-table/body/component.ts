@@ -2,24 +2,28 @@ import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 import { Axes } from 'ember-ux-controls/common/types';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { computed } from '@ember/object';
+import MutableArray from '@ember/array/mutable';
+import { Column } from '../component';
+
 // @ts-ignore
 import layout from './template';
 
 
-interface IDataTablePaneArgs extends IPanelArgs {
+
+interface IDataTableBodyArgs extends IPanelArgs {
   scrollable?: boolean
   scrollAxis?: Axes
+  columns?: MutableArray<Column>
   hasItemsSource?: boolean
   itemTemplateName?: string
-  headerTemplateName?: string
-  contentTemplateName?: string
+  cellTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
 }
 
-export class DataTableBody extends Panel<IDataTablePaneArgs> {
+export class DataTableBody extends Panel<IDataTableBodyArgs> {
   constructor(
     owner: any,
-    args: IDataTablePaneArgs
+    args: IDataTableBodyArgs
   ) {
     super(owner, args);
   }
@@ -30,16 +34,10 @@ export class DataTableBody extends Panel<IDataTablePaneArgs> {
     return this.args.itemTemplateName;
   }
 
-  @computed('args.{headerTemplateName}')
-  public get headerTemplateName()
+  @computed('args.{cellTemplateName}')
+  public get cellTemplateName()
     : string | undefined {
-    return  this.args.headerTemplateName;
-  }
-
-  @computed('args.{contentTemplateName}')
-  public get contentTemplateName()
-    : string | undefined {
-    return this.args.contentTemplateName;
+    return this.args.cellTemplateName;
   }
 
   @computed('args.{scrollable}')
@@ -58,6 +56,12 @@ export class DataTableBody extends Panel<IDataTablePaneArgs> {
   public get scrollAxis()
     : Axes | undefined {
     return this.args.scrollAxis;
+  }
+
+  @computed('args.{columns}')
+  public get columns()
+    : MutableArray<Column> | undefined {
+    return this.args.columns;
   }
 
   @computed('args.{classNamesBuilder}')

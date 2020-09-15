@@ -15,11 +15,11 @@ export default class ExamplesDataTable extends Component<ExamplesTableArgs> {
   private generateItemsSource() {
     return A(
       [
-        {'header': 'Tab 1', 'content': 'Content for tab 1'},
-        {'header': 'Tab 2', 'content': 'Content for tab 2'},
-        {'header': 'Tab 3', 'content': 'Content for tab 3'},
-        {'header': 'Tab 4', 'content': 'Content for tab 4'},
-        {'header': 'Tab 5', 'content': 'Content for tab 5'}
+        {'id': '1', 'name': 'Tom', 'age': 20},
+        {'id': '2', 'name': 'Mike', 'age': 50},
+        {'id': '3', 'name': 'Ted', 'age': 22},
+        {'id': '4', 'name': 'Alex', 'age': 33},
+        {'id': '5', 'name': 'Fred', 'age': 41}
       ]
     )
   }

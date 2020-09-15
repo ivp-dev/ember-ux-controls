@@ -1,1 +1,20 @@
-<div class="{{this.classNames}}"></div>
+<div 
+  class="{{this.classNames}}"
+  {{split-view-modifier
+    host=this
+    paneClassName="column"
+    onSizeChanged=this.onColumnsSizeChanged
+    classNamesBuilder=this.classNamesBuilder
+    fluent=@fluent
+    responsive=@responsive
+    minPaneSizes=@minColumnSizes
+    sizes=@columnSizes
+    barSize=@columnBarSize
+  }}
+  >
+  {{yield (hash Column=(component this.columnTemplateName 
+    visualParent=this
+    logicalParent=this.visualParent
+    classNamesBuilder=this.classNamesBuilder
+  ))}}
+</div>

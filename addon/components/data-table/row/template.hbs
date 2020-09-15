@@ -1,1 +1,12 @@
-row
+<div
+  class={{this.classNames}}
+  ...attributes
+>
+{{#each this.cells as |content|}}
+  {{
+    component this.cellTemplateName 
+    content=content 
+    classNamesBuilder=this.classNamesBuilder
+  }}
+{{/each}}
+</div>

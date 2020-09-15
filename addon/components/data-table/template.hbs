@@ -4,25 +4,31 @@
 >
   {{#with 
     (hash
-      Head=(component this.headTemplateName)
       Body=(component this.bodyTemplateName)
       Foot=(component this.footTemplateName)
     ) as |Table|
   }}
 
-    <Table.Head 
-      @columns={{this.columns}}
-      @classNamesBuilder={{this.classNamesBuilder}}
-    />
+    {{yield (hash Columns=(component this.headTemplateName
+      visualParent=this
+      classNamesBuilder=this.classNamesBuilder
+      columnTemplateName=this.columnTemplateName
+      minColumnSizes=@minColumnSizes
+      columnSizes=@columnSizes
+      columnBarSize=@columnBarSize
+      fluent=@fluent
+      responsive=@responsive
+    ))}}
     
     <Table.Body 
       @visualParent={{this}}
+      @columns={{this.columns}}
       @scrollable={{this.scrollable}}
       @scrollAxis={{this.scrollAxis}}
       @hasItemsSource={{this.hasItemsSource}}
       @itemTemplateName={{this.itemTemplateName}}
       @classNamesBuilder={{this.classNamesBuilder}}
-      @cellTamplateName={{this.cellTamplateName}}
+      @cellTemplateName={{this.cellTemplateName}}
     />
 
     <Table.Foot 
