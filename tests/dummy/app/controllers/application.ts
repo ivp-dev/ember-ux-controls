@@ -1,6 +1,5 @@
 import Controller from '@ember/controller';
 import { Axes } from 'ember-ux-controls/common/types'
-import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 
 
@@ -11,12 +10,12 @@ export default class Application extends Controller.extend({
     super(properies);
   }
 
-  @tracked axis = Axes.X
-  @tracked sizes = [20, 80]
-  @tracked barSize = 3
-  @tracked minPaneSize = 20
-  @tracked fluent = true
-  @tracked responsive = true
+  public sizes = [20, 80]
+  public axis = Axes.X
+  public barSize = 3
+  public minPaneSize = 20
+  public fluent = true
+  public responsive = true
 
   @action
   onSizeChanged(sizes: Array<number>) {

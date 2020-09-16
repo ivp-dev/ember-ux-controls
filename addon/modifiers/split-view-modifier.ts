@@ -31,7 +31,8 @@ import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
   host: unknown
-  paneClassName?: string
+  blockClassName?: string
+  elementClassName?: string
   classNamesBuilder: ClassNamesBuilder
 }
 
@@ -127,7 +128,8 @@ export class SplitViewBehavior {
     private element: HTMLElement,
     private args: Record<string, unknown>
   ) {
-    this.init();
+    this.setupPanes();
+    this.computeSizes();
 
     this.startMoveHandler = this.onStartMove.bind(this);
     this.moveHandler = this.onMove.bind(this);
@@ -147,9 +149,17 @@ export class SplitViewBehavior {
     return this.getProperty('axis', Axes.X);
   }
 
+  get blockClassName() {
+    return this.getProperty('blockClassName', 'split-view');
+  }
+
+  get elementClassName() {
+    return this.getProperty('elementClassName', 'pane');
+  }
+
   get classNamesBuilder()
     : ClassNamesBuilder {
-    return this.getProperty('classNamesBuilder', bem('split-view'));
+    return this.getProperty('classNamesBuilder', () => bem(this.blockClassName));
   }
 
   get barSize()
@@ -199,8 +209,8 @@ export class SplitViewBehavior {
     );
   }
 
-  get paneClassName() {
-    return this.getProperty('paneClassName', 'pane');
+  get onSizeChanged() {
+    return this.getProperty('onSizeChanged', () => () => { });
   }
 
   public subscribe() {
@@ -214,11 +224,11 @@ export class SplitViewBehavior {
   public update(
     args = this.args
   ) {
-    if (this.args !== args) {
-      this.args = args;
-    }
+    this.args = args;
 
-    this.init();
+    this.setupPanes();
+    this.computeSizes();
+    this.clearBars();
     this.setupBars();
     this.clearSizes();
     this.applySizes();
@@ -265,39 +275,15 @@ export class SplitViewBehavior {
     }
   }
 
-  private init() {
-    let
-      sizes: unknown,
-      minPaneSizes: unknown;
-
+  private setupPanes() {
     this.ids = children(
       this.element,
-      `.${this.classNamesBuilder(this.paneClassName)}`
+      `.${this.classNamesBuilder(this.elementClassName)}`
     ).map((e: Element) => e.id);
 
     this.panes = [...this.ids.map(id =>
       find(this.element, `#${id}`)[0]
     )] as HTMLElement[];
-
-    sizes = this.args.sizes;
-    if (Array.isArray(sizes)) {
-      this.sizes = sizes;
-    } else {
-      this.sizes = this.ids.map(() =>
-        100 / this.ids.length
-      );
-    }
-
-    minPaneSizes = this.args.minPaneSizes;
-    if (Array.isArray(minPaneSizes)) {
-      this.minPaneSizes = minPaneSizes;
-    } else {
-      this.minPaneSizes = this.ids.map(() =>
-        this.minPaneSize
-      );
-    }
-
-    this.calcBarSize = this.barSize * (this.ids.length - 1) / this.ids.length;
   }
 
   private clearBars() {
@@ -327,21 +313,13 @@ export class SplitViewBehavior {
     pane = null;
     index = 0;
 
-    this.clearBars();
-
     for (; index < this.panes.length; index++) {
       pane = this.panes[index];
       if (index < this.panes.length - 1) {
-        isFixed = hasClass(
-          this.panes[index],
-          `${this.classNamesBuilder(this.paneClassName, '$fixed')}`
-        );
-
         bar = document.createElement('div');
 
         addClass(bar, `${this.classNamesBuilder('bar', {
-          [`$${this.axis}`]: true,
-          [`$fixed`]: isFixed
+          [`$${this.axis}`]: true
         })}`);
 
         on(bar, __startEvents, this.startMoveHandler);
@@ -360,6 +338,21 @@ export class SplitViewBehavior {
         this.bars.push(bar);
       }
     }
+  }
+
+  private computeSizes() {
+
+    this.calcBarSize = this.barSize * (this.ids.length - 1) / this.ids.length;
+
+    this.minPaneSizes = this.getProperty('minPaneSizes', this.ids.map(() =>
+      this.minPaneSize
+    ));
+
+    this.sizes = this.getProperty('sizes', this.ids.map(() =>
+      100 / this.ids.length
+    ));
+
+    this.onSizeChanged(this.sizes.slice());
   }
 
   private clearSizes() {
@@ -411,13 +404,14 @@ export class SplitViewBehavior {
       previous: string,
       layout: (string | string[])[],
       drag: Readonly<IDrag>,
-      decorator: HTMLDivElement;
+      decorator: HTMLDivElement,
+      fixedClassName: string;
 
-    if (
-      hasClass(
-        bar,
-        `${this.classNamesBuilder('bar', '$fixed')}`)
-    ) {
+    fixedClassName = `${this.classNamesBuilder(this.elementClassName, '$fixed').names[0]}`;
+
+    if (hasClass(bar.previousSibling! as Element,
+      fixedClassName
+    )) {
       return;
     }
 
@@ -534,9 +528,7 @@ export class SplitViewBehavior {
       size / portSize * 100
     );
 
-    if (typeof this.args.onSizeChanged === 'function') {
-      this.args.onSizeChanged(this.sizes);
-    }
+    this.onSizeChanged(this.sizes.slice());
   }
 
   private arrange(
@@ -860,25 +852,30 @@ export class SplitViewBehavior {
 
   private getProperty<
     T extends ISplitViewModifierArgs,
-    K extends keyof { [P in keyof T]-?: T[P] }
+    K extends keyof { [P in keyof T]-?: T[P] },
+    F extends () => T[K]
   >(
     key: K,
-    def?: T[K]
+    def?: T[K] | F
   )
     : { [P in keyof T]-?: T[P] }[K] {
     let
       result: T[K];
 
     result = Reflect.get(this.args, key);
-    if (typeof result === 'undefined') {
-      if (typeof def !== 'undefined') {
-        return def;
-      }
-
-      throw new Error(`${key} was not found and default value was not set`);
+    if (typeof result !== 'undefined') {
+      return result;
     }
 
-    return result;
+    if (typeof def === 'function') {
+      return (def as F)();
+    }
+
+    if (typeof def !== 'undefined') {
+      return def;
+    }
+
+    throw new Error(`${key} was not found and default value was not set`);
   }
 
 }

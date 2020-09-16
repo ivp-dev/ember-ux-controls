@@ -14,6 +14,7 @@ interface IDataTableBodyArgs extends IPanelArgs {
   scrollable?: boolean
   scrollAxis?: Axes
   columns?: MutableArray<Column>
+  columnSizes: Array<number>
   hasItemsSource?: boolean
   itemTemplateName?: string
   cellTemplateName?: string

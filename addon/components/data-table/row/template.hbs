@@ -2,11 +2,12 @@
   class={{this.classNames}}
   ...attributes
 >
-{{#each this.cells as |content|}}
-  {{
-    component this.cellTemplateName 
-    content=content 
-    classNamesBuilder=this.classNamesBuilder
-  }}
-{{/each}}
+  {{#with (hash Cell=(component this.cellTemplateName)) as |Row|}}
+    {{#each this.cells as |content|}}
+      <Row.Cell 
+        @content={{content}} 
+        @classNamesBuilder={{this.classNamesBuilder}}
+      />
+    {{/each}}
+  {{/with}}
 </div>

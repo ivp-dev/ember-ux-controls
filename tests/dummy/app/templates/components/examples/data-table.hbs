@@ -20,6 +20,58 @@
               <Input @type="checkbox" @checked={{this.scrollable}}/>
             </div>
           </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@barSize</span>
+            </div>
+            <div class="grid__cell">
+              <Input @value={{this.columnBarSize}} @type="number" @min={{1}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@responsive</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.columnResponsive}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@fluent</span>
+            </div>
+            <div class="grid__cell">
+              <Input @type="checkbox" @checked={{this.columnFluent}}/>
+            </div>
+          </div>
+           <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@minSize</span>
+            </div>
+            <div class="grid__cell">
+              <Input @value={{this.columnMinSize}} @type="number" @min={{0}}/>
+            </div>
+          </div>
+          <div class="grid__row">
+            <div class="grid__cell">
+              <span class="property">@sizes</span>
+            </div>
+            <div class="grid__cell">
+              <Input readonly @value={{get this.columnSizes 0}}/>
+            </div>
+            <div class="grid__row">
+              <div class="grid__cell"></div>
+              <div class="grid__cell">
+                <Input readonly @value={{get this.columnSizes 1}}/>
+              </div>
+            </div>
+            <div class="grid__row">
+              <div class="grid__cell"></div>
+              <div class="grid__cell">
+                <Input readonly @value={{get this.columnSizes 2}}/>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Splitter.Pane>
@@ -27,12 +79,16 @@
       <div class="example__control">
         <DataTable 
           @itemsSource={{this.itemsSource}}
-          @columnBarSize={{5}}
-          @fluent={{true}}
-          @responsive={{true}}
           as |Table|
         >
-          <Table.Columns as |Columns|>
+          <Table.Columns
+            @barSize={{this.columnBarSize}}
+            @minSize={{this.columnMinSize}}
+            @fluent={{this.columnFluent}}
+            @responsive={{this.columnResponsive}}
+            @onSizeChanged={{this.onColumnSizeChanged}}
+            as |Columns|
+          >
             <Columns.Column @path="id" @title="Code"/>
             <Columns.Column @path="name" @title="Name"/>
             <Columns.Column @path="age" @title="Age"/>

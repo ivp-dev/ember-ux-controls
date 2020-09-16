@@ -2,16 +2,17 @@
   class="{{this.classNames}}"
   {{split-view-modifier
     host=this
-    paneClassName="column"
-    onSizeChanged=this.onColumnsSizeChanged
+    elementClassName="column"
+    onSizeChanged=this.onSizeChangedInternal
     classNamesBuilder=this.classNamesBuilder
     fluent=@fluent
     responsive=@responsive
-    minPaneSizes=@minColumnSizes
-    sizes=@columnSizes
-    barSize=@columnBarSize
+    minPaneSize=@minSize
+    minPaneSizes=@minSizes
+    sizes=@sizes
+    barSize=@barSize
   }}
-  >
+>
   {{yield (hash Column=(component this.columnTemplateName 
     visualParent=this
     logicalParent=this.visualParent

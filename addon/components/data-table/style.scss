@@ -11,4 +11,26 @@
     vertical-align: top;
     overflow: hidden;
   }
+  .data-table__bar {
+    &_x {
+      .data-table__decorator {
+        height: 100%;
+      }
+    }
+    &_y {
+      .data-table__decorator {
+        width: 100%;
+      }
+    }
+  }
+  .data-table__decorator {
+    position:                 absolute;
+    z-index:                  1002;
+    background-color:       rgba(173, 216, 230, 0.5);
+    user-select:              none;
+  }
+  .data-table__row {
+    display: flex;
+    flex-direction: row;
+  }
 }

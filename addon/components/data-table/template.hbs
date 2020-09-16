@@ -13,16 +13,12 @@
       visualParent=this
       classNamesBuilder=this.classNamesBuilder
       columnTemplateName=this.columnTemplateName
-      minColumnSizes=@minColumnSizes
-      columnSizes=@columnSizes
-      columnBarSize=@columnBarSize
-      fluent=@fluent
-      responsive=@responsive
     ))}}
     
     <Table.Body 
       @visualParent={{this}}
       @columns={{this.columns}}
+      @columnSizes={{this.columnSizes}}
       @scrollable={{this.scrollable}}
       @scrollAxis={{this.scrollAxis}}
       @hasItemsSource={{this.hasItemsSource}}

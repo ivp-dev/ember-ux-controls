@@ -1,11 +1,14 @@
-import bem from "dummy/utils/bem";
+import bem from "ember-ux-controls/utils/bem";
 import SelectItemsControl, { ISelectItemsControlArgs } from "ember-ux-controls/common/classes/select-items-control";
 import { notifyPropertyChange } from '@ember/object';
 import { ISelectable } from 'ember-ux-controls/common/types';
 import MutableArray from '@ember/array/mutable';
 import { A } from '@ember/array';
+import { tracked } from '@glimmer/tracking';
+import css from "ember-ux-controls/utils/dom/css";
 // @ts-ignore
 import layout from './template';
+
 
 export interface IDataTableArgs extends ISelectItemsControlArgs {
   columnTemplateName: string
@@ -59,7 +62,11 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     super(owner, args);
 
     this.itemTemplateName = 'data-table/row';
+
+    this.columnSizes = []
   }
+
+  @tracked columnSizes: Array<number>
 
   public get classNamesBuilder() {
     return bem('data-table');
@@ -101,20 +108,28 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     this.columns.pushObject(column);
   }
 
-  public createContainerForItem(item: object): DataTableItemModel {
+  public createContainerForItem(): DataTableItemModel {
     return new DataTableItemModel();
   }
+
   public prepareItemContainer(_container: DataTableItemModel): void {
     
   }
+
   public clearContainerForItem(container: DataTableItemModel, item: object): void {
     container.item = null;
   }
+  
   public linkContainerToItem(container: DataTableItemModel, item: object): void {
     container.item = item;
   }
+
   public readItemFromContainer(container: DataTableItemModel): object | null {
     return container.item;
+  }
+
+  public onColumnSizeChangedInternal(sizes: Array<number>) {
+    this.columnSizes = sizes;
   }
 
   private _columns: MutableArray<Column> | null = null

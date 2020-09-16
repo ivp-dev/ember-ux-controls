@@ -11,6 +11,7 @@ import layout from './template';
 
 interface IDataTableColumnArgs extends IUXElementArgs {
   path?: string
+  fixed?: boolean
   addColumn?: (column:Column) => void
   classNamesBuilder?: ClassNamesBuilder
 }
@@ -27,7 +28,7 @@ class DataTableColumn extends UXElement<IDataTableColumnArgs> {
 
   public get classNames() {
     if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('column')}`
+      return `${this.classNamesBuilder('column', { '$fixed': this.args.fixed })}`
     }
     return '';
   }

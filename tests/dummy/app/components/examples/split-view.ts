@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { Axes } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
+import { notifyPropertyChange } from '@ember/object';
 
 interface SplitViewExampleArgs { }
 
@@ -9,6 +10,7 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
   constructor(owner: any, args: SplitViewExampleArgs) {
     super(owner, args);
 
+    this._sizes = [...Array(3)].map(_ => 100 / 3);
   }
 
   /*
@@ -65,8 +67,9 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
     }
   }
   
-  @tracked
-  sizes: Array<number> = [...Array(3)].map(_ => 100 / 3)
+  get sizes() {
+    return this._sizes;
+  }
 
   @action
   onAxisChanged(event: Event) {
@@ -78,9 +81,11 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
 
   @action
   onSizeChanged(sizes: Array<number>) {
-    this.sizes = sizes;
+    this._sizes = sizes;
+    notifyPropertyChange(this, 'sizes');
   }
 
+  private _sizes: Array<number>
   private _minPaneSize: number = 5
   private _barSize: number = 15
   private _fluent: boolean = false

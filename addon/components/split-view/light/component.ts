@@ -1,6 +1,5 @@
 import UXElement, { IUXElementArgs } from "ember-ux-controls/common/classes/ux-element";
 import { Axes, Side, Size } from 'ember-ux-controls/common/types';
-import { camelize } from '@ember/string';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 // @ts-ignore
 import layout from './template';

@@ -3,17 +3,23 @@ import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { computed } from '@ember/object';
 import { Column, DataTableItemModel } from '../component';
 import MutableArray from '@ember/array/mutable';
-import { get } from '@ember/object';
+
 // @ts-ignore
 import layout from './template';
 
-
-
 interface IDataTableRowArgs extends IUXElementArgs {
+  columnSizes: Array<number>,
   columns?: MutableArray<Column>
   container?: DataTableItemModel
   cellTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
+}
+
+export class CellModel {
+  constructor(
+    public value: any,
+    public width: number
+  ) { }
 }
 
 class DataTableRow extends UXElement<IDataTableRowArgs> {
@@ -32,28 +38,30 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
     return this.args.cellTemplateName;
   }
 
-  @computed('args.{columns.[]}')
+  //@computed('args.{columns.[]}', 'args.{columnSizes.[]}')
   public get cells() {
-    let 
+    let
       item: object | null,
       container: DataTableItemModel | undefined,
       columns: MutableArray<Column> | undefined;
 
     columns = this.args.columns;
     container = this.args.container;
-    
-    if(!columns || !container) {
+
+    if (!columns || !container) {
       throw 'Columns and container should be initialized';
     }
 
     item = container.item;
 
-    if(!item) {
+    if (!item) {
       return [];
     }
 
-    return columns.map(column => Reflect.get(item as object, column.path)
-)
+    return columns.map((column, index) => new CellModel(
+      Reflect.get(item as object, column.path),
+      this.args.columnSizes[index]
+    ))
   }
 }
 
