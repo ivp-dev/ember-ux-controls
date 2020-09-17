@@ -24,7 +24,10 @@ export default class ExamplesDataTable extends Component<ExamplesTableArgs> {
   columnResponsive: boolean = false
 
   @tracked
-  columnBarSize: number = 3
+  columnBarSize: number = 1
+
+  @tracked
+  multipleSelectionEnable: boolean = false;
 
   get columnMinSize() {
     return this._columnMinSize;

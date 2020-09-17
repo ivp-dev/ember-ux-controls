@@ -1,7 +1,7 @@
 <div 
   class="{{this.classNames}}"
-  style={{html-safe (concat this.style ";")}}
+  style={{this.style}}
   ...attributes  
 >
-  {{@content.value}}
+  <span>{{yield}}</span>
 </div>

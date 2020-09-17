@@ -1,13 +1,6 @@
-import ItemsControl, {
-  IItemsControlArgs,
-} from 'ember-ux-controls/common/classes/items-control'
-import { camelize } from '@ember/string';
+import ItemsControl, { IItemsControlArgs } from 'ember-ux-controls/common/classes/items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import {
-  Axes,
-  Side,
-  Size
-} from 'ember-ux-controls/common/types';
+import { Axes } from 'ember-ux-controls/common/types';
 import { Pane } from './pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
 
@@ -52,9 +45,6 @@ export interface ISplitViewArgs extends IItemsControlArgs {
   responsive?: boolean,
   fluent?: boolean,
   barSize?: number,
-  sizeTarget?: Size,
-  sideTarget?: Side,
-  sideOrigin?: Side,
   minPaneSize?: number,
   sizes?: Array<number>,
   minPaneSizes?: Array<number>,

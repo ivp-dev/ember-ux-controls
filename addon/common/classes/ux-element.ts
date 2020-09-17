@@ -18,6 +18,7 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     args: T
   ) {
     super(owner, args);
+    this.args
   }
 
   @computed('args.{logicalParent}', 'visualParent')

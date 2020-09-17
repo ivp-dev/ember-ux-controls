@@ -203,10 +203,9 @@ export class SplitViewBehavior {
 
   get sideTarget()
     : Side {
-    return this.getProperty('sideTarget', this.axis === Axes.X
+    return this.axis === Axes.X
       ? Side.Right
-      : Side.Bottom
-    );
+      : Side.Bottom;
   }
 
   get onSizeChanged() {
@@ -307,7 +306,6 @@ export class SplitViewBehavior {
     let
       pane: HTMLElement | null = null,
       index = 0,
-      isFixed: boolean,
       bar: HTMLDivElement;
 
     pane = null;
@@ -341,13 +339,10 @@ export class SplitViewBehavior {
   }
 
   private computeSizes() {
-
     this.calcBarSize = this.barSize * (this.ids.length - 1) / this.ids.length;
-
     this.minPaneSizes = this.getProperty('minPaneSizes', this.ids.map(() =>
       this.minPaneSize
     ));
-
     this.sizes = this.getProperty('sizes', this.ids.map(() =>
       100 / this.ids.length
     ));

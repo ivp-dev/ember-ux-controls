@@ -1,10 +1,12 @@
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
+import { DataTable } from 'ember-ux-controls/components/data-table/component';
+import { reads } from '@ember/object/computed';
 
 // @ts-ignore
 import layout from './template';
-import { DataTable } from '../component';
+
 
 
 interface IDataTableHeadArgs extends IUXElementArgs {
@@ -15,13 +17,11 @@ interface IDataTableHeadArgs extends IUXElementArgs {
 }
 
 class DataTableHead extends UXElement<IDataTableHeadArgs> {
-  public get columnTemplateName() {
-    return this.args.columnTemplateName;
-  }
+  @reads('args.columnTemplateName') 
+  columnTemplateName?: string 
 
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
+  @reads('args.classNamesBuilder') 
+  classNamesBuilder?: ClassNamesBuilder 
 
   public get classNames() {
     if (this.classNamesBuilder) {

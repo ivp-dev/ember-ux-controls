@@ -1,13 +1,16 @@
 <div
   class={{this.classNames}}
+  {{did-insert this.didInsert}}
   ...attributes
 >
   {{#with (hash Cell=(component this.cellTemplateName)) as |Row|}}
-    {{#each this.cells as |content|}}
+    {{#each this.cells as |value index|}}
       <Row.Cell 
-        @content={{content}} 
+        @width={{get this.columnSizes index}}
         @classNamesBuilder={{this.classNamesBuilder}}
-      />
+      >
+        {{value}} 
+      </Row.Cell>
     {{/each}}
   {{/with}}
 </div>

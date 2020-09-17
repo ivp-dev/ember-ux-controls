@@ -1,9 +1,9 @@
 import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 import { Axes } from 'ember-ux-controls/common/types';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { computed } from '@ember/object';
 import MutableArray from '@ember/array/mutable';
-import { Column } from '../component';
+import { Column } from 'ember-ux-controls/components/data-table/component';
+import { reads } from '@ember/object/computed';
 
 // @ts-ignore
 import layout from './template';
@@ -29,47 +29,29 @@ export class DataTableBody extends Panel<IDataTableBodyArgs> {
     super(owner, args);
   }
 
-  @computed('args.{itemTemplateName}')
-  public get itemTemplateName()
-    : string | undefined {
-    return this.args.itemTemplateName;
-  }
+  @reads('args.itemTemplateName') 
+  itemTemplateName?: string 
 
-  @computed('args.{cellTemplateName}')
-  public get cellTemplateName()
-    : string | undefined {
-    return this.args.cellTemplateName;
-  }
+  @reads('args.cellTemplateName') 
+  cellTemplateName?: string 
 
-  @computed('args.{scrollable}')
-  public get scrollable()
-    : boolean | undefined {
-    return this.args.scrollable;
-  }
+  @reads('args.scrollable') 
+  scrollable?: boolean 
 
-  @computed('args.{hasItemsSource}')
-  public get hasItemsSource()
-    : boolean | undefined {
-    return this.args.hasItemsSource;
-  }
+  @reads('args.columnSizes') 
+  columnSizes?: Array<number> 
 
-  @computed('args.{scrollAxis}')
-  public get scrollAxis()
-    : Axes | undefined {
-    return this.args.scrollAxis;
-  }
+  @reads('args.hasItemsSource') 
+  hasItemsSource?: boolean 
 
-  @computed('args.{columns}')
-  public get columns()
-    : MutableArray<Column> | undefined {
-    return this.args.columns;
-  }
+  @reads('args.scrollAxis') 
+  scrollAxis?: Axes 
 
-  @computed('args.{classNamesBuilder}')
-  public get classNamesBuilder()
-    : ClassNamesBuilder | undefined {
-    return this.args.classNamesBuilder;
-  }
+  @reads('args.columns') 
+  columns?: MutableArray<Column> 
+
+  @reads('args.classNamesBuilder') 
+  classNamesBuilder?: ClassNamesBuilder
 
   public get classNames()
     : string {

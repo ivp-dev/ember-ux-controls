@@ -5,7 +5,7 @@ import { ISelectable } from 'ember-ux-controls/common/types';
 import MutableArray from '@ember/array/mutable';
 import { A } from '@ember/array';
 import { tracked } from '@glimmer/tracking';
-import css from "ember-ux-controls/utils/dom/css";
+
 // @ts-ignore
 import layout from './template';
 
@@ -60,16 +60,16 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     args: IDataTableArgs
   ) {
     super(owner, args);
-
-    this.itemTemplateName = 'data-table/row';
-
-    this.columnSizes = []
   }
 
-  @tracked columnSizes: Array<number>
+  @tracked columnSizes?: Array<number> 
 
   public get classNamesBuilder() {
     return bem('data-table');
+  }
+
+  public get itemTemplateName() {
+    return super.itemTemplateName ?? 'data-table/row';
   }
 
   public get classNames() {

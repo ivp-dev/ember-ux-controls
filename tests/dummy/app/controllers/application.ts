@@ -12,7 +12,7 @@ export default class Application extends Controller.extend({
 
   public sizes = [20, 80]
   public axis = Axes.X
-  public barSize = 3
+  public barSize = 1
   public minPaneSize = 20
   public fluent = true
   public responsive = true

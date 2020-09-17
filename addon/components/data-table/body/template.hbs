@@ -16,14 +16,14 @@
           {{#each this.children as |container|}}
             <Body.Row
               @visualParent={{this}}
+              @logicalParent={{this.visualParent}}
               @container={{container}}
               @isSelected={{container.isSelected}}
               @item={{container.item}}
               @header={{container.header}}
               @content={{container.content}}
               @columns={{this.columns}}
-              @columnSizes={{@columnSizes}}
-              @logicalParent={{this.logicalParent}}
+              @columnSizes={{this.columnSizes}}
               @hasItemsSource={{this.hasItemsSource}}
               @classNamesBuilder={{this.classNamesBuilder}}
               @cellTemplateName={{this.cellTemplateName}}
@@ -35,14 +35,14 @@
       {{#each this.children as |container|}}
         <Body.Row
           @visualParent={{this}}
+          @logicalParent={{this.visualParent}}
           @container={{container}}
           @isSelected={{container.isSelected}}
           @item={{container.item}}
           @header={{container.header}}
           @content={{container.content}}
           @columns={{this.columns}}
-          @columnSizes={{@columnSizes}}
-          @logicalParent={{this.logicalParent}}
+          @columnSizes={{this.columnSizes}}
           @hasItemsSource={{this.hasItemsSource}}
           @classNamesBuilder={{this.classNamesBuilder}}
           @cellTemplateName={{this.cellTemplateName}}
