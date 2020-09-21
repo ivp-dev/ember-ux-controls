@@ -167,3 +167,28 @@ export interface IContentElement {
 export interface IHeaderContentElement
   extends IHeaderedElement, IContentElement {
 }
+
+export interface IEventArgs { }
+
+export interface IEventEmmiter {
+  emitEvent(
+    sender: object,
+    args: IEventArgs
+  ): void
+
+  addEventListener<T extends IEventArgs>(
+    context: object,
+    key: IEventArgs,
+    callback: (sender: object, args: T) => void
+  ): void
+
+  removeEventListener<T extends IEventArgs>(
+    context: object,
+    key: IEventArgs,
+    callback?: (sender: object, args: T) => void
+  ): void
+
+  clearEventListeners(): void
+
+  hasListeners: boolean
+}

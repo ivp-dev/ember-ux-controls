@@ -39,7 +39,7 @@ class Listener implements IEquatable {
 }
 
 
-export default class EventEmmiter implements IEventEmmiter{
+export default class EventEmmiter implements IEventEmmiter {
   private _events: Map<IEventArgs, Array<Listener>>;
 
   constructor() {
