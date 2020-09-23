@@ -35,7 +35,8 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     : boolean {
     return (
       this.args.multipleSelectionEnable ??
-      this._multipleSelectionEnable
+      this._multipleSelectionEnable ??
+      false
     );
   }
 
@@ -128,7 +129,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   protected get selectedInfos()
     : SelectedItemStorage {
-    if (this._selectedInfos === null) {
+    if (typeof this._selectedInfos === 'undefined') {
       this._selectedInfos = SelectItemsControl.SelectedItemStorage.create();
     }
     return this._selectedInfos;
@@ -136,7 +137,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   protected get selectionChanger()
     : SelectorChanger {
-    if (this._selector === null) {
+    if (typeof this._selector === 'undefined') {
       this._selector = new SelectItemsControl.SelectionChanger(this);
     }
 
@@ -958,10 +959,10 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     }
   }
 
-  private _multipleSelectionEnable: boolean = false
-  private _selectedInfos: SelectedItemStorage | null = null
-  private _selectedItems: SelectedItemCollection | null = null
-  private _selector: SelectorChanger | null = null
+  private _multipleSelectionEnable?: boolean
+  private _selectedInfos?: SelectedItemStorage
+  private _selectedItems?: SelectedItemCollection
+  private _selector?: SelectorChanger
 }
 
 

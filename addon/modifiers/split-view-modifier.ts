@@ -1,5 +1,3 @@
-// @ts-ignore
-import { setModifierManager, capabilities } from '@ember/modifier';
 import children from 'ember-ux-controls/utils/dom/children';
 import find from 'ember-ux-controls/utils/dom/find';
 import on from 'ember-ux-controls/utils/dom/on';
@@ -85,7 +83,6 @@ export default class SplitViewModifier extends Modifier {
 
   public didInstall() {
     if (
-      this.element === null ||
       !(this.element instanceof HTMLElement)
     ) {
       return;

@@ -5,9 +5,7 @@ import { reads } from '@ember/object/computed';
 import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { action } from '@ember/object';
-import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
-import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 
 // @ts-ignore
 import layout from './template';
@@ -263,16 +261,6 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       TreeViewItemParentSelectionChangedEventArgs,
       this.onParentSelectionChanged
     );
-
-    next(this, () => {
-      if (
-        this.logicalParent instanceof ItemsControl &&
-        this.logicalParent.hasItemsSource === false
-      ) {
-        
-        this.logicalParent.addChild(this);
-      }
-    })
   }
 
   public changeSelectionInternal(

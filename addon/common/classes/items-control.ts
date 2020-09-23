@@ -45,7 +45,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   public set itemTemplateName(
-    value: string | null
+    value: string | undefined
   ) {
     if (this._itemTemplateName !== value) {
       this._itemTemplateName = value;
@@ -62,7 +62,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   public set itemsSource(
-    value: NativeArray<unknown> | null
+    value: NativeArray<unknown> | undefined
   ) {
     if (this._itemsSource !== value) {
       this._itemsSource = value;
@@ -107,7 +107,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return this._itemsHost;
   }
 
-  public set itemsHost(value: Panel | null) {
+  public set itemsHost(value: Panel | undefined) {
     if (this._itemsHost !== value) {
       this._itemsHost = value;
       notifyPropertyChange(this, 'itemsHost');
@@ -152,7 +152,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
     if(this._itemsContainerGenerator) {
       this._itemsContainerGenerator.dispose();
-      this._itemsContainerGenerator = null;
+      this._itemsContainerGenerator = void 0;
     }
     
 
@@ -284,9 +284,9 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return new ItemContainerGenerator(this);
   }
 
-  private _itemTemplateName: string | null = null
-  private _itemsSource: NativeArray<unknown> | null = null
-  private _itemsHost: Panel | null = null
-  private _items: ItemCollection | null = null
-  private _itemsContainerGenerator: ItemContainerGenerator | null = null
+  private _itemTemplateName?: string
+  private _itemsSource?: NativeArray<unknown>
+  private _itemsHost?: Panel
+  private _items?: ItemCollection
+  private _itemsContainerGenerator?: ItemContainerGenerator
 }

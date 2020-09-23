@@ -1,8 +1,9 @@
 import ItemsControl, { IItemsControlArgs } from 'ember-ux-controls/common/classes/items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { Axes } from 'ember-ux-controls/common/types';
+import { Axes, Side, Size } from 'ember-ux-controls/common/types';
 import { Pane } from './pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
+import { camelize } from '@ember/string';
 
 // @ts-ignore
 import layout from './template';
@@ -10,10 +11,6 @@ import layout from './template';
 import { notifyPropertyChange } from '@ember/object';
 
 export class PaneModel {
-  constructor(
-    public owner: object,
-  ) { }
-
   public get content() {
     return this._content;
   }
@@ -67,6 +64,46 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     );
   }
 
+  public get barSize() {
+    return this.args.barSize ?? 3;
+  }
+
+  public get fluent() {
+    return this.args.fluent ?? false;
+  }
+
+  public get sizeTarget() {
+    return this.axis === Axes.X
+      ? Size.Width
+      : Size.Height;
+  }
+
+  public get maxSizeTarget()
+    : string {
+    return camelize('max-' + this.sizeTarget);
+  }
+
+  public get minPaneSize()
+    : number {
+    return this.minPaneSize ?? 0;
+  }
+
+  public get responsive() {
+    return this.args.responsive ?? false;
+  }
+
+  public get sideOrigin() {
+    return this.axis === Axes.X
+    ? Side.Left
+    : Side.Top;
+  }
+
+  public get sideTarget() {
+    return this.axis === Axes.X
+      ? Side.Right
+      : Side.Bottom;
+  }
+
   public get classNamesBuilder()
     : ClassNamesBuilder {
     return bem(`split-view`, `$${this.axis}`);
@@ -98,7 +135,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
 
   public createContainerForItem()
     : PaneModel {
-    return new PaneModel(this);
+    return new PaneModel();
   }
 
   public prepareItemContainer(

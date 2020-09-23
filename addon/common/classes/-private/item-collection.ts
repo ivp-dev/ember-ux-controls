@@ -4,15 +4,15 @@ import { addObserver, removeObserver } from '@ember/object/observers';
 import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
-import { IEventArgs } from "ember-ux-controls/common/types";
+import { EventArgs } from "ember-ux-controls/common/classes/event-args";
 
 
-export class ItemCollectionChangedEventArgs<T> implements IEventArgs {
+export class ItemCollectionChangedEventArgs<T> extends EventArgs {
   constructor(
     public offset: number,
     public newItems: Array<T>,
     public oldItems: Array<T>
-  ) { }
+  ) { super() }
 }
 
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
@@ -64,8 +64,8 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
 
   private onSourceChanged() {
     let
-      oldSource: NativeArray<unknown> | null,
-      newSource: NativeArray<unknown> | null;
+      oldSource: NativeArray<unknown> | undefined,
+      newSource: NativeArray<unknown> | undefined;
 
     if (!this.host) {
       throw new Error('Host was net set');

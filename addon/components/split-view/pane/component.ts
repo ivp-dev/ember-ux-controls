@@ -1,9 +1,6 @@
 import { guidFor } from '@ember/object/internals';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
-import { SplitView } from '../component';
-import { action } from '@ember/object';
-import { next } from '@ember/runloop';
 import { PaneModel } from 'ember-ux-controls/components/split-view/component';
 
 // @ts-ignore
@@ -54,40 +51,6 @@ export class Pane extends UXElement<ISplitViewPaneArgs> {
   public get elementId() {
     return guidFor(this)
   }
-
-  protected get html()
-    : HTMLElement | null {
-    return this._html;
-  }
-
-  protected set html(
-    value: HTMLElement | null
-  ) {
-    if (this._html !== value) {
-      this._html = value;
-    }
-  }
-
-  @action
-  public didInsert(
-    element: HTMLElement
-  ): void {
-    const
-      parentElement: unknown = this.logicalParent;
-
-    if (
-      parentElement instanceof SplitView &&
-      !parentElement.hasItemsSource
-    ) {
-      next(this, () => {
-        parentElement.addChild(this);
-      })
-    }
-
-    this.html = element;
-  }
-
-  private _html: HTMLElement | null = null;
 }
 
 export default Pane.RegisterTemplate(layout);

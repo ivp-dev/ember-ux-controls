@@ -7,7 +7,6 @@ import { TabItemModel } from 'ember-ux-controls/components/tab-control/component
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { next } from '@ember/runloop';
 
 // @ts-ignore
 import layout from './template';
@@ -172,20 +171,7 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   public didInsert(
     element: HTMLElement
   ): void {
-    const
-      parent = this.logicalParent;
-
     on(element, 'click', this.onTabClick);
-
-    if (
-      parent instanceof TabControl &&
-      !parent.hasItemsSource
-    ) {
-      next(this, () => {
-        parent.addChild(this);
-      });
-    }
-
     this.html = element;
   }
 

@@ -1,5 +1,3 @@
-// @ts-ignore
-import { setModifierManager, capabilities } from '@ember/modifier';
 import Modifier from 'ember-modifier';
 import { inject } from '@ember/service';
 import { IEventEmmiter } from 'ember-ux-controls/common/types'
@@ -8,16 +6,29 @@ import MouseSensor from 'ember-ux-controls/common/classes/concrete-sensors/drag-
 
 interface IDraggableModifierArgs {
   named: {
-    allowMouseSensor: boolean,
-    allowTouchSensor: boolean
+    allowMouseSensor?: boolean,
+    allowTouchSensor?: boolean,
+    delay?: number
   }
   positional: []
 }
 
 export default class DraggableModifier extends Modifier<IDraggableModifierArgs> {
-  @inject
-  private eventEmmiter!: IEventEmmiter
-  private sensors: Sensor[] = []
+  private get sensors() {
+    if (!this._sensors) {
+      this._sensors = [];
+    }
+
+    return this._sensors;
+  }
+
+  private get eventEmmiter() {
+    if (!this._eventEmmiter) {
+      throw 'EventEmmiter was not set'
+    }
+
+    return this._eventEmmiter;
+  }
 
   public didInstall() {
     let
@@ -28,10 +39,16 @@ export default class DraggableModifier extends Modifier<IDraggableModifierArgs> 
     allowTouchSensor = this.args.named.allowTouchSensor ?? true
 
     if (allowMouseSensor) {
-      this.sensors.push(new MouseSensor(this.element, this.eventEmmiter))
+      this.sensors.push(
+        new MouseSensor(
+          this.element,
+          this.eventEmmiter,
+          this.args.named.delay
+        )
+      )
     }
 
-    if(allowTouchSensor) {
+    if (allowTouchSensor) {
       //TODO: add touch sensor
     }
 
@@ -44,4 +61,8 @@ export default class DraggableModifier extends Modifier<IDraggableModifierArgs> 
     this.sensors.forEach(sensor => sensor.detach());
     this.sensors.length = 0;
   }
+
+  @inject('event-emmiter')
+  private _eventEmmiter?: IEventEmmiter
+  private _sensors?: Sensor[]
 }

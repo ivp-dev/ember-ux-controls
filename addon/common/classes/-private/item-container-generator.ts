@@ -8,12 +8,12 @@ import {
   ItemCollectionActions,
   GeneratorStatus, IEventArgs
 } from 'ember-ux-controls/common/types';
-import ItemsControl from '../items-control';
+import { EventArgs } from 'ember-ux-controls/common/classes/event-args';
+import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 
 import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
 
-
-export class ItemContainerGeneratorChangedEventArgs implements IEventArgs {
+export class ItemContainerGeneratorChangedEventArgs extends EventArgs {
   action: ItemCollectionActions
   position: GeneratorPosition
   itemCount: number
@@ -24,6 +24,7 @@ export class ItemContainerGeneratorChangedEventArgs implements IEventArgs {
     number,
     number
   ]) {
+    super();
     [
       this.action,
       this.position,
@@ -33,14 +34,14 @@ export class ItemContainerGeneratorChangedEventArgs implements IEventArgs {
   }
 }
 
-export class GeneratorStatusEventArgs implements IEventArgs {
+export class GeneratorStatusEventArgs extends EventArgs {
   constructor(
     public oldStatus: GeneratorStatus | null,
     public newStatus: GeneratorStatus | null
-  ) { }
+  ) { super() }
 }
 
-export class MapChangedEventArgs implements IEventArgs {
+export class MapChangedEventArgs extends EventArgs {
   block: ItemBlock | null
   offset: number
   count: number
@@ -55,6 +56,7 @@ export class MapChangedEventArgs implements IEventArgs {
     number,
     number
   ]) {
+    super();
     [
       this.block,
       this.offset,

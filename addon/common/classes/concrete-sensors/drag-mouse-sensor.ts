@@ -1,48 +1,98 @@
 import DragSensor from "ember-ux-controls/common/classes/drag-sensor";
 import { action } from '@ember/object';
-import { IEventArgs } from "ember-ux-controls/common/types";
-import { assign } from '@ember/polyfills';
+import { IEventEmmiter } from "ember-ux-controls/common/types";
+import { later, cancel } from '@ember/runloop';
+import { EmberRunTimer } from "@ember/runloop/types";
+import { CancellableEventArgs } from "ember-ux-controls/common/classes/event-args";
 
-export class DragStopSensorEventArgs implements IEventArgs {
+export class DragStartSensorEvent extends CancellableEventArgs {
   constructor(
     public clientX: number,
     public clientY: number,
-    public target: Element | null,
+    public target: EventTarget | null,
+    public element: Element,
+    public originalEvent: MouseEvent,
+  ) { super() }
+}
+
+export class DragStopSensorEventArgs extends CancellableEventArgs {
+  constructor(
+    public clientX: number,
+    public clientY: number,
+    public target: EventTarget | null,
     public container: Element,
     public originalEvent: MouseEvent
-  ) { }
+  ) { super() }
 }
 
 export default class DragMouseSensor extends DragSensor {
-  attach(): void {
+  constructor(
+    element: Element,
+    eventEmmiter: IEventEmmiter,
+    delay?: number
+  ) {
+    super(element, eventEmmiter);
+
+    if (
+      typeof delay !== 'undefined' &&
+      this.delay !== delay
+    ) {
+      this.delay = delay;
+    }
+  }
+  public attach(): void {
     this.element.addEventListener('mousedown', this.onMouseDown);
   }
 
-  detach(): void {
+  public detach(): void {
     this.element.removeEventListener('mousedown', this.onMouseDown);
   }
 
   @action
-  onMouseDown(event: MouseEvent) {
-    const { 
-      pageX, 
-      pageY 
-    } = event;
-
-    assign(this, { pageX, pageY });
-
+  private onMouseDown(event: MouseEvent) {
     this.element.addEventListener('mouseup', this.onMouseUp);
-    this.element.addEventListener('mousemove', this.onMouseMove);
+    this.element.addEventListener('mousemove', this.onMouseMoveStart);
     this.element.addEventListener('dragstart', preventNativeEvent);
+    later(() => this.onMouseMoveStart(event), this.delay);
+    this.startMovingAt = Date.now();
   }
 
   @action
-  onMouseMove(event: MouseEvent) {
+  private onMouseMoveStart(event: MouseEvent) {
+    this.element.removeEventListener('mousemove', this.onMouseMoveStart);
+    if (this.mouseDownTimeout) cancel(this.mouseDownTimeout);
+    this.startDrag(event);
+  }
+
+
+  private startDrag(event: MouseEvent) {
+    let
+      dragStartEvent: DragStartSensorEvent;
+
+    dragStartEvent = new DragStartSensorEvent(
+      event.clientX,
+      event.clientY,
+      event.target,
+      this.element,
+      event
+    );
+
+    this.eventEmmiter.emitEvent(this, dragStartEvent)
+
+    this.dragging = !dragStartEvent.canceled;
+
+    if (this.dragging) {
+      this.element.addEventListener('mousemove', this.onMouseMove)
+    }
+  }
+
+  @action
+  private onMouseMove(event: MouseEvent) {
 
   }
 
   @action
-  onMouseUp(event: MouseEvent) {
+  private onMouseUp(event: MouseEvent) {
     let
       args: DragStopSensorEventArgs,
       target: Element | null;
@@ -63,6 +113,9 @@ export default class DragMouseSensor extends DragSensor {
 
     this.trigger(args);
   }
+
+  private startMovingAt?: number
+  private mouseDownTimeout?: EmberRunTimer
 }
 
 function preventNativeEvent(event: MouseEvent) {

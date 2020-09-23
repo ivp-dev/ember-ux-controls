@@ -180,6 +180,14 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
       : Axes.X;
   }
 
+  public willDestroy() {
+    this.eventHandler.removeEventListener(
+      this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
+    );
+
+    super.willDestroy();
+  }
+
   public itemItsOwnContainer(
     item: unknown
   ): item is TabControlItem {

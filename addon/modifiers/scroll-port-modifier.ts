@@ -1,5 +1,3 @@
-// @ts-ignore
-import { setModifierManager, capabilities } from '@ember/modifier';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import addClass from 'ember-ux-controls/utils/dom/add-class';
 import removeClass from 'ember-ux-controls/utils/dom/remove-class';

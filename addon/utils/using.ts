@@ -23,7 +23,7 @@ export default function using<TD extends UsingObject, TR = void>(
 }
 
 function destroy(obj: UsingObject) {
-  if(obj === null) return;
+  if(!obj) return;
   
   if(!(typeof (<UsingObject>obj).dispose === 'function')) {
     throw new Error("Object provided to using did not have a dispose method")

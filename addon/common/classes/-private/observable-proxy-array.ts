@@ -22,7 +22,7 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       addAmt
     );
 
-    if (this._changer === null) {
+    if (typeof this._changer === 'undefined') {
       this._changer = new ObservableProxyArray.Changer<TContent>(this);
     }
 
@@ -73,11 +73,11 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
     _offset: number
   ) { }
 
-  private _changer: IChanger<TContent> | null = null;
+  private _changer?: IChanger<TContent>;
 
   private static Changer = class Changer<T> implements IChanger<T>, IDisposable {
     constructor(
-      private owner: ObservableProxyArray<any> | null
+      private owner?: ObservableProxyArray<any>
     ) {
       this.isActive = false;
       this.sourceToAdd = [];
@@ -117,8 +117,8 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
         this.end();
 
         if (this.owner) {
-          this.owner._changer = null;
-          this.owner = null
+          this.owner._changer = void 0;
+          this.owner = void 0
         }
 
         this._disposed = true;

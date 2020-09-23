@@ -93,7 +93,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
     if (this._itemContainerGenerator) {
       this._itemContainerGenerator.dispose();
-      this._itemContainerGenerator = null;
+      this._itemContainerGenerator = void 0;
     }
 
     super.willDestroy();
@@ -127,7 +127,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   private ensureGenerator()
     : void {
-    if (this._itemContainerGenerator === null) {
+    if (typeof this._itemContainerGenerator === 'undefined') {
       this.connectToGenerator();
       this.ensureEmptyChildren();
       this.generateChildren();
@@ -297,6 +297,6 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
     return A(source);
   }
 
-  private _children: NativeArray<object> | null = null
-  private _itemContainerGenerator: ItemContainerGenerator | null = null
+  private _children?: NativeArray<object>
+  private _itemContainerGenerator?: ItemContainerGenerator
 }

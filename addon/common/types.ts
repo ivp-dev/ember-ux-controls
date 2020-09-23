@@ -170,6 +170,11 @@ export interface IHeaderContentElement
 
 export interface IEventArgs { }
 
+export interface ICancellableEventArgs {
+  canceled: boolean
+  cancel: () => void
+}
+
 export interface IEventEmmiter {
   emitEvent(
     sender: object,

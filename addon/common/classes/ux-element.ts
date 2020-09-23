@@ -31,7 +31,7 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
   }
 
   @computed('args.{logicalParent}', 'visualParent')
-  protected get logicalParent() {
+  public get logicalParent() {
     return (
       this.args.logicalParent ?? 
       this._logicalParent ?? 
@@ -39,8 +39,8 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     );
   }
 
-  protected set logicalParent(
-    value: Component | null
+  public set logicalParent(
+    value: Component | undefined
   ) {
     if(this._logicalParent !== value) {
       this._logicalParent = value;
@@ -49,15 +49,15 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
   }
 
   @computed('args.{visualParent}')
-  protected get visualParent() {
+  public get visualParent() {
     return (
       this.args.visualParent ?? 
       this._visualParent
     );
   }
 
-  protected set visualParent(
-    value: Component | null
+  public set visualParent(
+    value: Component | undefined
   ) {
     if(this._visualParent !== value) {
       this._visualParent = value;
@@ -81,6 +81,6 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
 
   @inject('event-emmiter')
   private _eventHandler?: IEventEmmiter
-  private _logicalParent: Component | null = null
-  private _visualParent: Component | null = null
+  private _logicalParent?: Component
+  private _visualParent?: Component
 }

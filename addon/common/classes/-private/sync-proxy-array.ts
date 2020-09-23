@@ -12,7 +12,7 @@ export default abstract class SyncProxyArray<TContent, TSource>
   }
 
   public set source(
-    value: NativeArray<TSource> | null
+    value: NativeArray<TSource> | undefined
   ) {
     if (this._source !== value) {
       this._source = value;
@@ -22,7 +22,7 @@ export default abstract class SyncProxyArray<TContent, TSource>
 
   public init() {
     let
-      source: NativeArray<TSource> | null;
+      source: NativeArray<TSource> | undefined;
 
     source = this.source;
 
@@ -41,7 +41,7 @@ export default abstract class SyncProxyArray<TContent, TSource>
 
   public willDestroy() {
     let
-      source: NativeArray<TSource> | null;
+      source: NativeArray<TSource> | undefined;
 
     source = this.source;
 
@@ -81,7 +81,7 @@ export default abstract class SyncProxyArray<TContent, TSource>
   ) { }
 
   protected get sourceArrayObserver() {
-    if (this._sourceArrayObserver === null) {
+    if (typeof this._sourceArrayObserver === 'undefined') {
       this._sourceArrayObserver = {
         didChange: this.didSourceChange,
         willChange: this.willSourceChange
@@ -106,7 +106,7 @@ export default abstract class SyncProxyArray<TContent, TSource>
     ) ?? []);
   }
 
-  private _source: NativeArray<TSource> | null = null
-  private _sourceArrayObserver: IArrayObserver<unknown> | null = null
+  private _source?: NativeArray<TSource>
+  private _sourceArrayObserver?: IArrayObserver<unknown>
 }
 
