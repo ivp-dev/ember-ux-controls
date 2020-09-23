@@ -1,11 +1,12 @@
 import { notifyPropertyChange } from '@ember/object';
-import EventEmmiter from 'ember-ux-controls/common/classes/-private/event-emmiter';
+import { inject } from '@ember/service';
 import { computed } from '@ember/object';
 import Component from '@glimmer/component';
 // @ts-ignore
 import { setComponentTemplate, getComponentTemplate,
   TemplateFactory
 } from '@ember/component';
+import { IEventEmmiter } from '../types';
 
 export interface IUXElementArgs {
   logicalParent?: Component
@@ -19,6 +20,14 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
   ) {
     super(owner, args);
     this.args
+  }
+
+  public get eventHandler() {
+    if(!this._eventHandler) {
+      throw 'EventEmmiter not set';
+    }
+
+    return this._eventHandler;
   }
 
   @computed('args.{logicalParent}', 'visualParent')
@@ -56,14 +65,6 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     }
   }
 
-  protected get eventHandler() {
-    if (this._eventHandler === null) {
-      this._eventHandler = new EventEmmiter();
-    }
-
-    return this._eventHandler;
-  }
-
   protected static get Template()
     : unknown {
     return getComponentTemplate(this);
@@ -78,7 +79,8 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     );
   }
 
+  @inject('event-emmiter')
+  private _eventHandler?: IEventEmmiter
   private _logicalParent: Component | null = null
   private _visualParent: Component | null = null
-  private _eventHandler: EventEmmiter | null = null;
 }

@@ -2,16 +2,14 @@ import Component from '@glimmer/component';
 import NativeArray from "@ember/array/-private/native-array";
 import { computed } from '@ember/object';
 import ItemContainerGenerator from 'ember-ux-controls/common/classes/-private/item-container-generator';
-import ItemCollection from 'ember-ux-controls/common/classes/-private/item-collection';
+import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
-import { ArrayChangedEventArgs } from 'ember-ux-controls/common/classes/-private/observable-proxy-array';
 import equals from 'ember-ux-controls/utils/equals';
 import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 
 import {
-  IArrayObserver,
   IGeneratorHost
 } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
@@ -21,7 +19,7 @@ import Panel from './panel';
 export interface IItemsControlArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>
   itemTemplateName?: string,
-  onItemsChanged?: (sender: ItemCollection, args: ArrayChangedEventArgs<unknown>) => void
+  onItemsChanged?: (sender: ItemCollection, args: ItemCollectionChangedEventArgs<unknown>) => void
 }
 
 /**
@@ -146,11 +144,17 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   // IGeneratorHost implementation end
 
   public willDestroy() {
-    if (this.isDestroyed) {
-      if (this.items && this._itemsObsever) {
-        this.items.eventHandler.removeEventListener(this, ArrayChangedEventArgs)
-      }
+    this.eventHandler.removeEventListener(
+      this, 
+      ItemCollectionChangedEventArgs,
+      this.onItemCollectionChanged
+    );
+
+    if(this._itemsContainerGenerator) {
+      this._itemsContainerGenerator.dispose();
+      this._itemsContainerGenerator = null;
     }
+    
 
     super.willDestroy();
   }
@@ -164,9 +168,12 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   protected onItemCollectionChanged(
     sender: ItemCollection,
-    args: ArrayChangedEventArgs<unknown>
+    args: ItemCollectionChangedEventArgs<unknown>
   ): void {
-    if (typeof this.args.onItemsChanged === 'function') {
+    if (
+      this.items === sender &&
+      typeof this.args.onItemsChanged === 'function'
+    ) {
       this.args.onItemsChanged(sender, args);
     }
   }
@@ -264,8 +271,10 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
       host: this
     });
 
-    items.eventHandler.addEventListener(
-      this, ArrayChangedEventArgs, this.onItemCollectionChanged
+    this.eventHandler.addEventListener(
+      this, 
+      ItemCollectionChangedEventArgs, 
+      this.onItemCollectionChanged
     );
 
     return items;
@@ -279,6 +288,5 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   private _itemsSource: NativeArray<unknown> | null = null
   private _itemsHost: Panel | null = null
   private _items: ItemCollection | null = null
-  private _itemsObsever: IArrayObserver<any> | null = null
   private _itemsContainerGenerator: ItemContainerGenerator | null = null
 }

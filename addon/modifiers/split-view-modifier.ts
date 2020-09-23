@@ -28,6 +28,7 @@ import {
 } from '../components/split-view/component';
 import { GeneratorStatusEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import ItemsControl from 'dummy/classes/items-control';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
   host: unknown
@@ -214,7 +215,7 @@ export class SplitViewBehavior {
 
   public subscribe() {
     if (this.host instanceof SplitView) {
-      this.host.itemContainerGenerator.eventHandler.addEventListener(
+      this.host.eventHandler.addEventListener(
         this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
       );
     }
@@ -253,21 +254,24 @@ export class SplitViewBehavior {
       );
 
       if (
-        this.host instanceof SplitView
+        this.host instanceof ItemsControl
       ) {
-        this.host.itemContainerGenerator.eventHandler.removeEventListener(
+        this.host.eventHandler.removeEventListener(
           this,
-          GeneratorStatusEventArgs
+          GeneratorStatusEventArgs,
+          this.onGeneratorStatusChanged
         );
       }
     }
   }
 
   private onGeneratorStatusChanged(
-    _: object,
+    sender: object,
     args: GeneratorStatusEventArgs
   ): void {
     if (
+      this.host instanceof ItemsControl &&
+      this.host.itemContainerGenerator === sender &&
       args.newStatus === GeneratorStatus.ContainersGenerated
     ) {
       scheduleOnce('afterRender', this, this.update)
@@ -305,13 +309,16 @@ export class SplitViewBehavior {
   ): void {
     let
       pane: HTMLElement | null = null,
-      index = 0,
+      count: number,
+      index: number,
       bar: HTMLDivElement;
 
-    pane = null;
-    index = 0;
-
-    for (; index < this.panes.length; index++) {
+    for (
+      index = 0,
+      count = this.panes.length;
+      index < count;
+      index++
+    ) {
       pane = this.panes[index];
       if (index < this.panes.length - 1) {
         bar = document.createElement('div');

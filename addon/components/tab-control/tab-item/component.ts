@@ -221,6 +221,8 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
       this.html = null;
     }
 
+    super.willDestroy();
+
     //TODO: maybe I need to remove it from TabControl.Items here
   }
 

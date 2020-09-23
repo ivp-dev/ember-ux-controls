@@ -3,77 +3,45 @@ import { setModifierManager, capabilities } from '@ember/modifier';
 import Modifier from 'ember-modifier';
 import { inject } from '@ember/service';
 import { IEventEmmiter } from 'ember-ux-controls/common/types'
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import addClass from 'ember-ux-controls/utils/dom/add-class';
-import { removeClass } from 'ember-ux-controls/utils/dom';
-import { action } from '@ember/object';
-import { IEventArgs } from 'ember-ux-controls/common/classes/-private/event-emmiter';
+import Sensor from 'ember-ux-controls/common/classes/sensor';
+import MouseSensor from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 
-class DragEventArgs implements IEventArgs {
-  constructor(
-    public type: string
-  ) { }
+interface IDraggableModifierArgs {
+  named: {
+    allowMouseSensor: boolean,
+    allowTouchSensor: boolean
+  }
+  positional: []
 }
 
-
-export default class DraggableModifier extends Modifier {
+export default class DraggableModifier extends Modifier<IDraggableModifierArgs> {
   @inject
-  private eventEmmiter!: IEventEmmiter 
-
-  private behavior: DraggableBehavior
+  private eventEmmiter!: IEventEmmiter
+  private sensors: Sensor[] = []
 
   public didInstall() {
-    this.behavior = new DraggableBehavior(
-      this.element,
-      this.eventEmmiter,
-      null
-    );
+    let
+      allowMouseSensor: boolean,
+      allowTouchSensor: boolean;
 
+    allowMouseSensor = this.args.named.allowMouseSensor ?? true
+    allowTouchSensor = this.args.named.allowTouchSensor ?? true
 
+    if (allowMouseSensor) {
+      this.sensors.push(new MouseSensor(this.element, this.eventEmmiter))
+    }
 
-  }
+    if(allowTouchSensor) {
+      //TODO: add touch sensor
+    }
 
-  public didUpdateArguments() {
-    
+    //TODO: add another sensors
+
+    this.sensors.forEach(sensor => sensor.attach());
   }
 
   public willRemove() {
-    
-  }
-}
-
-class DraggableBehavior {
-  constructor(
-    private element: Element,
-    private eventEmmiter: IEventEmmiter,
-    private classNamesBuilder: ClassNamesBuilder,
-    private isDraggin: boolean = false
-  ) {
-    this.subscribe();
-  } 
-
-  subscribe() {
-    this.eventEmmiter.addEventListener(this, DragEventArgs, this.onDrag);
-  }
-
-  unsubscribe() {
-    this.eventEmmiter.removeEventListener(this, DragEventArgs, this.onDrag);
-  }
-
-  onDrag(sender: any, args: DragEventArgs) {
-    switch(args.type) {
-      case 'start': 
-        //this.onDragStart
-      break
-      case 'move':
-        //this.onDragMove
-      break
-      case 'end': 
-        //this.onDragEnd
-      break
-      default:
-
-      
-    }
+    this.sensors.forEach(sensor => sensor.detach());
+    this.sensors.length = 0;
   }
 }

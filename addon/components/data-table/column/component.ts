@@ -8,11 +8,10 @@ import { guidFor } from '@ember/object/internals';
 import layout from './template';
 
 
-
 interface IDataTableColumnArgs extends IUXElementArgs {
   path?: string
   fixed?: boolean
-  addColumn?: (column:Column) => void
+  addColumn?: (column: Column) => void
   classNamesBuilder?: ClassNamesBuilder
 }
 
@@ -33,20 +32,18 @@ class DataTableColumn extends UXElement<IDataTableColumnArgs> {
     return '';
   }
 
-  
-
   @action
   didInsert() {
     let
       path: string | undefined;
 
     path = this.args.path;
-    
-    if(!path) {
+
+    if (!path) {
       throw 'Path should be set';
     }
 
-    if(this.logicalParent instanceof DataTable) {
+    if (this.logicalParent instanceof DataTable) {
       this.logicalParent.addColumn(
         new Column(path)
       );

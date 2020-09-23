@@ -229,9 +229,7 @@ export class TreeView extends UXElement<ITreeViewArgs> {
   }
 
   public willDestroy() {
-    if (this.isDestroyed) {
-      return;
-    }
+    super.willDestroy();
   }
 
   public onSelect(node: TreeViewItem) {

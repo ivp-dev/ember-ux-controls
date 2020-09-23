@@ -3,15 +3,16 @@ import { IItemsControlArgs } from './items-control';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import ItemsControl from './items-control'
 import { ISelectable } from 'ember-ux-controls/common/types';
-import SelectedItemCollection from 'ember-ux-controls/common/classes/-private/selected-item-collection';
+import SelectedItemCollection, { SelectedItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/selected-item-collection';
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
 import { assert } from '@ember/debug';
-import { ArrayChangedEventArgs } from 'ember-ux-controls/common/classes/-private/observable-proxy-array';
 import EquatableArray from 'ember-ux-controls/common/classes/-private/equatable-array';
 import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
-import ItemCollection from 'ember-ux-controls/common/classes/-private/item-collection';
+import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+
+
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   multipleSelectionEnable?: boolean
@@ -41,7 +42,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   public set multipleSelectionEnable(
     value: boolean
   ) {
-    if(this._multipleSelectionEnable !== value) {
+    if (this._multipleSelectionEnable !== value) {
       this._multipleSelectionEnable = value;
       notifyPropertyChange(this, 'multipleSelectionEnable');
     }
@@ -57,9 +58,9 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       source: A()
     });
 
-    this._selectedItems.eventHandler.addEventListener(
+    this.eventHandler.addEventListener(
       this,
-      ArrayChangedEventArgs,
+      SelectedItemCollectionChangedEventArgs,
       this.onSelectedItemsCollectionChanged
     );
 
@@ -155,10 +156,12 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   }
 
   public willDestroy() {
-    if (!this.isDestroyed) {
-      removeObserver(this, 'multipleSelectionEnable', this.onMutlipleSelectionEnableChanged);
-      this.selectedItems.eventHandler.removeEventListener(this, ArrayChangedEventArgs);
-    }
+    removeObserver(this, 'multipleSelectionEnable', this.onMutlipleSelectionEnableChanged);
+    this.eventHandler.removeEventListener(
+      this,
+      SelectedItemCollectionChangedEventArgs,
+      this.onSelectedItemsCollectionChanged
+    );
 
     super.willDestroy();
   }
@@ -247,10 +250,8 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   protected onItemCollectionChanged(
     sender: ItemCollection,
-    args: ArrayChangedEventArgs<unknown>
+    args: ItemCollectionChangedEventArgs<unknown>
   ): void {
-    super.onItemCollectionChanged(sender, args);
-
     let
       newItems: Array<unknown>,
       oldItems: Array<unknown>,
@@ -264,6 +265,12 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       oldItem: unknown,
       itemIndex: number,
       idx: number;
+
+    if (sender !== this.items) {
+      return;
+    }
+
+    super.onItemCollectionChanged(sender, args);
 
     newItems = args.newItems;
     oldItems = args.oldItems;
@@ -435,13 +442,17 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   }
 
   private onSelectedItemsCollectionChanged(
-    _: SelectedItemCollection,
-    args: ArrayChangedEventArgs<unknown>
+    sender: SelectedItemCollection,
+    args: SelectedItemCollectionChangedEventArgs<unknown>
   ): void {
     let
       oldItem: unknown,
       newItem: unknown,
       succeeded: boolean = false;
+
+    if (sender !== this.selectedItems) {
+      return;
+    }
 
     if (this.selectionChanger.isActive) {
       return;

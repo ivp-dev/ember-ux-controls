@@ -4,18 +4,51 @@ import { addObserver, removeObserver } from '@ember/object/observers';
 import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
+import { IEventArgs } from "ember-ux-controls/common/types";
+
+
+export class ItemCollectionChangedEventArgs<T> implements IEventArgs {
+  constructor(
+    public offset: number,
+    public newItems: Array<T>,
+    public oldItems: Array<T>
+  ) { }
+}
+
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public host: ItemsControl | null = null;
-  
+
+  protected changerDone(
+    sourceToAdd: unknown[],
+    sourceToRemove: unknown[],
+    offset: number
+  ) {
+    let
+      eventArgs: ItemCollectionChangedEventArgs<unknown>;
+
+    if (this.host instanceof ItemsControl) {
+      eventArgs = new ItemCollectionChangedEventArgs(
+        offset,
+        sourceToAdd,
+        sourceToRemove
+      );
+
+      this.host.eventHandler.emitEvent(
+        this,
+        eventArgs
+      );
+    }
+  }
+
   public init() {
     if (!this.host) {
       throw new Error("Host was not set");
     }
 
-    if(this.host.itemsSource) {
+    if (this.host.itemsSource) {
       set(this, 'source', this.host.itemsSource)
     }
-    
+
     super.init();
 
     addObserver(this.host, 'hasItemsSource', this, this.onSourceChanged);
@@ -78,10 +111,6 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
 
   public willDestroy() {
     removeObserver(this, 'host.hasItemsSource', this.onSourceChanged);
-
-    if (this.eventHandler.hasListeners) {
-      this.eventHandler.clearEventListeners();
-    }
 
     if (this.changer.isActive) {
       this.changer.dispose();

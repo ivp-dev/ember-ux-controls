@@ -42,7 +42,6 @@ export class SplitViewLight<T extends ISplitViewLightArgs> extends UXElement<T>{
       Axes.X
     );
   }
-
 }
 
 export default SplitViewLight.RegisterTemplate(layout)

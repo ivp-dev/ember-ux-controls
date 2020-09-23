@@ -1,16 +1,17 @@
 import { assert } from '@ember/debug';
+
 import {
   IEquatable,
   GeneratorDirection,
   IGeneratorHost,
   IDisposable,
   ItemCollectionActions,
-  GeneratorStatus
-} from '../../types';
+  GeneratorStatus, IEventArgs
+} from 'ember-ux-controls/common/types';
+import ItemsControl from '../items-control';
 
-import EventEmmiter, { IEventArgs } from './event-emmiter';
-import ItemCollection from './item-collection';
-import { ArrayChangedEventArgs } from './observable-proxy-array';
+import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
+
 
 export class ItemContainerGeneratorChangedEventArgs implements IEventArgs {
   action: ItemCollectionActions
@@ -85,23 +86,19 @@ export default class ItemContainerGenerator implements IDisposable {
     public host: IGeneratorHost,
   ) {
 
-    this.itemsInternal.eventHandler.addEventListener(
-      this, ArrayChangedEventArgs, this.onItemCollectionChanged
-    )
-
+    if(this.host instanceof ItemsControl) {
+      this.host.eventHandler.addEventListener(
+        this, 
+        ItemCollectionChangedEventArgs, 
+        this.onItemCollectionChanged
+      )
+    }
+    
     this.refresh();
   }
 
   get status() {
     return this._status;
-  }
-
-  get eventHandler() {
-    if (!this._eventEmmiter) {
-      this._eventEmmiter = new EventEmmiter();
-    }
-
-    return this._eventEmmiter;
   }
 
   protected get itemsInternal(): ItemCollection {
@@ -382,11 +379,15 @@ export default class ItemContainerGenerator implements IDisposable {
     if (this._isDisposed) {
       return;
     }
-
-    this.itemsInternal.eventHandler.removeEventListener(
-      this, ArrayChangedEventArgs
-    );
-
+    
+    if(this.host instanceof ItemsControl) {
+      this.host.eventHandler.removeEventListener(
+        this, 
+        ItemCollectionChangedEventArgs,
+        this.onItemCollectionChanged
+      );
+    }
+   
     if (this._generator) {
       this._generator.dispose();
       this._generator = null;
@@ -512,6 +513,9 @@ export default class ItemContainerGenerator implements IDisposable {
     newOffset: number,
     deltaCount: number
   ) {
+    let
+      eventArgs: MapChangedEventArgs;
+
     if (
       block instanceof RealizedItemBlock &&
       newBlock instanceof RealizedItemBlock
@@ -527,17 +531,16 @@ export default class ItemContainerGenerator implements IDisposable {
     block.itemCount -= count;
     newBlock.itemCount += count;
 
-    this.eventHandler.emitEvent(
-      this,
-      new MapChangedEventArgs(
-        block,
-        offset,
-        count,
-        newBlock,
-        newOffset,
-        deltaCount
-      )
-    );
+    eventArgs = new MapChangedEventArgs(
+      block,
+      offset,
+      count,
+      newBlock,
+      newOffset,
+      deltaCount
+    )
+
+    this.notifyListeners(eventArgs);
   }
 
   private removeAllInternal() {
@@ -545,15 +548,14 @@ export default class ItemContainerGenerator implements IDisposable {
       itemMap: ItemBlock | null,
       uib: UnrealizedItemBlock,
       block: ItemBlock,
-      offset: number;
+      offset: number,
+      eventArgs: MapChangedEventArgs;
 
     itemMap = this._itemMap;
     this._itemMap = null;
 
     try {
       if (itemMap !== null) {
-        block: ItemBlock;
-
         for (
           block = itemMap.next;
           block != itemMap;
@@ -580,15 +582,17 @@ export default class ItemContainerGenerator implements IDisposable {
       uib = new UnrealizedItemBlock();
       uib.insertAfter(this._itemMap);
       uib.itemCount = this.itemsInternal.count;
-      this.eventHandler.emitEvent(this, new MapChangedEventArgs(
+
+      eventArgs = new MapChangedEventArgs(
         /*block:     */ null,
         /*offset:    */ -1,
         /*count:     */ 0,
         /*newBlock:  */ uib,
         /*newOffset: */ 0,
         /*deltaCount:*/ 0
-      ));
+      );
 
+      this.notifyListeners(eventArgs);
     }
   }
 
@@ -677,11 +681,11 @@ export default class ItemContainerGenerator implements IDisposable {
   }
 
   protected onItemCollectionChanged(
-    _: ItemCollection, {
+    sender: ItemCollection, {
       newItems,
       oldItems,
       offset
-    }: ArrayChangedEventArgs<unknown>
+    }: ItemCollectionChangedEventArgs<unknown>
   ): void {
     let
       addedCount: number,
@@ -694,6 +698,12 @@ export default class ItemContainerGenerator implements IDisposable {
       removedItem: unknown,
       itemIndex: number,
       index: number;
+
+    if(
+      sender !== this.itemsInternal
+    ) {
+      return;
+    }
 
     addedCount = newItems.length;
     removedCount = oldItems.length;
@@ -775,7 +785,8 @@ export default class ItemContainerGenerator implements IDisposable {
       offsetFromBlockStart: number,
       //correctIndex: number,
       rib: RealizedItemBlock,
-      container: object;
+      container: object,
+      eventArgs: ItemContainerGeneratorChangedEventArgs;
 
     [
       block,
@@ -798,15 +809,15 @@ export default class ItemContainerGenerator implements IDisposable {
           this.host
         );
 
-        this.eventHandler.emitEvent(
-          this,
-          new ItemContainerGeneratorChangedEventArgs(
-            ItemCollectionActions.Replace,
-            position,
-            /*itemCount  */ 1,
-            /*itemUICount*/ 1
-          )
+        eventArgs = new ItemContainerGeneratorChangedEventArgs(
+          ItemCollectionActions.Replace,
+          position,
+          /*itemCount  */ 1,
+          /*itemUICount*/ 1
         );
+
+        this.notifyListeners(eventArgs);
+
       } else {
         container = this.host.containerForItem(newItem);
         rib.realizeItem(offsetFromBlockStart, newItem, container);
@@ -815,15 +826,16 @@ export default class ItemContainerGenerator implements IDisposable {
           newItem,
           this.host
         );
-        this.eventHandler.emitEvent(
-          this,
-          new ItemContainerGeneratorChangedEventArgs(
-            ItemCollectionActions.Replace,
-            position,
-            /*itemCount  */ 1,
-            /*itemUICount*/ 1
-          )
+
+        eventArgs = new ItemContainerGeneratorChangedEventArgs(
+          ItemCollectionActions.Replace,
+          position,
+          /*itemCount  */ 1,
+          /*itemUICount*/ 1
         );
+
+        this.notifyListeners(eventArgs);
+
         ItemContainerGenerator.UnlinkContainerFromItem(
           container,
           newItem,
@@ -833,22 +845,30 @@ export default class ItemContainerGenerator implements IDisposable {
     }
   }
 
+  private notifyListeners(args: IEventArgs) {
+    if (this.host instanceof ItemsControl) {
+      this.host.eventHandler.emitEvent(this, args);
+    }
+  }
+
   //@ts-ignore
   private onRefresh() {
-    const
-      position = new GeneratorPosition(0, 0);
+    let
+      eventArgs: ItemContainerGeneratorChangedEventArgs,
+      position: GeneratorPosition;
+
+    position = new GeneratorPosition(0, 0);
 
     this.removeAll();
 
-    this.eventHandler.emitEvent(
-      this,
-      new ItemContainerGeneratorChangedEventArgs(
-        ItemCollectionActions.Reset,
-        position,
-        /*itemCount  */ 0,
-        /*itemUICount*/ 0
-      )
+    eventArgs = new ItemContainerGeneratorChangedEventArgs(
+      ItemCollectionActions.Reset,
+      position,
+      /*itemCount  */ 0,
+      /*itemUICount*/ 0
     );
+
+    this.notifyListeners(eventArgs);
   }
 
   private onItemAdded(item: any, itemIndex: number) {
@@ -858,7 +878,9 @@ export default class ItemContainerGenerator implements IDisposable {
       offsetFromBlockStart: number,
       unrealizedItemsSkipped: number,
       uib: UnrealizedItemBlock,
-      newBlock: RealizedItemBlock;
+      newBlock: RealizedItemBlock,
+      mapChangedEventArgs: MapChangedEventArgs,
+      generatorChangedEventArgs: ItemContainerGeneratorChangedEventArgs;
 
 
     if (this._itemMap === null) {
@@ -935,26 +957,28 @@ export default class ItemContainerGenerator implements IDisposable {
       uib.insertBefore(block);
     }
 
-    this.eventHandler.emitEvent(
-      this,
-      new MapChangedEventArgs(
-        /*block     */ null,
-        /*offset    */ itemIndex,
-        /*count     */ +1,
-        /*newBlock  */ uib,
-        /*newOffset */ 0,
-        /*deltaCount*/ 0
-      )
+    mapChangedEventArgs = new MapChangedEventArgs(
+      /*block     */ null,
+      /*offset    */ itemIndex,
+      /*count     */ +1,
+      /*newBlock  */ uib,
+      /*newOffset */ 0,
+      /*deltaCount*/ 0
     );
 
-    this.eventHandler.emitEvent(
-      this,
-      new ItemContainerGeneratorChangedEventArgs(
-        ItemCollectionActions.Add,
-        position,
-        /*itemCount  */ 1,
-        /*itemUICount*/ 0
-      )
+    generatorChangedEventArgs = new ItemContainerGeneratorChangedEventArgs(
+      ItemCollectionActions.Add,
+      position,
+      /*itemCount  */ 1,
+      /*itemUICount*/ 0
+    )
+
+    this.notifyListeners(
+      mapChangedEventArgs
+    );
+
+    this.notifyListeners(
+      generatorChangedEventArgs
     );
   }
 
@@ -965,7 +989,9 @@ export default class ItemContainerGenerator implements IDisposable {
       block: ItemBlock | null,
       position: GeneratorPosition,
       offsetFromBlockStart: number,
-      others: any[];
+      others: any[],
+      mapChangedEventArgs: MapChangedEventArgs,
+      generatorChangedEventArgs: ItemContainerGeneratorChangedEventArgs;
 
     container = null;
     containerCount = 0;
@@ -1001,27 +1027,24 @@ export default class ItemContainerGenerator implements IDisposable {
 
     this.removeAndMergeBlocksIfNeeded(block);
 
-    this.eventHandler.emitEvent(
-      this,
-      new MapChangedEventArgs(
-        /*block      */ null,
-        /*offset     */ itemIndex,
-        /*count      */ -1,
-        /*newBlock   */ null,
-        /*newOffset  */ 0,
-        /*deltaCount */ 0
-      )
+    mapChangedEventArgs = new MapChangedEventArgs(
+      /*block      */ null,
+      /*offset     */ itemIndex,
+      /*count      */ -1,
+      /*newBlock   */ null,
+      /*newOffset  */ 0,
+      /*deltaCount */ 0
     );
 
-    this.eventHandler.emitEvent(
-      this,
-      new ItemContainerGeneratorChangedEventArgs(
-        ItemCollectionActions.Remove,
-        position,
-        /*itemCount*/ 1,
-        containerCount
-      )
+    generatorChangedEventArgs = new ItemContainerGeneratorChangedEventArgs(
+      ItemCollectionActions.Remove,
+      position,
+      /*itemCount*/ 1,
+      containerCount
     );
+
+    this.notifyListeners(mapChangedEventArgs);
+    this.notifyListeners(generatorChangedEventArgs);
 
     if (container) {
       ItemContainerGenerator.UnlinkContainerFromItem(
@@ -1286,11 +1309,13 @@ export default class ItemContainerGenerator implements IDisposable {
         this._cachedState,
       );
 
-      this.factory.eventHandler.addEventListener(
-        this,
-        MapChangedEventArgs,
-        this.onMapChanged
-      );
+      if (this.factory.host instanceof ItemsControl) {
+        this.factory.host.eventHandler.addEventListener(
+          this,
+          MapChangedEventArgs,
+          this.onMapChanged
+        );
+      }
 
       this.factory.setStatus(GeneratorStatus.GeneratingContainers);
     }
@@ -1300,10 +1325,13 @@ export default class ItemContainerGenerator implements IDisposable {
         return;
       }
 
-      if (this.factory.eventHandler.hasListeners) {
-        this.factory.eventHandler.removeEventListener(
+      if (
+        this.factory.host instanceof ItemsControl
+      ) {
+        this.factory.host.eventHandler.removeEventListener(
           this,
-          MapChangedEventArgs
+          MapChangedEventArgs,
+          this.onMapChanged
         );
       }
 
@@ -1387,11 +1415,9 @@ export default class ItemContainerGenerator implements IDisposable {
     }
 
     onMapChanged(
-      _: ItemContainerGenerator,
+      sender: ItemContainerGenerator,
       args: MapChangedEventArgs
     ) {
-      if (!args) return;
-
       const {
         block,
         offset,
@@ -1400,6 +1426,11 @@ export default class ItemContainerGenerator implements IDisposable {
         newOffset,
         deltaCount
       } = args;
+        
+      if (!args) return;
+
+      if(this.factory !== sender) return;
+
 
       if (block !== null) {
         if (
@@ -1456,17 +1487,19 @@ export default class ItemContainerGenerator implements IDisposable {
     if (this._status !== newStatus) {
       oldStatus = this._status;
       this._status = newStatus;
-      this.eventHandler.emitEvent(
-        this,
-        new GeneratorStatusEventArgs(oldStatus, newStatus)
-      );
+      
+      if (this.host instanceof ItemsControl) {
+        this.host.eventHandler.emitEvent(
+          this,
+          new GeneratorStatusEventArgs(oldStatus, newStatus)
+        );
+      }
     }
   }
 
   private _status: GeneratorStatus | null = null;
   private _generator: Generator | null = null;
   private _itemMap: ItemBlock | null = null;
-  private _eventEmmiter: EventEmmiter | null = null
   private _isDisposed: boolean = false
   private _startIndexForUIFromItem: number = 0;
   private _notFound: [

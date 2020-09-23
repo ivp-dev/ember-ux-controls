@@ -1,31 +1,11 @@
-import EventEmmiter, { IEventEmmiter, IEventArgs } from 'ember-ux-controls/common/classes/-private/event-emmiter';
+
 import { IDisposable } from "ember-ux-controls/common/types";
 import using from 'ember-ux-controls/utils/using';
 import EquatableArray from './equatable-array';
 
-export class ArrayChangedEventArgs<T> implements IEventArgs {
-  constructor(
-    public offset: number,
-    public newItems: Array<T>,
-    public oldItems: Array<T>
-  ) { }
-}
-
 export default class ObservableProxyArray<TContent> extends EquatableArray<TContent> {
   init() {
     super.init();
-  }
-
-  get eventHandler()
-    : IEventEmmiter {
-    
-    if (this._eventHandler) {
-      return this._eventHandler;
-    }
-
-    this._eventHandler = new EventEmmiter();
-
-    return this._eventHandler;
   }
 
   arrayContentWillChange(
@@ -80,18 +60,20 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
           );
         }
 
-        this.eventHandler.emitEvent(
-          this,
-          changer.prepareChangesEventArgs(startIdx)
-        );
+        this.changerDone(...changer.prepareChanges(startIdx));
       });
     }
 
     return array;
   }
 
+  protected changerDone(
+    _sourceToAdd: TContent[],
+    _sourceToRemove: TContent[],
+    _offset: number
+  ) { }
+
   private _changer: IChanger<TContent> | null = null;
-  private _eventHandler: IEventEmmiter | null = null;
 
   private static Changer = class Changer<T> implements IChanger<T>, IDisposable {
     constructor(
@@ -110,19 +92,14 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       this.isActive = true;
     }
 
-    prepareChangesEventArgs(
+    prepareChanges(
       offset: number
-    ) {
-      let
-        eventArgs: ArrayChangedEventArgs<T>;
-
-      eventArgs = new ArrayChangedEventArgs(
-        offset,
+    ): [Array<T>, Array<T>, number] {
+      return [
         this.sourceToAdd.slice(),
-        this.sourceToRemove.slice()
-      );
-
-      return eventArgs;
+        this.sourceToRemove.slice(),
+        offset
+      ];
     }
 
     end() {
@@ -159,6 +136,6 @@ interface IChanger<T> {
   cleanup: () => void,
   dispose: () => void,
   begin: () => void,
-  prepareChangesEventArgs: (offset: number) => ArrayChangedEventArgs<T>
+  prepareChanges: (offset: number) => [Array<T>, Array<T>, number]
   end: () => void
 }

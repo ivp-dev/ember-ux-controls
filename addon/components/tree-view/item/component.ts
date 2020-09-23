@@ -8,12 +8,12 @@ import { action } from '@ember/object';
 import { next } from '@ember/runloop';
 import { computed } from '@ember/object';
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
-import { IEventArgs } from 'ember-ux-controls/common/classes/-private/event-emmiter';
 
 // @ts-ignore
 import layout from './template';
+import { IEventArgs } from 'ember-ux-controls/common/types';
 
-export class TreeViewItemParentSelectionChangedEventArgs {
+export class TreeViewItemParentSelectionChangedEventArgs implements IEventArgs {
   constructor(
     public value: boolean
   ) { }
@@ -226,16 +226,13 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   }
 
   public willDestroy() {
-    if (this.isDestroyed) {
-      return;
-    }
+    this.eventHandler.removeEventListener(
+      this,
+      TreeViewItemParentSelectionChangedEventArgs,
+      this.onParentSelectionChanged
+    );
 
-    if (this.logicalParent instanceof TreeViewItem) {
-      this.logicalParent.removeEventListener(
-        this,
-        TreeViewItemParentSelectionChangedEventArgs
-      )
-    }
+    super.willDestroy();
   }
 
   @action
@@ -261,19 +258,18 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   public didInsert() {
     this.root = this.findRoot();
 
-    if (this.logicalParent instanceof TreeViewItem) {
-      this.logicalParent.addEventListener(
-        this,
-        TreeViewItemParentSelectionChangedEventArgs,
-        this.onParentSelectionChanged
-      );
-    }
+    this.eventHandler.addEventListener(
+      this,
+      TreeViewItemParentSelectionChangedEventArgs,
+      this.onParentSelectionChanged
+    );
 
     next(this, () => {
       if (
         this.logicalParent instanceof ItemsControl &&
         this.logicalParent.hasItemsSource === false
       ) {
+        
         this.logicalParent.addChild(this);
       }
     })
@@ -348,32 +344,12 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @action
   private onParentSelectionChanged(
-    _: TreeViewItem,
+    sender: TreeViewItem,
     args: TreeViewItemParentSelectionChangedEventArgs
   ) {
-    this.changeSelectionInternal(args.value);
-  }
-
-  private addEventListener(
-    context: TreeViewItem,
-    args: IEventArgs,
-    callback: (sender: TreeViewItem, args: IEventArgs) => void
-  ) {
-    this.eventHandler.addEventListener(
-      context,
-      args,
-      callback
-    );
-  }
-
-  private removeEventListener(
-    context: TreeViewItem,
-    args: IEventArgs
-  ) {
-    this.eventHandler.removeEventListener(
-      context,
-      args
-    );
+    if(sender === this.logicalParent) {
+      this.changeSelectionInternal(args.value);
+    }    
   }
 
   private notifyChildrenSelectionChanged(value: boolean) {

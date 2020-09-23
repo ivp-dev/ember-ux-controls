@@ -97,6 +97,8 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
     }
 
     off(element, 'click', this.onClickEventHandler);
+
+    super.willDestroy();
   }
 
   @action

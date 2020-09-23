@@ -93,7 +93,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
     this.itemTemplateName = 'tab-control/tab-item';
 
-    this.itemContainerGenerator.eventHandler.addEventListener(
+    this.eventHandler.addEventListener(
       this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
     );
   }
@@ -261,10 +261,11 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   private onGeneratorStatusChanged(
-    _: ItemContainerGenerator,
+    sender: ItemContainerGenerator,
     args: GeneratorStatusEventArgs
   ): void {
     if (
+      this.itemContainerGenerator === sender && 
       args.newStatus === GeneratorStatus.ContainersGenerated
     ) {
       if (

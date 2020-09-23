@@ -185,7 +185,7 @@ export interface IEventEmmiter {
   removeEventListener<T extends IEventArgs>(
     context: object,
     key: IEventArgs,
-    callback?: (sender: object, args: T) => void
+    callback: (sender: object, args: T) => void
   ): void
 
   clearEventListeners(): void

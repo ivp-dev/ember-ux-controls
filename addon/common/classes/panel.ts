@@ -11,7 +11,7 @@ import { ItemCollectionActions } from 'ember-ux-controls/common/types';
 import using from 'ember-ux-controls/utils/using';
 import { assert } from '@ember/debug';
 
-export interface IPanelArgs extends IUXElementArgs {}
+export interface IPanelArgs extends IUXElementArgs { }
 
 export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   constructor(
@@ -84,13 +84,16 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   public willDestroy()
     : void {
-    if (!this.isDestroyed) {
-      if (this._itemContainerGenerator) {
-        this._itemContainerGenerator.eventHandler.removeEventListener(
-          this, ItemContainerGeneratorChangedEventArgs
-        );
-        this._itemContainerGenerator = null;
-      }
+
+    this.eventHandler.removeEventListener(
+      this, 
+      ItemContainerGeneratorChangedEventArgs,
+      this.onItemsChanged
+    );
+
+    if (this._itemContainerGenerator) {
+      this._itemContainerGenerator.dispose();
+      this._itemContainerGenerator = null;
     }
 
     super.willDestroy();
@@ -140,15 +143,15 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   private connectToGenerator()
     : void {
+    this.eventHandler.addEventListener(
+      this,
+      ItemContainerGeneratorChangedEventArgs,
+      this.onItemsChanged
+    );
+
     if (this.visualParent instanceof ItemsControl) {
       this._itemContainerGenerator = this.visualParent.itemContainerGenerator;
       if (this._itemContainerGenerator) {
-        this._itemContainerGenerator.eventHandler.addEventListener(
-          this,
-          ItemContainerGeneratorChangedEventArgs,
-          this.onItemsChanged
-        );
-
         this._itemContainerGenerator.removeAll();
       }
     }
@@ -181,14 +184,17 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   }
 
   private onItemsChanged(
-    _: ItemContainerGenerator,
+    sender: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {
-    assert(
-      'Panel._itemContainerGenerator can`t be null in this context',
-      this._itemContainerGenerator !== null
-    );
-    this.onItemsChangedInternal(args);
+    if (this._itemContainerGenerator === sender) {
+      assert(
+        'Panel._itemContainerGenerator can`t be null in this context',
+        this._itemContainerGenerator !== null
+      );
+      
+      this.onItemsChangedInternal(args);
+    }
   }
 
   // if panel is not items-host, children no need

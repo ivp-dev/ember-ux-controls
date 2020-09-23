@@ -4,10 +4,10 @@ import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-e
 import { SplitView } from '../component';
 import { action } from '@ember/object';
 import { next } from '@ember/runloop';
-import {PaneModel} from 'ember-ux-controls/components/split-view/component';
+import { PaneModel } from 'ember-ux-controls/components/split-view/component';
+
 // @ts-ignore
 import layout from './template';
-
 
 interface ISplitViewPaneArgs extends IUXElementArgs {
   pane?: PaneModel
@@ -32,13 +32,15 @@ export class Pane extends UXElement<ISplitViewPaneArgs> {
   public get hasItemsSource()
     : boolean | undefined {
     return this.args.hasItemsSource
-  } 
+  }
 
   public get classNames()
     : string {
-    
+
     if (this.args.classNamesBuilder) {
-      return `${this.args.classNamesBuilder('pane', { '$fixed': this.args.fixed })}`;
+      return `${this.args.classNamesBuilder(
+        'pane', { '$fixed': this.args.fixed }
+      )}`;
     }
 
     return '';
