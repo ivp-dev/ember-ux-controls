@@ -231,7 +231,6 @@ export class SplitViewBehavior {
     this.applySizes();
   }
 
-
   public unsubscribe(
     willRemove = false
   ): void {
@@ -372,8 +371,7 @@ export class SplitViewBehavior {
     }
   }
 
-  private applySizes(
-  ) {
+  private applySizes() {
     let
       style: { [K in Size]?: string },
       size: number,

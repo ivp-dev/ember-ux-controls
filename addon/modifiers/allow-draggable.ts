@@ -1,20 +1,14 @@
-import Modifier from 'ember-modifier';
+import Modifier, { ModifierArgs as IModifierArgs } from 'ember-modifier';
 import { inject } from '@ember/service';
 import { IEventEmmiter } from 'ember-ux-controls/common/types'
 import Sensor from 'ember-ux-controls/common/classes/sensor';
 import MouseSensor from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 
-interface IDraggableModifierArgs {
-  named: {
-    allowMouseSensor?: boolean,
-    allowTouchSensor?: boolean,
-    delay?: number
-  }
-  positional: []
+export interface IDraggableModifierArgs extends IModifierArgs {
 }
 
-export default class DraggableModifier extends Modifier<IDraggableModifierArgs> {
-  private get sensors() {
+export default class DraggableModifier<T extends IDraggableModifierArgs> extends Modifier<T> {
+  protected get sensors() {
     if (!this._sensors) {
       this._sensors = [];
     }
@@ -22,7 +16,7 @@ export default class DraggableModifier extends Modifier<IDraggableModifierArgs> 
     return this._sensors;
   }
 
-  private get eventEmmiter() {
+  protected get eventEmmiter() {
     if (!this._eventEmmiter) {
       throw 'EventEmmiter was not set'
     }
@@ -32,24 +26,29 @@ export default class DraggableModifier extends Modifier<IDraggableModifierArgs> 
 
   public didInstall() {
     let
+      delay: number,
       allowMouseSensor: boolean,
-      allowTouchSensor: boolean;
+      allowTouchSensor: boolean,
+      mouseSensor: MouseSensor;
 
-    allowMouseSensor = this.args.named.allowMouseSensor ?? true
-    allowTouchSensor = this.args.named.allowTouchSensor ?? true
+    delay = this.args.named.delay as number ?? 0;
+    allowMouseSensor = this.args.named['allowMouseSensor'] as boolean ?? true;
+    allowTouchSensor = this.args.named['allowTouchSensor'] as boolean ?? true
 
     if (allowMouseSensor) {
+      mouseSensor = new MouseSensor(
+        this.element,
+        this.eventEmmiter,
+        delay
+      );
+
       this.sensors.push(
-        new MouseSensor(
-          this.element,
-          this.eventEmmiter,
-          this.args.named.delay
-        )
-      )
+        mouseSensor
+      );
     }
 
     if (allowTouchSensor) {
-      //TODO: add touch sensor
+      //TODO: add touch sensor and another
     }
 
     //TODO: add another sensors
@@ -64,5 +63,5 @@ export default class DraggableModifier extends Modifier<IDraggableModifierArgs> 
 
   @inject('event-emmiter')
   private _eventEmmiter?: IEventEmmiter
-  private _sensors?: Sensor[]
+  private _sensors?: Array<Sensor>
 }
