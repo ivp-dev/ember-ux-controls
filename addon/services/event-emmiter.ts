@@ -1,22 +1,5 @@
 import Service from '@ember/service';
-import { IEquatable, IEventArgs, IEventEmmiter } from 'ember-ux-controls/common/types';
-
-class Listener implements IEquatable {
-  constructor(
-    public context: object,
-    public callback: (sender: object, args: IEventArgs) => void,
-  ) { }
-
-  equals(obj: any) {
-    if (obj instanceof Listener) {
-      return (
-        obj.context === this.context &&
-        obj.callback === this.callback
-      );
-    }
-    return this.context === obj;
-  }
-}
+import { IEquatable, IEventArgs, EventArgs, IEventEmmiter } from 'ember-ux-controls/common/types';
 
 export default class EventEmmiter extends Service.extend({
   // anything which *must* be merged to prototype here
@@ -24,25 +7,41 @@ export default class EventEmmiter extends Service.extend({
   constructor() {
     super(...arguments);
 
-    this.events = new Map<IEventArgs, Array<Listener>>();
+    this.events = new Map<EventArgs<IEventArgs>, Array<Listener>>();
   }
 
-  emitEvent(
+  emitEvent<T extends IEventArgs>(
     sender: object,
-    args: IEventArgs
-  ): void {
-    const
-      ls = this.events.get(args.constructor as IEventArgs);
+    eventType: EventArgs<T>,
+    eventArgs: any[]
+  ): T {
+    let
+      listener: Listener,
+      idx: number,
+      count: number,
+      listeners: Array<Listener> | undefined,
+      args: T;
 
-    if (ls && ls.length) {
-      ls.forEach(l => l.callback.call(l.context, sender, args));
+    args = new eventType(...eventArgs);
+    listeners = this.events.get(eventType);
+    if (listeners && listeners.length) {
+      idx = 0;
+      count = listeners.length;
+
+      while (idx < count) {
+        listener = listeners[idx++];
+        listener.callback.call(listener.context, sender, args);
+        if (args.stopped) break;
+      }
     }
+
+    return args;
   }
 
   addEventListener<T extends IEventArgs>(
     context: object,
-    key: IEventArgs,
-    callback: (sender: object, args: T) => void
+    key: EventArgs<T>,
+    callback: (sender: object, args: IEventArgs) => void
   ): void {
     let
       listeners: Array<Listener> | undefined;
@@ -60,8 +59,8 @@ export default class EventEmmiter extends Service.extend({
 
   removeEventListener<T extends IEventArgs>(
     context: object,
-    key: IEventArgs,
-    callback: (sender: object, args: T) => void
+    key: EventArgs<T>,
+    callback: (sender: object, args: IEventArgs) => void
   ): void {
     let
       index: number,
@@ -70,10 +69,14 @@ export default class EventEmmiter extends Service.extend({
     listeners = this.events.get(key);
 
     if (
-      listeners &&
-      (index = indexOfEquatable(listeners, new Listener(context, callback))) > -1
-    )
-      listeners.splice(index, 1)
+      listeners && (
+        index = indexOfEquatable(
+          listeners, new Listener(context, callback))
+      ) > -1
+    ) {
+      listeners.splice(index, 1);
+    }
+
   }
 
 
@@ -85,13 +88,23 @@ export default class EventEmmiter extends Service.extend({
     return this.events.size > 0
   }
 
-  private events: Map<IEventArgs, Array<Listener>>;
+  private events: Map<EventArgs<IEventArgs>, Array<Listener>>;
 }
 
-// DO NOT DELETE: this is how TypeScript knows how to look up your services.
-declare module '@ember/service' {
-  interface Registry {
-    'event-emmiter': EventEmmiter;
+class Listener implements IEquatable {
+  constructor(
+    public context: object,
+    public callback: (sender: object, args: IEventArgs) => void,
+  ) { }
+
+  equals(obj: any) {
+    if (obj instanceof Listener) {
+      return (
+        obj.context === this.context &&
+        obj.callback === this.callback
+      );
+    }
+    return this.context === obj;
   }
 }
 
@@ -113,3 +126,11 @@ function indexOfEquatable(source: Array<IEquatable>, obj: IEquatable) {
 
   return -1;
 }
+
+// DO NOT DELETE: this is how TypeScript knows how to look up your services.
+declare module '@ember/service' {
+  interface Registry {
+    'event-emmiter': EventEmmiter;
+  }
+}
+

@@ -4,10 +4,10 @@ import { addObserver, removeObserver } from '@ember/object/observers';
 import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
-import { EventArgs } from "ember-ux-controls/common/classes/event-args";
+import { BaseEventArgs } from "ember-ux-controls/common/classes/event-args";
 
 
-export class ItemCollectionChangedEventArgs<T> extends EventArgs {
+export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
   constructor(
     public offset: number,
     public newItems: Array<T>,
@@ -23,20 +23,14 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     sourceToRemove: unknown[],
     offset: number
   ) {
-    let
-      eventArgs: ItemCollectionChangedEventArgs<unknown>;
-
     if (this.host instanceof ItemsControl) {
-      eventArgs = new ItemCollectionChangedEventArgs(
+      this.host.eventHandler.emitEvent(
+        this,
+        ItemCollectionChangedEventArgs, [
         offset,
         sourceToAdd,
         sourceToRemove
-      );
-
-      this.host.eventHandler.emitEvent(
-        this,
-        eventArgs
-      );
+      ]);
     }
   }
 

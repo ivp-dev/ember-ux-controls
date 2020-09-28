@@ -1,10 +1,22 @@
-import { ICancellableEventArgs, IEventArgs } from "ember-ux-controls/common/types";
+import { IEventArgs } from "ember-ux-controls/common/types";
 
-export class EventArgs implements IEventArgs { }
+export class BaseEventArgs implements IEventArgs {
+  private _stopped: boolean = false;
+  private _canceled: boolean = false;
 
-export class CancellableEventArgs extends EventArgs implements ICancellableEventArgs {
-    public canceled: boolean = false;
-    public cancel() {
-        this.canceled = true;
-    }
-} 
+  public get canceled() {
+    return this._canceled;
+  }
+
+  public get stopped() {
+    return this._stopped;
+  }
+
+  public cancel() {
+    this._canceled = true;
+  }
+
+  public stopPropagation() {
+    this._stopped = true;
+  }
+}

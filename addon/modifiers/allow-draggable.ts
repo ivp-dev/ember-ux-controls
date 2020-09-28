@@ -63,5 +63,6 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
 
   @inject('event-emmiter')
   private _eventEmmiter?: IEventEmmiter
+  
   private _sensors?: Array<Sensor>
 }

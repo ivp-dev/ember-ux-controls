@@ -6,15 +6,15 @@ import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { action } from '@ember/object';
 import { computed } from '@ember/object';
+import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 
 // @ts-ignore
 import layout from './template';
-import { IEventArgs } from 'ember-ux-controls/common/types';
 
-export class TreeViewItemParentSelectionChangedEventArgs implements IEventArgs {
+export class TreeViewItemParentSelectionChangedEventArgs extends BaseEventArgs {
   constructor(
     public value: boolean
-  ) { }
+  ) { super() }
 }
 
 interface ITreeViewItemArgs extends ISelectItemsControlArgs {
@@ -335,9 +335,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     sender: TreeViewItem,
     args: TreeViewItemParentSelectionChangedEventArgs
   ) {
-    if(sender === this.logicalParent) {
+    if (sender === this.logicalParent) {
       this.changeSelectionInternal(args.value);
-    }    
+    }
   }
 
   private notifyChildrenSelectionChanged(value: boolean) {
@@ -345,7 +345,11 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       args: TreeViewItemParentSelectionChangedEventArgs;
 
     args = new TreeViewItemParentSelectionChangedEventArgs(value);
-    this.eventHandler.emitEvent(this, args);
+    this.eventHandler.emitEvent(
+      this,
+      TreeViewItemParentSelectionChangedEventArgs, [
+      value
+    ]);
   }
 
   private findRoot()
@@ -383,7 +387,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     }
 
     public begin() {
-      if(!this.root.nodeSelectionChanger.isActive) {
+      if (!this.root.nodeSelectionChanger.isActive) {
         throw new Error('RootSelectionChanger should be active');
       }
 

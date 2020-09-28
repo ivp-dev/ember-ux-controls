@@ -1,4 +1,4 @@
-import { IEventEmmiter, IEventArgs } from "ember-ux-controls/common/types"
+import { IEventEmmiter, EventArgs, IEventArgs} from "ember-ux-controls/common/types"
 
 export default abstract class Sensor {
   constructor(
@@ -10,7 +10,7 @@ export default abstract class Sensor {
 
   abstract detach(): void
 
-  public trigger(args: IEventArgs) {
-    this.eventEmmiter.emitEvent(this, args)
+  public trigger(argsType: EventArgs<IEventArgs>, args: any[] ) {
+    this.eventEmmiter.emitEvent(this, argsType, args)
   }
 }

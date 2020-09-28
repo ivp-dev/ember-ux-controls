@@ -90,7 +90,7 @@ export interface IGeneratorHost {
 }
 
 export interface IDeferredReference<T> {
-  getValue:() =>  T
+  getValue: () => T
 }
 
 export interface ISelectable {
@@ -129,7 +129,7 @@ export const GeneratorStatus = {
 
 export type GeneratorStatus = typeof GeneratorStatus[keyof typeof GeneratorStatus];
 
-export type CompareCallback = (left:any, right:any) => boolean
+export type CompareCallback = (left: any, right: any) => boolean
 
 export interface IOffset {
   left: number,
@@ -168,29 +168,34 @@ export interface IHeaderContentElement
   extends IHeaderedElement, IContentElement {
 }
 
-export interface IEventArgs { }
-
-export interface ICancellableEventArgs {
-  canceled: boolean
-  cancel: () => void
+export interface IEventArgs {
+  readonly canceled: boolean,
+  readonly stopped: boolean,
+  cancel(): void
+  stopPropagation(): void
 }
 
+export type EventArgs<T extends IEventArgs> = {
+  new(...args: any[]): T
+} 
+
 export interface IEventEmmiter {
-  emitEvent(
+  emitEvent<T extends IEventArgs>(
     sender: object,
-    args: IEventArgs
-  ): void
+    event: EventArgs<T>,
+    args: any[]
+  ): T
 
   addEventListener<T extends IEventArgs>(
     context: object,
-    key: IEventArgs,
-    callback: (sender: object, args: T) => void
+    key: EventArgs<T>,
+    callback: (sender: object, args: IEventArgs) => void
   ): void
 
   removeEventListener<T extends IEventArgs>(
     context: object,
-    key: IEventArgs,
-    callback: (sender: object, args: T) => void
+    key: EventArgs<T>,
+    callback: (sender: object, args: IEventArgs) => void
   ): void
 
   clearEventListeners(): void

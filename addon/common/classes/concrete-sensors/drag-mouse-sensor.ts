@@ -3,26 +3,37 @@ import { action } from '@ember/object';
 import { IEventEmmiter } from "ember-ux-controls/common/types";
 import { later, cancel } from '@ember/runloop';
 import { EmberRunTimer } from "@ember/runloop/types";
-import { CancellableEventArgs } from "ember-ux-controls/common/classes/event-args";
-import preventNativeEvent from "dummy/utils/prevent-native-event";
+import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args'
+import preventNativeEvent from "ember-ux-controls/utils/prevent-native-event";
 
-export class BaseDragSensorEventArgs extends CancellableEventArgs {
+export class BaseDragSensorEventArgs extends BaseEventArgs {
+  public clientX: number
+  public clientY: number
+  public target: EventTarget | null
+  public element: Element
+  public originalEvent: MouseEvent
   constructor(
-    public clientX: number,
-    public clientY: number,
-    public target: EventTarget | null,
-    public element: Element,
-    public originalEvent: MouseEvent,
-  ) { super() }
+    ...args: any[]
+  ) {
+    super();
+
+    [
+      this.clientX,
+      this.clientY,
+      this.target,
+      this.element,
+      this.originalEvent
+    ] = args;
+  }
 }
 
-export class DragStartSensorEvent extends BaseDragSensorEventArgs { }
+export class DragStartSensorEvent extends BaseDragSensorEventArgs {
+
+}
 
 export class DragStopSensorEventArgs extends BaseDragSensorEventArgs { }
 
 export class DragMoveSensorEventArgs extends BaseDragSensorEventArgs { }
-
-
 
 export default class DragMouseSensor extends DragSensor {
   constructor(
@@ -67,15 +78,15 @@ export default class DragMouseSensor extends DragSensor {
     let
       dragStartEvent: DragStartSensorEvent;
 
-    dragStartEvent = new DragStartSensorEvent(
+    dragStartEvent = this.eventEmmiter.emitEvent(
+      this,
+      DragStartSensorEvent, [
       event.clientX,
       event.clientY,
       event.target,
       this.element,
       event
-    );
-
-    this.eventEmmiter.emitEvent(this, dragStartEvent);
+    ]);
 
     this.dragging = !dragStartEvent.canceled;
 
@@ -86,18 +97,15 @@ export default class DragMouseSensor extends DragSensor {
 
   @action
   private onMouseMove(event: MouseEvent) {
-    let
-      dragMoveEvent: DragMoveSensorEventArgs;
-
-    dragMoveEvent = new DragMoveSensorEventArgs(
+    this.eventEmmiter.emitEvent(
+      this,
+      DragMoveSensorEventArgs, [
       event.clientX,
       event.clientY,
       event.target,
       this.element,
       event
-    );
-
-    this.eventEmmiter.emitEvent(this, dragMoveEvent);
+    ]);
   }
 
   @action
@@ -120,7 +128,15 @@ export default class DragMouseSensor extends DragSensor {
       event
     );
 
-    this.trigger(args);
+    this.eventEmmiter.emitEvent(
+      this,
+      DragStopSensorEventArgs, [
+      event.clientX,
+      event.clientY,
+      target,
+      this.element,
+      event
+    ]);
   }
 
   private startMovingAt?: number
