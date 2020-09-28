@@ -183,7 +183,7 @@ export interface IEventEmmiter {
   emitEvent<T extends IEventArgs>(
     sender: object,
     event: EventArgs<T>,
-    args: any[]
+    ...args: any[]
   ): T
 
   addEventListener<T extends IEventArgs>(

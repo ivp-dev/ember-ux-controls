@@ -7,29 +7,18 @@ import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args'
 import preventNativeEvent from "ember-ux-controls/utils/prevent-native-event";
 
 export class BaseDragSensorEventArgs extends BaseEventArgs {
-  public clientX: number
-  public clientY: number
-  public target: EventTarget | null
-  public element: Element
-  public originalEvent: MouseEvent
   constructor(
-    ...args: any[]
+    public clientX: number,
+    public clientY: number,
+    public target: EventTarget | null,
+    public element: Element,
+    public originalEvent: MouseEvent,
   ) {
     super();
-
-    [
-      this.clientX,
-      this.clientY,
-      this.target,
-      this.element,
-      this.originalEvent
-    ] = args;
   }
 }
 
-export class DragStartSensorEvent extends BaseDragSensorEventArgs {
-
-}
+export class DragStartSensorEventArgs extends BaseDragSensorEventArgs { }
 
 export class DragStopSensorEventArgs extends BaseDragSensorEventArgs { }
 
@@ -80,13 +69,13 @@ export default class DragMouseSensor extends DragSensor {
 
     dragStartEvent = this.eventEmmiter.emitEvent(
       this,
-      DragStartSensorEvent, [
+      DragStartSensorEvent,
       event.clientX,
       event.clientY,
       event.target,
       this.element,
       event
-    ]);
+    );
 
     this.dragging = !dragStartEvent.canceled;
 
@@ -99,19 +88,19 @@ export default class DragMouseSensor extends DragSensor {
   private onMouseMove(event: MouseEvent) {
     this.eventEmmiter.emitEvent(
       this,
-      DragMoveSensorEventArgs, [
+      DragMoveSensorEventArgs,
       event.clientX,
       event.clientY,
       event.target,
       this.element,
       event
-    ]);
+    );
   }
 
   @action
   private onMouseUp(event: MouseEvent) {
     let
-      args: DragStopSensorEventArgs,
+
       target: Element | null;
 
     document.removeEventListener('mouseup', this.onMouseUp);
@@ -120,23 +109,15 @@ export default class DragMouseSensor extends DragSensor {
 
     target = document.elementFromPoint(event.clientX, event.clientY);
 
-    args = new DragStopSensorEventArgs(
+    this.eventEmmiter.emitEvent(
+      this,
+      DragStopSensorEventArgs,
       event.clientX,
       event.clientY,
       target,
       this.element,
       event
     );
-
-    this.eventEmmiter.emitEvent(
-      this,
-      DragStopSensorEventArgs, [
-      event.clientX,
-      event.clientY,
-      target,
-      this.element,
-      event
-    ]);
   }
 
   private startMovingAt?: number

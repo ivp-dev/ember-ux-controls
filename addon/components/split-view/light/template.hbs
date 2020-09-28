@@ -1,5 +1,12 @@
 <div 
   class={{this.classNames}}
+  {{did-update 
+    this.didUpdateAttrs 
+    @fluent 
+    @responsive
+    @barSize
+    @minPaneSize
+  }}
   {{split-view-modifier
     host=this
     axis=this.axis

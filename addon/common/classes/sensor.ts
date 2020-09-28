@@ -10,7 +10,7 @@ export default abstract class Sensor {
 
   abstract detach(): void
 
-  public trigger(argsType: EventArgs<IEventArgs>, args: any[] ) {
-    this.eventEmmiter.emitEvent(this, argsType, args)
+  public trigger(argsType: EventArgs<IEventArgs>, ...args: any[] ) {
+    this.eventEmmiter.emitEvent(this, argsType, ...args)
   }
 }

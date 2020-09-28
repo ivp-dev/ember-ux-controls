@@ -26,11 +26,11 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     if (this.host instanceof ItemsControl) {
       this.host.eventHandler.emitEvent(
         this,
-        ItemCollectionChangedEventArgs, [
+        ItemCollectionChangedEventArgs,
         offset,
         sourceToAdd,
         sourceToRemove
-      ]);
+      );
     }
   }
 

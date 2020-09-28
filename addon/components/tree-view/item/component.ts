@@ -347,9 +347,9 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
     args = new TreeViewItemParentSelectionChangedEventArgs(value);
     this.eventHandler.emitEvent(
       this,
-      TreeViewItemParentSelectionChangedEventArgs, [
+      TreeViewItemParentSelectionChangedEventArgs,
       value
-    ]);
+    );
   }
 
   private findRoot()

@@ -1,7 +1,7 @@
 import UXElement, { IUXElementArgs } from "ember-ux-controls/common/classes/ux-element";
 import { Axes } from 'ember-ux-controls/common/types';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-
+import { action } from '@ember/object';
 // @ts-ignore
 import layout from './template';
 
@@ -41,6 +41,11 @@ export class SplitViewLight<T extends ISplitViewLightArgs> extends UXElement<T>{
       this.args.axis ??
       Axes.X
     );
+  }
+
+  @action
+  public didUpdateAttrs() {
+    console.log([...arguments])
   }
 }
 

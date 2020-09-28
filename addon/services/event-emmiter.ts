@@ -10,10 +10,10 @@ export default class EventEmmiter extends Service.extend({
     this.events = new Map<EventArgs<IEventArgs>, Array<Listener>>();
   }
 
-  emitEvent<T extends IEventArgs>(
+  public emitEvent<T extends IEventArgs>(
     sender: object,
     eventType: EventArgs<T>,
-    eventArgs: any[]
+    ...eventArgs: any[]
   ): T {
     let
       listener: Listener,
@@ -38,7 +38,7 @@ export default class EventEmmiter extends Service.extend({
     return args;
   }
 
-  addEventListener<T extends IEventArgs>(
+  public addEventListener<T extends IEventArgs>(
     context: object,
     key: EventArgs<T>,
     callback: (sender: object, args: IEventArgs) => void
@@ -57,7 +57,7 @@ export default class EventEmmiter extends Service.extend({
     );
   }
 
-  removeEventListener<T extends IEventArgs>(
+  public removeEventListener<T extends IEventArgs>(
     context: object,
     key: EventArgs<T>,
     callback: (sender: object, args: IEventArgs) => void
@@ -78,7 +78,6 @@ export default class EventEmmiter extends Service.extend({
     }
 
   }
-
 
   public clearEventListeners() {
     this.events.clear();

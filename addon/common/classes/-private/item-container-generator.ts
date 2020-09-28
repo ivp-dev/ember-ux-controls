@@ -14,23 +14,13 @@ import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
 
 export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
-  action: ItemCollectionActions
-  position: GeneratorPosition
-  itemCount: number
-  itemUICount: number
-  constructor(...args: [
-    ItemCollectionActions,
-    GeneratorPosition,
-    number,
-    number
-  ]) {
+  constructor(
+    public action: ItemCollectionActions,
+    public position: GeneratorPosition,
+    public itemCount: number,
+    public itemUICount: number,
+  ) {
     super();
-    [
-      this.action,
-      this.position,
-      this.itemCount,
-      this.itemUICount
-    ] = args;
   }
 }
 
@@ -516,14 +506,15 @@ export default class ItemContainerGenerator implements IDisposable {
     block.itemCount -= count;
     newBlock.itemCount += count;
 
-    this.notifyListeners(MapChangedEventArgs, [
+    this.notifyListeners(
+      MapChangedEventArgs,
       block,
       offset,
       count,
       newBlock,
       newOffset,
       deltaCount
-    ]);
+    );
   }
 
   private removeAllInternal() {
@@ -565,14 +556,15 @@ export default class ItemContainerGenerator implements IDisposable {
       uib.insertAfter(this._itemMap);
       uib.itemCount = this.itemsInternal.count;
 
-      this.notifyListeners(MapChangedEventArgs, [
+      this.notifyListeners(
+        MapChangedEventArgs,
         /*block:     */ null,
         /*offset:    */ -1,
         /*count:     */ 0,
         /*newBlock:  */ uib,
         /*newOffset: */ 0,
         /*deltaCount:*/ 0
-      ]);
+      );
     }
   }
 
@@ -788,12 +780,13 @@ export default class ItemContainerGenerator implements IDisposable {
           this.host
         );
 
-        this.notifyListeners(ItemContainerGeneratorChangedEventArgs, [
+        this.notifyListeners(
+          ItemContainerGeneratorChangedEventArgs,
           ItemCollectionActions.Replace,
           position,
           /*itemCount  */ 1,
           /*itemUICount*/ 1
-        ]);
+        );
 
       } else {
         container = this.host.containerForItem(newItem);
@@ -804,12 +797,13 @@ export default class ItemContainerGenerator implements IDisposable {
           this.host
         );
 
-        this.notifyListeners(ItemContainerGeneratorChangedEventArgs, [
+        this.notifyListeners(
+          ItemContainerGeneratorChangedEventArgs,
           ItemCollectionActions.Replace,
           position,
           /*itemCount  */ 1,
           /*itemUICount*/ 1
-        ]);
+        );
 
         ItemContainerGenerator.UnlinkContainerFromItem(
           container,
@@ -820,9 +814,12 @@ export default class ItemContainerGenerator implements IDisposable {
     }
   }
 
-  private notifyListeners(type: EventArgs<IEventArgs>, args: any[]) {
+  private notifyListeners(
+    type: EventArgs<IEventArgs>,
+    ...args: any[]
+  ) {
     if (this.host instanceof ItemsControl) {
-      this.host.eventHandler.emitEvent(this, type, args);
+      this.host.eventHandler.emitEvent(this, type, ...args);
     }
   }
 
@@ -837,12 +834,11 @@ export default class ItemContainerGenerator implements IDisposable {
 
     this.notifyListeners(
       ItemContainerGeneratorChangedEventArgs,
-      [
-        ItemCollectionActions.Reset,
-        position,
-        /*itemCount  */ 0,
-        /*itemUICount*/ 0
-      ]);
+      ItemCollectionActions.Reset,
+      position,
+      /*itemCount  */ 0,
+      /*itemUICount*/ 0
+    );
   }
 
   private onItemAdded(item: any, itemIndex: number) {
@@ -928,21 +924,23 @@ export default class ItemContainerGenerator implements IDisposable {
       uib.insertBefore(block);
     }
 
-    this.notifyListeners(MapChangedEventArgs, [
+    this.notifyListeners(
+      MapChangedEventArgs,
       /*block     */ null,
       /*offset    */ itemIndex,
       /*count     */ +1,
       /*newBlock  */ uib,
       /*newOffset */ 0,
       /*deltaCount*/ 0
-    ]);
+    );
 
-    this.notifyListeners(ItemContainerGeneratorChangedEventArgs, [
+    this.notifyListeners(
+      ItemContainerGeneratorChangedEventArgs,
       ItemCollectionActions.Add,
       position,
       /*itemCount  */ 1,
       /*itemUICount*/ 0
-    ]);
+    );
   }
 
   private onItemRemoved(item: any, itemIndex: number) {
@@ -988,21 +986,23 @@ export default class ItemContainerGenerator implements IDisposable {
 
     this.removeAndMergeBlocksIfNeeded(block);
 
-    this.notifyListeners(MapChangedEventArgs, [
+    this.notifyListeners(
+      MapChangedEventArgs,
       /*block      */ null,
       /*offset     */ itemIndex,
       /*count      */ -1,
       /*newBlock   */ null,
       /*newOffset  */ 0,
       /*deltaCount */ 0
-    ]);
+    );
 
-    this.notifyListeners(ItemContainerGeneratorChangedEventArgs, [
+    this.notifyListeners(
+      ItemContainerGeneratorChangedEventArgs,
       ItemCollectionActions.Remove,
       position,
       /*itemCount*/ 1,
       containerCount
-    ]);
+    );
 
     if (container) {
       ItemContainerGenerator.UnlinkContainerFromItem(
@@ -1449,10 +1449,10 @@ export default class ItemContainerGenerator implements IDisposable {
       if (this.host instanceof ItemsControl) {
         this.host.eventHandler.emitEvent(
           this,
-          GeneratorStatusEventArgs, [
+          GeneratorStatusEventArgs,
           oldStatus,
           newStatus
-        ]);
+        );
       }
     }
   }
