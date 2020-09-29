@@ -1,33 +1,34 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
+// @ts-ignore
+import layout from './template';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
 import { DataTable, Column } from '../component';
 import { guidFor } from '@ember/object/internals';
+import { SplitViewPane, ISplitViewPaneArgs } from 'ember-ux-controls/components/split-view/pane/component';
 
-// @ts-ignore
-import layout from './template';
-
-
-interface IDataTableColumnArgs extends IUXElementArgs {
+interface IDataTableColumnArgs extends ISplitViewPaneArgs {
   path?: string
   fixed?: boolean
   addColumn?: (column: Column) => void
   classNamesBuilder?: ClassNamesBuilder
 }
 
-class DataTableColumn extends UXElement<IDataTableColumnArgs> {
+class DataTableColumn extends SplitViewPane<IDataTableColumnArgs> {
 
   public get elementId() {
     return guidFor(this)
   }
 
   public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
+    return this.args.classNamesBuilder ?? super.classNamesBuilder;
   }
 
   public get classNames() {
     if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('column', { '$fixed': this.args.fixed })}`
+      return [
+        `${super.classNames}`,
+        `${this.classNamesBuilder('column', { '$fixed': this.args.fixed })}`
+      ].join(' ')
     }
     return '';
   }

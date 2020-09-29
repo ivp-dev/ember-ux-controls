@@ -1,16 +1,7 @@
 <div 
   class={{this.classNames}}
-  {{split-view-modifier
-    host=this
-    axis=this.axis
-    classNamesBuilder=this.classNamesBuilder
-    minPaneSizes=@minPaneSizes
-    sizes=@sizes
-    barSize=@barSize
-    fluent=@fluent
-    responsive=@responsive
-    onSizeChanged=@onSizeChanged
-  }}
+  {{did-insert this.didInsert}}
+  {{allow-draggable}}
   ...attributes
   >
   <SplitView::SplitPanel

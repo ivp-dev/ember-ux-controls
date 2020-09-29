@@ -1,46 +1,40 @@
-import { guidFor } from '@ember/object/internals';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
-import { PaneModel } from 'ember-ux-controls/components/split-view/component';
-
 // @ts-ignore
 import layout from './template';
+import { guidFor } from '@ember/object/internals';
+import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
+import { PaneModel } from 'ember-ux-controls/components/split-view/component';
+import { computed } from '@ember/object';
+import { reads } from '@ember/object/computed';
 
-interface ISplitViewPaneArgs extends IUXElementArgs {
+export interface ISplitViewPaneArgs extends IUXElementArgs {
   pane?: PaneModel
   content?: unknown
-  fixed?: boolean;
+  isFixed?: boolean;
   hasItemsSource?: boolean
   classNamesBuilder?: ClassNamesBuilder
 }
 
-export class Pane extends UXElement<ISplitViewPaneArgs> {
+export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> {
   constructor(
     owner: any,
-    args: ISplitViewPaneArgs
+    args: T
   ) {
     super(owner, args);
   }
 
-  public get fixed() {
-    return this.args.fixed ?? false;
-  }
+  @reads('args.isFixed') 
+  public isFixed: boolean = false
 
   public get hasItemsSource()
     : boolean | undefined {
     return this.args.hasItemsSource
   }
 
+  @computed('isFixed')
   public get classNames()
     : string {
-
-    if (this.args.classNamesBuilder) {
-      return `${this.args.classNamesBuilder(
-        'pane', { '$fixed': this.args.fixed }
-      )}`;
-    }
-
-    return '';
+    return `${bem('split-view')('pane', { '$fixed': this.isFixed })}`;
   }
 
   public get content()
@@ -53,4 +47,4 @@ export class Pane extends UXElement<ISplitViewPaneArgs> {
   }
 }
 
-export default Pane.RegisterTemplate(layout);
+export default SplitViewPane.RegisterTemplate(layout);

@@ -1,42 +1,43 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
+// @ts-ignore
+import layout from './template';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { action } from '@ember/object';
 import { DataTable } from 'ember-ux-controls/components/data-table/component';
 import { reads } from '@ember/object/computed';
+import { SplitView, ISplitViewArgs } from 'ember-ux-controls/components/split-view/component';
 
-// @ts-ignore
-import layout from './template';
-
-
-
-interface IDataTableHeadArgs extends IUXElementArgs {
+interface IDataTableHeadArgs extends ISplitViewArgs {
   columnTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
   onSizeChanged?: (sizes: Array<number>) => void
   onSizeChangedInternal: (sizes: Array<number>) => void
 }
 
-class DataTableHead extends UXElement<IDataTableHeadArgs> {
-  @reads('args.columnTemplateName') 
-  columnTemplateName?: string 
+class DataTableHead extends SplitView<IDataTableHeadArgs> {
+  @reads('args.columnTemplateName')
+  columnTemplateName?: string
 
-  @reads('args.classNamesBuilder') 
-  classNamesBuilder?: ClassNamesBuilder 
+  public get classNamesBuilder() {
+    if (!this.args.classNamesBuilder) {
+      throw 'ClassNamesBuilder should be set';
+    }
+    return this.args.classNamesBuilder;
+  }
 
   public get classNames() {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('head')}`
-    }
-    return '';
+    return [
+      `${super.classNamesBuilder}`,
+      `${this.classNamesBuilder('head')}`
+    ].join(' ')
   }
 
   @action
   protected onSizeChangedInternal(sizes: Array<number>) {
-    if(this.visualParent instanceof DataTable) {
+    if (this.visualParent instanceof DataTable) {
       this.visualParent.onColumnSizeChangedInternal(sizes);
     }
-    
-    if(typeof this.args.onSizeChanged === 'function') {
+
+    if (typeof this.args.onSizeChanged === 'function') {
       this.args.onSizeChanged(sizes);
     }
   }

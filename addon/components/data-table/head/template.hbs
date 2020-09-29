@@ -1,18 +1,7 @@
 <div 
   class="{{this.classNames}}"
-  {{split-view-behavior}}
-  {{split-view-modifier
-    host=this
-    elementClassName="column"
-    onSizeChanged=this.onSizeChangedInternal
-    classNamesBuilder=this.classNamesBuilder
-    fluent=@fluent
-    responsive=@responsive
-    minPaneSize=@minSize
-    minPaneSizes=@minSizes
-    sizes=@sizes
-    barSize=@barSize
-  }}
+  {{did-insert this.didInsert}}
+  {{allow-draggable}}
 >
   {{yield (hash Column=(component this.columnTemplateName 
     visualParent=this

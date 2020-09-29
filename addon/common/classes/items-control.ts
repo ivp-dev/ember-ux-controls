@@ -38,36 +38,12 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   @computed('args.{itemTemplateName}')
   public get itemTemplateName() {
-    return (
-      this.args.itemTemplateName ??
-      this._itemTemplateName
-    );
-  }
-
-  public set itemTemplateName(
-    value: string | undefined
-  ) {
-    if (this._itemTemplateName !== value) {
-      this._itemTemplateName = value;
-      notifyPropertyChange(this, 'itemTemplateName');
-    }
+    return this.args.itemTemplateName;
   }
 
   @computed('args.{itemsSource}')
   public get itemsSource() {
-    return (
-      this.args.itemsSource ??
-      this._itemsSource
-    );
-  }
-
-  public set itemsSource(
-    value: NativeArray<unknown> | undefined
-  ) {
-    if (this._itemsSource !== value) {
-      this._itemsSource = value;
-      notifyPropertyChange(this, 'itemsSource');
-    }
+    return this.args.itemsSource;
   }
 
   @computed('itemsSource')
@@ -284,8 +260,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return new ItemContainerGenerator(this);
   }
 
-  private _itemTemplateName?: string
-  private _itemsSource?: NativeArray<unknown>
   private _itemsHost?: Panel
   private _items?: ItemCollection
   private _itemsContainerGenerator?: ItemContainerGenerator

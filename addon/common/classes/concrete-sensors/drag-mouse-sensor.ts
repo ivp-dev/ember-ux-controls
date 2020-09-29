@@ -8,11 +8,13 @@ import preventNativeEvent from "ember-ux-controls/utils/prevent-native-event";
 
 export class BaseDragSensorEventArgs extends BaseEventArgs {
   constructor(
-    public clientX: number,
-    public clientY: number,
-    public target: EventTarget | null,
-    public element: Element,
-    public originalEvent: MouseEvent,
+    public readonly clientX: number,
+    public readonly clientY: number,
+    public readonly offsetX: number,
+    public readonly offsetY: number,
+    public readonly target: EventTarget | null,
+    public readonly element: Element,
+    public readonly originalEvent: Event,
   ) {
     super();
   }
@@ -65,13 +67,15 @@ export default class DragMouseSensor extends DragSensor {
 
   private startDrag(event: MouseEvent) {
     let
-      dragStartEvent: DragStartSensorEvent;
+      dragStartEvent: DragStartSensorEventArgs;
 
     dragStartEvent = this.eventEmmiter.emitEvent(
       this,
-      DragStartSensorEvent,
+      DragStartSensorEventArgs,
       event.clientX,
       event.clientY,
+      event.offsetX,
+      event.offsetY,
       event.target,
       this.element,
       event
@@ -91,6 +95,8 @@ export default class DragMouseSensor extends DragSensor {
       DragMoveSensorEventArgs,
       event.clientX,
       event.clientY,
+      event.offsetX,
+      event.offsetY,
       event.target,
       this.element,
       event
@@ -100,7 +106,6 @@ export default class DragMouseSensor extends DragSensor {
   @action
   private onMouseUp(event: MouseEvent) {
     let
-
       target: Element | null;
 
     document.removeEventListener('mouseup', this.onMouseUp);
@@ -114,6 +119,8 @@ export default class DragMouseSensor extends DragSensor {
       DragStopSensorEventArgs,
       event.clientX,
       event.clientY,
+      event.offsetX,
+      event.offsetY,
       target,
       this.element,
       event

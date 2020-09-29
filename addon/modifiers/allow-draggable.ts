@@ -27,15 +27,11 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
   public didInstall() {
     let
       delay: number,
-      allowMouseSensor: boolean,
-      allowTouchSensor: boolean,
       mouseSensor: MouseSensor;
 
     delay = this.args.named.delay as number ?? 0;
-    allowMouseSensor = this.args.named['allowMouseSensor'] as boolean ?? true;
-    allowTouchSensor = this.args.named['allowTouchSensor'] as boolean ?? true
 
-    if (allowMouseSensor) {
+    if (this.args.named['allowMouseSensor'] ?? true) {
       mouseSensor = new MouseSensor(
         this.element,
         this.eventEmmiter,
@@ -47,7 +43,7 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
       );
     }
 
-    if (allowTouchSensor) {
+    if (this.args.named['allowTouchSensor'] ?? true) {
       //TODO: add touch sensor and another
     }
 

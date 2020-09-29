@@ -284,6 +284,8 @@ input[type=checkbox] {
 }
 
 .data-table__head {
+	width: auto;
+	height: auto;
 	display: flex;
 	flex-direction: row;
 	border-style: solid;
