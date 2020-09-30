@@ -1,19 +1,17 @@
 // @ts-ignore
 import layout from './template';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { action } from '@ember/object';
-import { DataTable } from 'ember-ux-controls/components/data-table/component';
 import { reads } from '@ember/object/computed';
 import { SplitView, ISplitViewArgs } from 'ember-ux-controls/components/split-view/component';
+import { DataTable } from 'ember-ux-controls/components/data-table/component';
+import { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 
-interface IDataTableHeadArgs extends ISplitViewArgs {
+export interface IDataTableHeadArgs extends ISplitViewArgs {
   columnTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
-  onSizeChanged?: (sizes: Array<number>) => void
-  onSizeChangedInternal: (sizes: Array<number>) => void
 }
 
-class DataTableHead extends SplitView<IDataTableHeadArgs> {
+export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
   @reads('args.columnTemplateName')
   columnTemplateName?: string
 
@@ -31,15 +29,14 @@ class DataTableHead extends SplitView<IDataTableHeadArgs> {
     ].join(' ')
   }
 
-  @action
-  protected onSizeChangedInternal(sizes: Array<number>) {
-    if (this.visualParent instanceof DataTable) {
-      this.visualParent.onColumnSizeChangedInternal(sizes);
+  public onSizesChanged(sizes: number[]) {
+    if (this.logicalParent instanceof DataTable) {
+      this.logicalParent.onColumnSizeChanged(sizes);
     }
+  }
 
-    if (typeof this.args.onSizeChanged === 'function') {
-      this.args.onSizeChanged(sizes);
-    }
+  protected onItemCollectionChangedInternal(args: ItemCollectionChangedEventArgs<unknown>) {
+    super.onItemCollectionChangedInternal(args)
   }
 }
 

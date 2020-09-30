@@ -54,7 +54,7 @@ function optionFactory(
   return new BaseOption();
 }
 
-class ClassNamesDriver {
+export class ClassNamesDriver {
   constructor(
     private block: string,
     private element: string | boolean,
@@ -71,7 +71,7 @@ class ClassNamesDriver {
   }
 
   /**
-   * Base class name with modifiers (base + $modifiers)
+   * Base class name with modifiers (this.base + $modifiers)
    */
   public get names() {
     return this.options.map(option =>

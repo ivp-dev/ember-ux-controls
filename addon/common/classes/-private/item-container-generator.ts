@@ -24,7 +24,7 @@ export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
   }
 }
 
-export class GeneratorStatusEventArgs extends BaseEventArgs {
+export class GeneratorStatusChangedEventArgs extends BaseEventArgs {
   constructor(
     public oldStatus: GeneratorStatus | null,
     public newStatus: GeneratorStatus | null
@@ -1449,7 +1449,7 @@ export default class ItemContainerGenerator implements IDisposable {
       if (this.host instanceof ItemsControl) {
         this.host.eventHandler.emitEvent(
           this,
-          GeneratorStatusEventArgs,
+          GeneratorStatusChangedEventArgs,
           oldStatus,
           newStatus
         );

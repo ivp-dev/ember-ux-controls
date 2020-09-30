@@ -1,10 +1,11 @@
-import DragSensor from "ember-ux-controls/common/classes/drag-sensor";
+import DragSensor, { IDraggingProcess } from "ember-ux-controls/common/classes/drag-sensor";
 import { action } from '@ember/object';
 import { IEventEmmiter } from "ember-ux-controls/common/types";
 import { later, cancel } from '@ember/runloop';
-import { EmberRunTimer } from "@ember/runloop/types";
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args'
 import preventNativeEvent from "ember-ux-controls/utils/prevent-native-event";
+import closest from "dummy/utils/dom/closest";
+import { EmberRunTimer } from "@ember/runloop/types";
 
 export class BaseDragSensorEventArgs extends BaseEventArgs {
   constructor(
@@ -12,11 +13,15 @@ export class BaseDragSensorEventArgs extends BaseEventArgs {
     public readonly clientY: number,
     public readonly offsetX: number,
     public readonly offsetY: number,
-    public readonly target: EventTarget | null,
+    public readonly dragginTarget: EventTarget | null,
     public readonly element: Element,
-    public readonly originalEvent: Event,
+    private readonly originalEvent: Event,
   ) {
     super();
+  }
+
+  public preventDefault() {
+    this.originalEvent.preventDefault();
   }
 }
 
@@ -51,45 +56,99 @@ export default class DragMouseSensor extends DragSensor {
 
   @action
   private onMouseDown(event: MouseEvent) {
+    let
+      currentElement: Element
+
+    currentElement = closest(
+      event.target as Element,
+      this.element
+    ) as Element;
+
+    if (!currentElement) {
+      return;
+    }
+
+    this.dragginProcess = new DragMouseSensor.Process(currentElement);
+
     document.addEventListener('mouseup', this.onMouseUp);
     document.addEventListener('mousemove', this.onMouseMoveStart);
     document.addEventListener('dragstart', preventNativeEvent);
-    this.mouseDownTimeout = later(() => this.onMouseMoveStart(event), this.delay);
-    this.startMovingAt = Date.now();
+
+    this.mouseDownTimeout = later(() =>
+      this.onMouseMoveStart(event), this.delay
+    );
   }
 
   @action
   private onMouseMoveStart(event: MouseEvent) {
-    document.removeEventListener('mousemove', this.onMouseMoveStart);
-    if (this.mouseDownTimeout) cancel(this.mouseDownTimeout);
-    this.startDrag(event);
+    document.removeEventListener(
+      'mousemove',
+      this.onMouseMoveStart
+    );
+
+    if (this.mouseDownTimeout) {
+      cancel(this.mouseDownTimeout);
+    }
+
+    if (
+      this.dragginProcess &&
+      !this.dragginProcess.isActive
+    ) {
+      this.dragginProcess.start();
+      this.startDrag(event);
+    }
+
   }
 
   private startDrag(event: MouseEvent) {
     let
-      dragStartEvent: DragStartSensorEventArgs;
+      dragEvent: DragStartSensorEventArgs,
+      dragginTarget: Element;
 
-    dragStartEvent = this.eventEmmiter.emitEvent(
+    if (
+      !this.dragginProcess ||
+      !this.dragginProcess.isActive
+    ) {
+      return;//TODO: or throw an error
+    }
+
+    dragginTarget = this.dragginProcess.target;
+
+    dragEvent = this.eventEmmiter.emitEvent(
       this,
       DragStartSensorEventArgs,
       event.clientX,
       event.clientY,
       event.offsetX,
       event.offsetY,
-      event.target,
+      dragginTarget,
       this.element,
       event
     );
 
-    this.dragging = !dragStartEvent.canceled;
+    if (dragEvent.canceled) {
+      this.dragginProcess.stop();
+    }
 
-    if (this.dragging) {
-      document.addEventListener('mousemove', this.onMouseMove)
+    if (this.dragginProcess.isActive) {
+      document.addEventListener('mousemove', this.onMouseMove);
     }
   }
 
   @action
   private onMouseMove(event: MouseEvent) {
+    let
+      dragginTarget: Element;
+
+    if (
+      !this.dragginProcess ||
+      !this.dragginProcess.isActive
+    ) {
+      return;//TODO: or throw an error
+    }
+
+    dragginTarget = this.dragginProcess.target;
+
     this.eventEmmiter.emitEvent(
       this,
       DragMoveSensorEventArgs,
@@ -97,7 +156,7 @@ export default class DragMouseSensor extends DragSensor {
       event.clientY,
       event.offsetX,
       event.offsetY,
-      event.target,
+      dragginTarget,
       this.element,
       event
     );
@@ -106,27 +165,37 @@ export default class DragMouseSensor extends DragSensor {
   @action
   private onMouseUp(event: MouseEvent) {
     let
-      target: Element | null;
+      dragginTarget: Element,
+      dragEvent: DragStartSensorEventArgs;
+
+    if (
+      !this.dragginProcess ||
+      !this.dragginProcess.isActive
+    ) {
+      return;//TODO: or throw an error
+    }
+
+    dragginTarget = this.dragginProcess.target;
 
     document.removeEventListener('mouseup', this.onMouseUp);
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('dragstart', preventNativeEvent);
 
-    target = document.elementFromPoint(event.clientX, event.clientY);
+    //target = document.elementFromPoint(event.clientX, event.clientY);
 
-    this.eventEmmiter.emitEvent(
+    dragEvent = this.eventEmmiter.emitEvent(
       this,
       DragStopSensorEventArgs,
       event.clientX,
       event.clientY,
       event.offsetX,
       event.offsetY,
-      target,
+      dragginTarget,
       this.element,
       event
     );
   }
 
-  private startMovingAt?: number
+  private dragginProcess?: IDraggingProcess
   private mouseDownTimeout?: EmberRunTimer
 }

@@ -1,15 +1,21 @@
 import { IEventArgs } from "ember-ux-controls/common/types";
 
 export class BaseEventArgs implements IEventArgs {
-  private _stopped: boolean = false;
-  private _canceled: boolean = false;
+  constructor() {
+    this._canceled = false;
+    this._stopped = false;
+  }
+
+  public get stopped() {
+    return this._stopped;
+  }
 
   public get canceled() {
     return this._canceled;
   }
 
-  public get stopped() {
-    return this._stopped;
+  public stop() {
+    this._stopped = true;
   }
 
   public cancel() {
@@ -19,4 +25,7 @@ export class BaseEventArgs implements IEventArgs {
   public stopPropagation() {
     this._stopped = true;
   }
+
+  private _stopped: boolean;
+  private _canceled: boolean;
 }

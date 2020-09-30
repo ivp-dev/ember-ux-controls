@@ -9,11 +9,13 @@
     ) as |Table|
   }}
 
-    {{yield (hash Columns=(component this.headTemplateName
+    {{yield (hash Columns=(
+      component this.headTemplateName
       visualParent=this
       classNamesBuilder=this.classNamesBuilder
       columnTemplateName=this.columnTemplateName
-    ))}}
+      onSizeChanged=this.onColumnSizeChanged))
+    }}
     
     <Table.Body 
       @visualParent={{this}}

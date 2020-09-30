@@ -67,7 +67,7 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
     container = this.container;
 
     if (!columns || !container) {
-      throw 'Columns and container should be initialized';
+      return;
     }
 
     item = container.item;
@@ -103,16 +103,11 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
 
   @action
   private onClickEventHandler() {
-    let 
-      table: Component | null;
-      
-    table = this.logicalParent;
-
-    if (table instanceof DataTable) {
+    if (this.logicalParent instanceof DataTable) {
       if (this.isSelected === true) {
-        table.onUnselect(this.container);
+        this.logicalParent.onUnselect(this.container);
       } else if(this.isSelected === false) {
-        table.onSelect(this.container);
+        this.logicalParent.onSelect(this.container);
       }
     }
   }

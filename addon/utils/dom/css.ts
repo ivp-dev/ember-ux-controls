@@ -1,4 +1,7 @@
-export default function css(elements: HTMLElement | Array<HTMLElement>, style: object) {
+export default function css(
+  elements: HTMLElement | Array<HTMLElement>,
+  style: object
+) {
   if (!(elements instanceof Array)) {
     elements = [elements];
   }

@@ -1,10 +1,8 @@
+// @ts-ignore
+import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { computed } from '@ember/object';
-
-// @ts-ignore
-import layout from './template';
-
 
 interface IDataTableFootArgs extends IUXElementArgs {
   classNamesBuilder?: ClassNamesBuilder

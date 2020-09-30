@@ -19,7 +19,7 @@ import Panel from './panel';
 export interface IItemsControlArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>
   itemTemplateName?: string,
-  onItemsChanged?: (sender: ItemCollection, args: ItemCollectionChangedEventArgs<unknown>) => void
+  onItemsChanged?: (oldItems: Array<unknown>, newItems: Array<unknown>) => void
 }
 
 /**
@@ -142,15 +142,18 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return equals(left, right);
   }
 
-  protected onItemCollectionChanged(
+  private onItemCollectionChanged(
     sender: ItemCollection,
     args: ItemCollectionChangedEventArgs<unknown>
   ): void {
-    if (
-      this.items === sender &&
-      typeof this.args.onItemsChanged === 'function'
-    ) {
-      this.args.onItemsChanged(sender, args);
+    if (this.items === sender) {
+      this.onItemCollectionChangedInternal(args);
+    }
+  }
+
+  protected onItemCollectionChangedInternal(args: ItemCollectionChangedEventArgs<unknown>) {
+    if(typeof this.args.onItemsChanged === 'function') {
+      this.args.onItemsChanged(args.oldItems, args.newItems);
     }
   }
 

@@ -1,14 +1,12 @@
+// @ts-ignore
+import layout from './template';
 import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 import { Axes } from 'ember-ux-controls/common/types';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import MutableArray from '@ember/array/mutable';
 import { Column } from 'ember-ux-controls/components/data-table/component';
 import { reads } from '@ember/object/computed';
-
-// @ts-ignore
-import layout from './template';
-
-
+import { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 
 interface IDataTableBodyArgs extends IPanelArgs {
   scrollable?: boolean

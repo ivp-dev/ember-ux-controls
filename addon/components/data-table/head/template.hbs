@@ -1,11 +1,12 @@
 <div 
   class="{{this.classNames}}"
   {{did-insert this.didInsert}}
-  {{allow-draggable}}
 >
-  {{yield (hash Column=(component this.columnTemplateName 
-    visualParent=this
-    logicalParent=this.visualParent
-    classNamesBuilder=this.classNamesBuilder
-  ))}}
+  {{#unless this.hasItemsSource}}
+    {{yield (hash Column=(
+      component this.columnTemplateName 
+      visualParent=this
+      classNamesBuilder=this.classNamesBuilder
+    ))}}
+  {{/unless}}
 </div>

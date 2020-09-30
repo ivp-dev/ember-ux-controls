@@ -17,16 +17,16 @@
             <Body.Row
               @visualParent={{this}}
               @logicalParent={{this.visualParent}}
-              @container={{container}}
-              @isSelected={{container.isSelected}}
-              @item={{container.item}}
-              @header={{container.header}}
-              @content={{container.content}}
               @columns={{this.columns}}
               @columnSizes={{this.columnSizes}}
               @hasItemsSource={{this.hasItemsSource}}
               @classNamesBuilder={{this.classNamesBuilder}}
               @cellTemplateName={{this.cellTemplateName}}
+              @container={{container}}
+              @isSelected={{container.isSelected}}
+              @item={{container.item}}
+              @header={{container.header}}
+              @content={{container.content}}
             />
           {{/each}}
         </Port.Content>

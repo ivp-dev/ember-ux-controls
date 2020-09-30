@@ -1,7 +1,7 @@
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
 import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-controls/common/types';
 import { scheduleOnce } from '@ember/runloop';
-import ItemContainerGenerator, { GeneratorStatusEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
+import ItemContainerGenerator, { GeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import { TabControlItem } from './tab-item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
@@ -91,11 +91,13 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   ) {
     super(owner, args);
 
-    this.itemTemplateName = 'tab-control/tab-item';
-
     this.eventHandler.addEventListener(
-      this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
+      this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
     );
+  }
+
+  public get itemTemplateName() {
+    return super.itemTemplateName ?? 'tab-control/tab-item';
   }
 
   @computed('side', 'direction', 'scrollable')
@@ -182,7 +184,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   public willDestroy() {
     this.eventHandler.removeEventListener(
-      this, GeneratorStatusEventArgs, this.onGeneratorStatusChanged
+      this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
     );
 
     super.willDestroy();
@@ -270,7 +272,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   private onGeneratorStatusChanged(
     sender: ItemContainerGenerator,
-    args: GeneratorStatusEventArgs
+    args: GeneratorStatusChangedEventArgs
   ): void {
     if (
       this.itemContainerGenerator === sender && 
