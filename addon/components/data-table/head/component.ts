@@ -1,21 +1,48 @@
 // @ts-ignore
 import layout from './template';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { SplitView, ISplitViewArgs, PaneModel } from 'ember-ux-controls/components/split-view/component';
+import { SplitView, ISplitViewArgs, SplitViewPaneModel, ISplitViewContainer } from 'ember-ux-controls/components/split-view/component';
 import { DataTable } from 'ember-ux-controls/components/data-table/component';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import { DataTableColumn } from 'ember-ux-controls/components/data-table/column/component';
+import { notifyPropertyChange } from '@ember/object';
+import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
+
+export class DataTableColumnsChangedEventArgs extends BaseEventArgs {
+  constructor(
+    public offset: number,
+    public oldColumns: Array<IDataTableColumnContainer>,
+    public newColumns: Array<IDataTableColumnContainer>
+  ) {
+    super();
+  }
+}
+
+export interface IDataTableColumnContainer extends ISplitViewContainer {
+  path: string
+}
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
   classNamesBuilder?: ClassNamesBuilder
   onColumnsChanged?: (columns: ItemCollection) => void
 }
 
-export class ColumnModel extends PaneModel{
+export class DataTableColumnModel extends SplitViewPaneModel implements IDataTableColumnContainer {
+  public get path() {
+    return this._path;
+  }
 
+  public set path(value: string) {
+    if (this._path !== value) {
+      this._path = value;
+      notifyPropertyChange(this, 'path');
+    }
+  }
+
+  private _path!: string
 }
 
-export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
+export class DataTableHead<T extends IDataTableHeadArgs = {}> extends SplitView<T> {
   public get classNamesBuilder() {
     if (!this.args.classNamesBuilder) {
       throw 'ClassNamesBuilder should be set';
@@ -34,59 +61,78 @@ export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
     if (this.logicalParent instanceof DataTable) {
       this.logicalParent.onColumnSizeChanged(sizes);
     }
+
+    super.onSizesChanged(sizes);
   }
 
   public itemItsOwnContainer(
-    item: unknown
+    item: IDataTableColumnContainer
   ): item is DataTableColumn {
-    let
-      result: boolean
-
-    result = item instanceof DataTableColumn;
-
-    return result;
+    return item instanceof DataTableColumn;
   }
 
   public createContainerForItem()
-    : ColumnModel {
-    return new ColumnModel();
+    : IDataTableColumnContainer {
+    return new DataTableColumnModel();
   }
 
   public prepareItemContainer(
-    _container: ColumnModel
+    container: IDataTableColumnContainer
   ): void {
-    
+    let
+      item: IDataTableColumnContainer;
+
+    item = this.readItemFromContainer(container);
+
+    if (hasPath(item)) {
+      container.path = item.path;
+    } else {
+      throw 'Can`t extract path'
+    }
   }
 
   public clearContainerForItem(
-    container: PaneModel
+    container: IDataTableColumnContainer
   ): void {
     container.item = null;
     container.content = null;
   }
 
   public linkContainerToItem(
-    container: PaneModel,
-    item: unknown
+    container: IDataTableColumnContainer,
+    item: IDataTableColumnContainer
   ): void {
     container.item = item;
   }
 
   public readItemFromContainer(
-    container: PaneModel
-  ): unknown {
-    return container.item;
+    container: IDataTableColumnContainer
+  ): IDataTableColumnContainer {
+    return container.item as IDataTableColumnContainer;
   }
 
   protected onItemCollectionChanged(
     sender: ItemCollection,
     args: ItemCollectionChangedEventArgs<unknown>
   ) {
-    if(typeof this.args.onColumnsChanged === 'function') {
-      this.args.onColumnsChanged(sender, args);
+    super.onItemCollectionChanged(sender, args);
+
+    if (this.logicalParent instanceof DataTable) {
+      this.logicalParent.onColumnsChanged(
+        args.offset,
+        args.newItems as IDataTableColumnContainer[],
+        args.oldItems as IDataTableColumnContainer[]
+      );
     }
-    super.onItemCollectionChanged(sender, args)
   }
+}
+
+function hasPath(obj: unknown): obj is IHasPath {
+  return typeof (<IHasPath>obj).path !== 'undefined';
+}
+
+interface IHasPath {
+  path: string
 }
 
 export default DataTableHead.RegisterTemplate(layout);

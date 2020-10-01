@@ -3,15 +3,16 @@ import layout from './template';
 import { SplitViewPane, ISplitViewPaneArgs } from 'ember-ux-controls/components/split-view/pane/component';
 import { computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
+import { IDataTableColumnContainer } from '../head/component';
 
 export interface IDataTableColumnArgs extends ISplitViewPaneArgs {
   path?: string
 }
 
-export class DataTableColumn extends SplitViewPane<IDataTableColumnArgs> {
+export class DataTableColumn extends SplitViewPane<IDataTableColumnArgs> implements IDataTableColumnContainer {
   
   @reads('args.path')
-  public path?: string 
+  public path!: string 
 
   public get classNamesBuilder() {
     return this.args.classNamesBuilder;

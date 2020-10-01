@@ -2,17 +2,18 @@
 import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { Column, DataTable, DataTableItemModel } from '../component';
+import { DataTable, DataTableItemModel } from '../component';
 import MutableArray from '@ember/array/mutable';
 import { reads } from '@ember/object/computed';
 import { action } from '@ember/object';
 import on from 'ember-ux-controls/utils/dom/on';
 import { computed } from '@ember/object';
 import off from 'ember-ux-controls/utils/dom/off';
+import { IDataTableColumnContainer } from '../head/component';
 
 interface IDataTableRowArgs extends IUXElementArgs {
-  columnSizes: Array<number>,
-  columns?: MutableArray<Column>
+  columnSizes?: MutableArray<number>,
+  columns?: MutableArray<IDataTableColumnContainer>
   container?: DataTableItemModel
   cellTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
@@ -30,10 +31,10 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
   cellTemplateName?: string
 
   @reads('args.columns')
-  columns?: MutableArray<Column>
+  columns?: MutableArray<IDataTableColumnContainer>
 
   @reads('args.columnSizes')
-  columnSizes?: Array<number>
+  columnSizes?: MutableArray<number>
 
   @reads('args.container')
   container?: DataTableItemModel
@@ -59,7 +60,7 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
     let
       item: object | null,
       container: DataTableItemModel | undefined,
-      columns: MutableArray<Column> | undefined;
+      columns: MutableArray<IDataTableColumnContainer> | undefined;
 
     columns = this.columns;
     container = this.container;
@@ -109,8 +110,6 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
       }
     }
   }
-
-
 
   private _html: Element | null = null;
 }

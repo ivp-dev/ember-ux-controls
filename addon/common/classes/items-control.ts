@@ -8,11 +8,7 @@ import equals from 'ember-ux-controls/utils/equals';
 import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
-import { getOwner } from '@ember/application';
-
-import {
-  IGeneratorHost
-} from 'ember-ux-controls/common/types';
+import { IGeneratorHost } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
 
 import Panel from './panel';
@@ -260,7 +256,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   private createItemContainerGenerator() {
-    return new ItemContainerGenerator(this, this.eventHandler);
+    return new ItemContainerGenerator(this);
   }
 
   private _itemsHost?: Panel

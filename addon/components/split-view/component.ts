@@ -3,7 +3,7 @@ import layout from './template';
 import ItemsControl, { IItemsControlArgs } from 'ember-ux-controls/common/classes/items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { Axes, Side, Size } from 'ember-ux-controls/common/types';
-import { SplitViewPane, ISplitViewPaneArgs } from 'ember-ux-controls/components/split-view/pane/component';
+import { SplitViewPane } from 'ember-ux-controls/components/split-view/pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
 import { camelize } from '@ember/string';
 import { notifyPropertyChange } from '@ember/object';
@@ -19,7 +19,12 @@ export class SplitViewPaneSizeChangedEventArgs extends BaseEventArgs {
   }
 }
 
-export class PaneModel {
+export interface ISplitViewContainer {
+  content: unknown,
+  item: unknown
+}
+
+export class SplitViewPaneModel implements ISplitViewContainer {
   public get content() {
     return this._content;
   }
@@ -150,22 +155,22 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
 
   public itemItsOwnContainer(
     item: unknown
-  ): item is SplitViewPane<ISplitViewPaneArgs> {
+  ): item is ISplitViewContainer {
     let
       result: boolean
 
-    result = item instanceof SplitViewPane;
+    result = item instanceof SplitViewPane || item instanceof SplitViewPaneModel;
 
     return result;
   }
 
   public createContainerForItem()
-    : PaneModel {
-    return new PaneModel();
+    : ISplitViewContainer {
+    return new SplitViewPaneModel();
   }
 
   public prepareItemContainer(
-    container: PaneModel
+    container: ISplitViewContainer
   ): void {
     let
       item: unknown;
@@ -188,31 +193,31 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   public clearContainerForItem(
-    container: PaneModel
+    container: ISplitViewContainer
   ): void {
     container.item = null;
     container.content = null;
   }
 
   public linkContainerToItem(
-    container: PaneModel,
+    container: ISplitViewContainer,
     item: unknown
   ): void {
     container.item = item;
   }
 
   public readItemFromContainer(
-    container: PaneModel
+    container: ISplitViewContainer
   ): unknown {
     return container.item;
   }
 
   public onSizesChanged(sizes: number[]) {
-    this.eventHandler.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
-
     if (typeof this.args.onSizeChanged === 'function') {
       this.args.onSizeChanged(sizes);
     }
+
+    this.eventHandler.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
   }
 
   @action

@@ -1,11 +1,8 @@
 import { assert } from '@ember/debug';
-
+import { getOwner } from '@ember/application';
 import {
-  IEquatable,
-  GeneratorDirection,
-  IGeneratorHost,
-  IDisposable,
-  ItemCollectionActions,
+  IEquatable, GeneratorDirection, IGeneratorHost,
+  IDisposable, ItemCollectionActions,
   GeneratorStatus, IEventArgs, EventArgs, IEventEmmiter
 } from 'ember-ux-controls/common/types';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
@@ -60,10 +57,8 @@ export class GeneratorPosition implements IEquatable {
 
 export default class ItemContainerGenerator implements IDisposable {
   constructor(
-    public host: IGeneratorHost,
-    private eventEmmiter: IEventEmmiter
+    public host: IGeneratorHost
   ) {
-
     this.eventEmmiter.addEventListener(
       this,
       ItemCollectionChangedEventArgs,
@@ -73,12 +68,20 @@ export default class ItemContainerGenerator implements IDisposable {
     this.refresh();
   }
 
-  get status() {
+  public get status() {
     return this._status;
   }
 
   protected get itemsInternal(): ItemCollection {
     return this.host.view;
+  }
+
+  private get eventEmmiter() {
+    if (!this._eventEmmiter) {
+      this._eventEmmiter = getOwner(this.host).lookup('service:event-emmiter') as IEventEmmiter
+    }
+
+    return this._eventEmmiter;
   }
 
   public startAt(
@@ -669,9 +672,7 @@ export default class ItemContainerGenerator implements IDisposable {
       itemIndex: number,
       index: number;
 
-    if (
-      sender !== this.itemsInternal
-    ) {
+    if (sender !== this.itemsInternal) {
       return;
     }
 
@@ -1451,6 +1452,7 @@ export default class ItemContainerGenerator implements IDisposable {
     }
   }
 
+  private _eventEmmiter?: IEventEmmiter
   private _status: GeneratorStatus | null = null;
   private _generator: Generator | null = null;
   private _itemMap: ItemBlock | null = null;

@@ -3,13 +3,13 @@ import layout from './template';
 import { guidFor } from '@ember/object/internals';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
-import { PaneModel } from 'ember-ux-controls/components/split-view/component';
+import { ISplitViewContainer, SplitViewPaneModel } from 'ember-ux-controls/components/split-view/component';
 import { computed } from '@ember/object';
 import ItemsControl from 'dummy/classes/items-control';
 import { Axes } from 'ember-ux-controls/common/types';
 
 export interface ISplitViewPaneArgs extends IUXElementArgs {
-  pane?: PaneModel
+  pane?: SplitViewPaneModel
   content?: unknown
   barSize?: number
   axis?: Axes
@@ -18,7 +18,7 @@ export interface ISplitViewPaneArgs extends IUXElementArgs {
   classNamesBuilder?: ClassNamesBuilder
 }
 
-export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> {
+export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> implements ISplitViewContainer {
   constructor(
     owner: any,
     args: T

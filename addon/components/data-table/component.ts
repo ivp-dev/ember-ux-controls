@@ -5,14 +5,12 @@ import SelectItemsControl, { ISelectItemsControlArgs } from "ember-ux-controls/c
 import { notifyPropertyChange } from '@ember/object';
 import { ISelectable } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
-import { SplitViewPaneSizeChangedEventArgs } from '../split-view/component';
-import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+import { SplitViewPaneSizeChangedEventArgs } from 'ember-ux-controls/components/split-view/component';
 import { A } from '@ember/array';
-import { action } from '@ember/object';
+import { DataTableColumnsChangedEventArgs, DataTableHead, IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
+import MutableArray from '@ember/array/mutable';
 
-export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs {
- 
-}
+export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs { }
 
 export interface IDataTableArgs extends ISelectItemsControlArgs {
   columnTemplateName: string
@@ -21,13 +19,6 @@ export interface IDataTableArgs extends ISelectItemsControlArgs {
   footTemplateName: string;
   bodyTemplateName: string;
   onColumnSizeChanged: (sizes: number[]) => void
-}
-
-
-export class Column {
-  constructor(
-    public path: string
-  ) { }
 }
 
 export class DataTableItemModel implements ISelectable {
@@ -65,10 +56,13 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     args: IDataTableArgs
   ) {
     super(owner, args);
+    this.columns = A();
+    this.columnSizes = A();
   }
 
-  @tracked columnSizes?: Array<number>
-  @tracked columns = A([])
+  @tracked public columnSizes: MutableArray<number>
+
+  @tracked public columns: MutableArray<IDataTableColumnContainer>
 
   public get classNamesBuilder() {
     return bem('data-table');
@@ -82,27 +76,33 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     return `${this.classNamesBuilder}`;
   }
 
-  public get cellTemplateName(): string {
+  public get cellTemplateName()
+    : string {
     return this.args.cellTemplateName ?? 'data-table/cell'
   }
 
-  public get columnTemplateName(): string {
+  public get columnTemplateName()
+    : string {
     return this.args.columnTemplateName ?? 'data-table/column'
   }
 
-  public get headTemplateName(): string {
+  public get headTemplateName()
+    : string {
     return this.args.headTemplateName ?? 'data-table/head';
   }
 
-  public get footTemplateName(): string {
+  public get footTemplateName()
+    : string {
     return this.args.footTemplateName ?? 'data-table/foot';
   }
 
-  public get bodyTemplateName(): string {
+  public get bodyTemplateName()
+    : string {
     return this.args.bodyTemplateName ?? 'data-table/body';
   }
 
-  public createContainerForItem(): DataTableItemModel {
+  public createContainerForItem()
+    : DataTableItemModel {
     return new DataTableItemModel();
   }
 
@@ -122,13 +122,20 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     return container.item;
   }
 
-  @action
-  public onColumnsChanged(columns: ItemCollection, args: ItemCollectionChangedEventArgs<unknown>) {
-    this.columns.replace(args.offset, args.oldItems?.length ?? 0, args.newItems?.map(value => new Column(value.path)))
+  public onColumnsChanged(
+    offset: number,
+    newColumns: IDataTableColumnContainer[],
+    oldColumns: IDataTableColumnContainer[]
+  ) {
+    this.columns.replace(
+      offset,
+      oldColumns.length,
+      newColumns
+    );
   }
 
   public onColumnSizeChanged(sizes: number[]) {
-    this.eventHandler.emitEvent(this, DataTableColumnSizesChangedEventArgs, sizes);
+    this.columnSizes = A(sizes);
   }
 }
 
