@@ -6,6 +6,9 @@ import { notifyPropertyChange } from '@ember/object';
 import { ISelectable } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
 import { SplitViewPaneSizeChangedEventArgs } from '../split-view/component';
+import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+import { A } from '@ember/array';
+import { action } from '@ember/object';
 
 export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs {
  
@@ -62,16 +65,10 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     args: IDataTableArgs
   ) {
     super(owner, args);
-
-    this.eventHandler.addEventListener(this, DataTableColumnSizesChangedEventArgs, (sizes: number[]) => {
-      this.columnSizes = sizes;
-      if(typeof this.args.onColumnSizeChanged === 'function') {
-        this.args.onColumnSizeChanged(sizes);
-      }
-    })
   }
 
   @tracked columnSizes?: Array<number>
+  @tracked columns = A([])
 
   public get classNamesBuilder() {
     return bem('data-table');
@@ -123,6 +120,11 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
 
   public readItemFromContainer(container: DataTableItemModel): object | null {
     return container.item;
+  }
+
+  @action
+  public onColumnsChanged(columns: ItemCollection, args: ItemCollectionChangedEventArgs<unknown>) {
+    this.columns.replace(args.offset, args.oldItems?.length ?? 0, args.newItems?.map(value => new Column(value.path)))
   }
 
   public onColumnSizeChanged(sizes: number[]) {

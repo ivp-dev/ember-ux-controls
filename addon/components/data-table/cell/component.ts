@@ -1,11 +1,10 @@
+// @ts-ignore
+import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { htmlSafe } from '@ember/template';
 import { reads } from '@ember/object/computed';
 import { computed } from '@ember/object';
-
-// @ts-ignore
-import layout from './template';
 
 interface IDataTableCellArgs extends IUXElementArgs {
   width: number

@@ -14,10 +14,6 @@ export class BaseEventArgs implements IEventArgs {
     return this._canceled;
   }
 
-  public stop() {
-    this._stopped = true;
-  }
-
   public cancel() {
     this._canceled = true;
   }

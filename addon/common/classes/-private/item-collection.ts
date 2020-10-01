@@ -5,7 +5,8 @@ import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
 import { BaseEventArgs } from "ember-ux-controls/common/classes/event-args";
-
+import { getOwner, setOwner } from '@ember/application';
+import { IEventEmmiter } from "ember-ux-controls/common/types";
 
 export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
   constructor(
@@ -18,20 +19,40 @@ export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public host: ItemsControl | null = null;
 
+  private get eventEmmiter() {
+    if(!this._eventEmmiter) {
+      this._eventEmmiter = getOwner(this).lookup('service:event-emmiter') as IEventEmmiter;
+    } 
+    return this._eventEmmiter;
+  }
+
+  public static Create(
+    host: ItemsControl
+  ) {
+    let
+      itemsCollection: ItemCollection
+
+    itemsCollection = ItemCollection.create({
+      host
+    });
+
+    setOwner(itemsCollection, getOwner(host));
+
+    return itemsCollection;
+  }
+
   protected changerDone(
     sourceToAdd: unknown[],
     sourceToRemove: unknown[],
     offset: number
   ) {
-    if (this.host instanceof ItemsControl) {
-      this.host.eventHandler.emitEvent(
-        this,
-        ItemCollectionChangedEventArgs,
-        offset,
-        sourceToAdd,
-        sourceToRemove
-      );
-    }
+    this.eventEmmiter.emitEvent(
+      this,
+      ItemCollectionChangedEventArgs,
+      offset,
+      sourceToAdd,
+      sourceToRemove
+    );
   }
 
   public init() {
@@ -112,4 +133,6 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
 
     super.willDestroy();
   }
+
+  private _eventEmmiter?: IEventEmmiter
 }

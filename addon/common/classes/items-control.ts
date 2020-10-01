@@ -8,6 +8,7 @@ import equals from 'ember-ux-controls/utils/equals';
 import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
+import { getOwner } from '@ember/application';
 
 import {
   IGeneratorHost
@@ -91,6 +92,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   public addChild(child: object) {
+    //TODO: maybe add childs in cashe array and in next loop copy entry to items?
     this.items.pushObject(child);
   }
 
@@ -142,16 +144,14 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return equals(left, right);
   }
 
-  private onItemCollectionChanged(
+  protected onItemCollectionChanged(
     sender: ItemCollection,
     args: ItemCollectionChangedEventArgs<unknown>
   ): void {
-    if (this.items === sender) {
-      this.onItemCollectionChangedInternal(args);
+    if (this.items !== sender) {
+      return;
     }
-  }
 
-  protected onItemCollectionChangedInternal(args: ItemCollectionChangedEventArgs<unknown>) {
     if(typeof this.args.onItemsChanged === 'function') {
       this.args.onItemsChanged(args.oldItems, args.newItems);
     }
@@ -246,9 +246,9 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     let
       items: ItemCollection;
 
-    items = ItemCollection.create({
-      host: this
-    });
+    items = ItemCollection.Create( 
+      this
+    );
 
     this.eventHandler.addEventListener(
       this, 
@@ -260,7 +260,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   private createItemContainerGenerator() {
-    return new ItemContainerGenerator(this);
+    return new ItemContainerGenerator(this, this.eventHandler);
   }
 
   private _itemsHost?: Panel

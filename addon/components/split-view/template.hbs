@@ -5,11 +5,15 @@
   >
   <SplitView::SplitPanel
     @visualParent={{this}}
+    @barsize={{this.barSize}}
+    @axis={{this.axis}}
     @hasItemsSource={{this.hasItemsSource}}
   >
     {{#unless this.hasItemsSource}}
       {{yield (hash Pane=(
         component this.itemTemplateName
+        barSize=this.barSize
+        axis=this.axis
         visualParent=this
         content=@content))
       }}

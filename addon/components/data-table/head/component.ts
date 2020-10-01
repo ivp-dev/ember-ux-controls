@@ -1,20 +1,21 @@
 // @ts-ignore
 import layout from './template';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { reads } from '@ember/object/computed';
-import { SplitView, ISplitViewArgs } from 'ember-ux-controls/components/split-view/component';
+import { SplitView, ISplitViewArgs, PaneModel } from 'ember-ux-controls/components/split-view/component';
 import { DataTable } from 'ember-ux-controls/components/data-table/component';
-import { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+import { DataTableColumn } from 'ember-ux-controls/components/data-table/column/component';
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
-  columnTemplateName?: string
   classNamesBuilder?: ClassNamesBuilder
+  onColumnsChanged?: (columns: ItemCollection) => void
+}
+
+export class ColumnModel extends PaneModel{
+
 }
 
 export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
-  @reads('args.columnTemplateName')
-  columnTemplateName?: string
-
   public get classNamesBuilder() {
     if (!this.args.classNamesBuilder) {
       throw 'ClassNamesBuilder should be set';
@@ -35,8 +36,56 @@ export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
     }
   }
 
-  protected onItemCollectionChangedInternal(args: ItemCollectionChangedEventArgs<unknown>) {
-    super.onItemCollectionChangedInternal(args)
+  public itemItsOwnContainer(
+    item: unknown
+  ): item is DataTableColumn {
+    let
+      result: boolean
+
+    result = item instanceof DataTableColumn;
+
+    return result;
+  }
+
+  public createContainerForItem()
+    : ColumnModel {
+    return new ColumnModel();
+  }
+
+  public prepareItemContainer(
+    _container: ColumnModel
+  ): void {
+    
+  }
+
+  public clearContainerForItem(
+    container: PaneModel
+  ): void {
+    container.item = null;
+    container.content = null;
+  }
+
+  public linkContainerToItem(
+    container: PaneModel,
+    item: unknown
+  ): void {
+    container.item = item;
+  }
+
+  public readItemFromContainer(
+    container: PaneModel
+  ): unknown {
+    return container.item;
+  }
+
+  protected onItemCollectionChanged(
+    sender: ItemCollection,
+    args: ItemCollectionChangedEventArgs<unknown>
+  ) {
+    if(typeof this.args.onColumnsChanged === 'function') {
+      this.args.onColumnsChanged(sender, args);
+    }
+    super.onItemCollectionChanged(sender, args)
   }
 }
 

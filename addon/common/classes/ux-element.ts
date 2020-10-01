@@ -1,15 +1,9 @@
-import {
-  // @ts-ignore
-  setComponentTemplate, 
-  // @ts-ignore
-  getComponentTemplate,
-  TemplateFactory
-} from '@ember/component';
-import { inject } from '@ember/service';
+// @ts-ignore
+import { setComponentTemplate, getComponentTemplate, TemplateFactory } from '@ember/component';
 import { computed } from '@ember/object';
 import Component from '@glimmer/component';
-
-import { IEventEmmiter } from '../types';
+import { getOwner } from '@ember/application';
+import { IEventEmmiter } from 'ember-ux-controls/common/types';
 
 export interface IUXElementArgs {
   logicalParent?: Component
@@ -22,11 +16,15 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     args: T
   ) {
     super(owner, args);
-    this.args
   }
 
-  @inject('event-emmiter')
-  public eventHandler!: IEventEmmiter;
+  protected get eventHandler()
+    : IEventEmmiter {
+    if (!this._eventEmmiter) {
+      this._eventEmmiter = getOwner(this).lookup('service:event-emmiter') as IEventEmmiter;
+    }
+    return this._eventEmmiter;
+  }
 
   @computed('args.{logicalParent,visualParent}')
   public get logicalParent() {
@@ -54,4 +52,6 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
       this
     );
   }
+
+  private _eventEmmiter?: IEventEmmiter;
 }

@@ -117,7 +117,7 @@ export class SplitViewBehavior {
   private panes: Array<HTMLElement> = []
   private sizes: Array<number> = []
   private calcBarSize: number = 0
-  private minPaneSizes: Array<number> = []
+  private minSizes: Array<number> = []
   private startMoveHandler: () => void
   private moveHandler: () => void
   private endMoveHandler: () => void
@@ -182,9 +182,9 @@ export class SplitViewBehavior {
     return camelize('max-' + this.sizeTarget);
   }
 
-  get minPaneSize()
+  get minSize()
     : number {
-    return this.getProperty('minPaneSize', 0);
+    return this.getProperty('minSize', 0);
   }
 
   get responsive()
@@ -343,8 +343,8 @@ export class SplitViewBehavior {
 
   private computeSizes() {
     this.calcBarSize = this.barSize * (this.ids.length - 1) / this.ids.length;
-    this.minPaneSizes = this.getProperty('minPaneSizes', this.ids.map(() =>
-      this.minPaneSize
+    this.minSizes = this.getProperty('minSizes', this.ids.map(() =>
+      this.minSize
     ));
     this.sizes = this.getProperty('sizes', this.ids.map(() =>
       100 / this.ids.length
@@ -652,7 +652,7 @@ export class SplitViewBehavior {
     edges = [offsetStart, portSize + offsetStart];
     entry = this.ids.indexOf(pair[1]);
     sizes = this.sizes.map(size => size * portSize / 100);
-    minSizes = this.minPaneSizes.map(size =>
+    minSizes = this.minSizes.map(size =>
       Math.max(size * portSize / 100, this.calcBarSize)
     );
 
@@ -709,7 +709,7 @@ export class SplitViewBehavior {
       this.sizes[index] * portSize / 100);
     size = sizes.reduce((a, b) => a + b, 0);
     minSizes = indexes.map(index =>
-      Math.max(this.minPaneSizes[index] * portSize / 100, this.calcBarSize));
+      Math.max(this.minSizes[index] * portSize / 100, this.calcBarSize));
     minSize = minSizes.reduce((a, b) => a + b, 0);
     avaialbleSizes = sizes.map((size, i) => size - minSizes[i]);
     availableSize = size - minSize;

@@ -5,3 +5,11 @@
 >
   <span>{{@title}}</span>
 </div>
+
+{{#unless this.isLast}}
+  <DataTable::Bar
+    @axis={{this.axis}}
+    @barSize={{this.barSize}}
+    @classNamesBuilder={{this.classNamesBuilder}}
+  />
+{{/unless}}

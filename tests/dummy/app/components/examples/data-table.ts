@@ -13,27 +13,26 @@ export default class ExamplesDataTable extends Component<ExamplesTableArgs> {
     this._sizes = [...Array(3)].map(_ => 100 / 3);
   }
 
-
   @tracked
-  scrollable: boolean = false;
+  public scrollable: boolean = false;
 
   @tracked 
-  columnFluent: boolean = false;
+  public columnFluent: boolean = false;
 
   @tracked
-  columnResponsive: boolean = false
+  public columnResponsive: boolean = false
 
   @tracked
-  columnBarSize: number = 1
+  public columnBarSize: number = 1
 
   @tracked
-  multipleSelectionEnable: boolean = false;
+  public multipleSelectionEnable: boolean = false;
 
-  get columnMinSize() {
+  public get columnMinSize() {
     return this._columnMinSize;
   }
 
-  set columnMinSize(value: number) {
+  public set columnMinSize(value: number) {
     if (
       this._columnMinSize !== value && 
       !this.columnSizes.some(size => size <= value)
@@ -42,18 +41,17 @@ export default class ExamplesDataTable extends Component<ExamplesTableArgs> {
     }
   }
 
-  get columnSizes() {
+  public get columnSizes() {
     return this._sizes;
   }
 
-  get itemsSource() {
+  public get itemsSource() {
     return this.generateItemsSource();
   }
 
   @action
-  onColumnSizeChanged(sizes: Array<number>) {
+  public onColumnSizeChanged(sizes: Array<number>) {
     this._sizes = sizes;
-    
     notifyPropertyChange(this, 'columnSizes');
   }
 

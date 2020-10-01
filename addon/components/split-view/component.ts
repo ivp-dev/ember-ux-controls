@@ -10,6 +10,8 @@ import { notifyPropertyChange } from '@ember/object';
 import SplitViewBehavior from 'ember-ux-controls/common/classes/-private/split-view-behavior';
 import { action } from '@ember/object';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
+import Sensor from 'ember-ux-controls/common/classes/sensor';
+import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 
 export class SplitViewPaneSizeChangedEventArgs extends BaseEventArgs {
   constructor(public sizes: number[]) {
@@ -49,9 +51,9 @@ export interface ISplitViewArgs extends IItemsControlArgs {
   responsive?: boolean,
   fluent?: boolean,
   barSize?: number,
-  minPaneSize?: number,
   sizes?: Array<number>,
-  minPaneSizes?: Array<number>,
+  minSize?: number,
+  minSizes?: Array<number>,
   getContent?: (item: unknown) => unknown
   onSizeChanged?: (sizes: Array<number>) => void
 }
@@ -62,8 +64,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     args: T
   ) {
     super(owner, args);
-
-    this.willDestroy = this.clearBehavior.bind(this);
   }
 
   public get itemTemplateName() {
@@ -85,9 +85,9 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return this.args.fluent ?? false;
   }
 
-  public get minPaneSizes()
+  public get minSizes()
     : Array<number> | undefined {
-    return this.args.minPaneSizes;
+    return this.args.minSizes;
   }
 
   public get responsive() {
@@ -105,9 +105,9 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return camelize('max-' + this.sizeTarget);
   }
 
-  public get minPaneSize()
+  public get minSize()
     : number {
-    return this.minPaneSize ?? 0;
+    return this.minSize ?? 0;
   }
 
   public get sideOrigin() {
@@ -208,39 +208,102 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   public onSizesChanged(sizes: number[]) {
-    this.eventHandler.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes)
+    this.eventHandler.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
+
+    if (typeof this.args.onSizeChanged === 'function') {
+      this.args.onSizeChanged(sizes);
+    }
   }
 
   @action
   public didInsert(
     element: HTMLElement
   ) {
-    this._behavior = new SplitViewBehavior(
+    this._html = element;
+    this.setupBehavior();
+  }
+
+  @action
+  public didUpdateAttrs() {
+    this.removeBehavior();
+    this.setupBehavior();
+  }
+
+  public willDestroy() {
+    this.removeBehavior();
+  }
+
+  private setupBehavior() {
+    let
+      behavior: SplitViewBehavior,
+      onDragStart: (sender: Sensor, args: DragStartSensorEventArgs) => void,
+      onDragMove: (sender: Sensor, args: DragMoveSensorEventArgs) => void,
+      onDragStop: (sender: Sensor, args: DragStopSensorEventArgs) => void;
+
+    behavior = new SplitViewBehavior(
       this,
-      element,
+      this.html!,
       this.args.sizes,
-      this.args.minPaneSize,
-      this.args.minPaneSizes,
+      this.args.minSize,
+      this.args.minSizes,
     );
 
-    this._html = element;
+    onDragStart = behavior.dragStart.bind(behavior);
+    onDragMove = behavior.dragMove.bind(behavior);
+    onDragStop = behavior.dragStop.bind(behavior);
+
+    this.eventHandler.addEventListener(this, DragStartSensorEventArgs, onDragStart);
+    this.eventHandler.addEventListener(this, DragMoveSensorEventArgs, onDragMove);
+    this.eventHandler.addEventListener(this, DragStopSensorEventArgs, onDragStop);
+
+    this._onDragStart = onDragStart;
+    this._onDragMove = onDragMove;
+    this._onDragStop = onDragStop;
+
+    this._behavior = behavior;
   }
 
-  public didUpdateAttrs() {
-
-  }
-
-  private clearBehavior() {
+  private removeBehavior() {
     if (!this._behavior) {
       return;
     };
 
-    this._behavior.dispose();
+    if (this._onDragStart) {
+      this.eventHandler.removeEventListener(
+        this,
+        DragStartSensorEventArgs,
+        this._onDragStart
+      );
+    }
+
+    if (this._onDragMove) {
+      this.eventHandler.removeEventListener(
+        this,
+        DragMoveSensorEventArgs,
+        this._onDragMove
+      );
+    }
+
+    if (this._onDragStop) {
+      this.eventHandler.removeEventListener(
+        this,
+        DragStopSensorEventArgs,
+        this._onDragStop
+      );
+    }
+
+    this._onDragStart = void 0;
+    this._onDragMove = void 0;
+    this._onDragStop = void 0;
+
     this._behavior = void 0
   }
 
   private _html?: HTMLElement
   private _behavior?: SplitViewBehavior
+  private _onDragStart?: (sender: Sensor, args: DragStartSensorEventArgs) => void
+  private _onDragMove?: (sender: Sensor, args: DragMoveSensorEventArgs) => void
+  private _onDragStop?: (sender: Sensor, args: DragStopSensorEventArgs) => void
 }
 
 function isContentElement(

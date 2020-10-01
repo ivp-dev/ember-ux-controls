@@ -13,66 +13,58 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
     this._sizes = [...Array(3)].map(_ => 100 / 3);
   }
 
-  /*
-  @axis={{this.axis}}
-  @minPaneSize={{this.minPaneSize}} 
-  @barSize={{this.barSize}} 
-  @fluent={{this.fluent}} 
-  @responsive={{this.responsive}}
-  */
-
   @tracked
-  axis: Axes = Axes.X;
+  public axis: Axes = Axes.X;
 
-  get barSize() {
+  public get barSize() {
     return this._barSize;
   }
 
-  set barSize(value: number) {
+  public set barSize(value: number) {
     if (this._barSize !== value) {
       this._barSize = Number(value);
     }
   }
 
-  get minPaneSize() {
-    return this._minPaneSize;
+  public get minSize() {
+    return this._minSize;
   }
 
-  set minPaneSize(value: number) {
+  public set minSize(value: number) {
     if (
-      this._minPaneSize !== value && 
+      this._minSize !== value && 
       !this.sizes.some(size => size <= value)
     ) {
-      this._minPaneSize = Number(value);
+      this._minSize = Number(value);
     }
   }
 
-  get fluent() {
+  public get fluent() {
     return this._fluent;
   }
 
-  set fluent(value: boolean) {
+  public set fluent(value: boolean) {
     if (this._fluent !== value) {
       this._fluent = Boolean(value);
     }
   }
 
-  get responsive() {
+  public get responsive() {
     return this._responsive;
   }
 
-  set responsive(value: boolean) {
+  public set responsive(value: boolean) {
     if (this.responsive !== value) {
       this._responsive = Boolean(value);
     }
   }
   
-  get sizes() {
+  public get sizes() {
     return this._sizes;
   }
 
   @action
-  onAxisChanged(event: Event) {
+  public onAxisChanged(event: Event) {
     const
       target = event.target as HTMLSelectElement;
 
@@ -80,13 +72,13 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
   }
 
   @action
-  onSizeChanged(sizes: Array<number>) {
+  public onSizeChanged(sizes: Array<number>) {
     this._sizes = sizes;
     notifyPropertyChange(this, 'sizes');
   }
 
   private _sizes: Array<number>
-  private _minPaneSize: number = 5
+  private _minSize: number = 5
   private _barSize: number = 15
   private _fluent: boolean = false
   private _responsive: boolean = false

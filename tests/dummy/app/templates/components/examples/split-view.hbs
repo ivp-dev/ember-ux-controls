@@ -2,7 +2,7 @@
   <SplitView::Light
     @axis={{@axis}}
     @sizes={{@sizes}}
-    @minPaneSize={{@minPaneSize}} 
+    @minSize={{@minSize}} 
     @onSizeChanged={{@onSizeChanged}}
     @barSize={{@barSize}} 
     @fluent={{@fluent}} 
@@ -33,10 +33,10 @@
           </div>
           <div class="grid__row">
             <div class="grid__cell">
-              <span class="property">@minPaneSize</span>
+              <span class="property">@minSize</span>
             </div>
             <div class="grid__cell">
-              <Input @value={{this.minPaneSize}} @type="number" @min={{0}}/>
+              <Input @value={{this.minSize}} @type="number" @min={{0}}/>
             </div>
           </div>
           <div class="grid__row">
@@ -81,7 +81,7 @@
     <Splitter.Pane>
       <SplitView::Light
         @axis={{this.axis}}
-        @minPaneSize={{this.minPaneSize}} 
+        @minSize={{this.minSize}} 
         @barSize={{this.barSize}} 
         @fluent={{this.fluent}} 
         @responsive={{this.responsive}}

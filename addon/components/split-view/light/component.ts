@@ -10,10 +10,10 @@ export interface ISplitViewLightArgs extends IUXElementArgs {
   responsive?: boolean,
   fluent?: boolean,
   barSize?: number,
-  minPaneSize?: number,
+  minSize?: number,
   maxSizeTarget?: string,
   sizes?: Array<number>,
-  minPaneSizes?: Array<number>,
+  minSizes?: Array<number>,
   onSizeChanged?: (sizes: Array<number>) => void
 }
 

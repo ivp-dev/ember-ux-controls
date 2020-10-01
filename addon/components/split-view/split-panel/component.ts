@@ -1,10 +1,10 @@
 
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { computed } from '@ember/object';
-import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 // @ts-ignore
 import layout from './template';
-
+import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
+import { reads } from '@ember/object/computed';
+import { Axes } from 'ember-ux-controls/common/types';
 
 interface IContentArgs extends IPanelArgs {
   hasItemsSource?: boolean
@@ -19,15 +19,17 @@ class SplitPane extends Panel<IContentArgs> {
     super(owner, args);
   }
 
-  @computed('args.{classNamesBuilder}')
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
+  @reads('args.{classNamesBuilder}')
+  public classNamesBuilder?: ClassNamesBuilder
 
-  @computed('args.{hasItemsSource}')
-  public get hasItemsSource() {
-    return this.args.hasItemsSource;
-  }
+  @reads('args.{barSize}')
+  public barSize?: ClassNamesBuilder
+
+  @reads('args.{axis}')
+  public axis?: Axes
+
+  @reads('args.{hasItemsSource}')
+  public hasItemsSource?: boolean
 }
 
 export default SplitPane.RegisterTemplate(layout);

@@ -1,3 +1,5 @@
+// @ts-ignore
+import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { Column, DataTable, DataTableItemModel } from '../component';
@@ -6,11 +8,7 @@ import { reads } from '@ember/object/computed';
 import { action } from '@ember/object';
 import on from 'ember-ux-controls/utils/dom/on';
 import { computed } from '@ember/object';
-// @ts-ignore
-import layout from './template';
-import off from 'dummy/utils/dom/off';
-import Component from '@glimmer/component';
-
+import off from 'ember-ux-controls/utils/dom/off';
 
 interface IDataTableRowArgs extends IUXElementArgs {
   columnSizes: Array<number>,

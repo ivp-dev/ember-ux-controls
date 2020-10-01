@@ -2,7 +2,6 @@ import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 import UXElement from 'ember-ux-controls/common/classes/ux-element';
 import Modifier from 'ember-modifier';
 import { next } from '@ember/runloop';
-import { DataTableColumn } from 'ember-ux-controls/components/data-table/column/component';
 
 export default class AddChild extends Modifier {
   public didInstall() {
@@ -10,10 +9,6 @@ export default class AddChild extends Modifier {
       child: unknown;
 
     [child] = [...this.args.positional];
-
-    if(child instanceof DataTableColumn) {
-      debugger
-    }
 
     if (
       child &&

@@ -3,8 +3,8 @@ import find from 'ember-ux-controls/utils/dom/find';
 import addClass from 'ember-ux-controls/utils/dom/add-class';
 import css from 'ember-ux-controls/utils/dom/css';
 import appendTo from 'ember-ux-controls/utils/dom/append-to';
-import { Axes, IDisposable, IEventEmmiter, Side, Size } from 'ember-ux-controls/common/types';
-import { SplitView, ISplitViewArgs, SplitViewPaneSizeChangedEventArgs } from 'ember-ux-controls/components/split-view/component';
+import { Axes, Side, Size } from 'ember-ux-controls/common/types';
+import { SplitView, ISplitViewArgs } from 'ember-ux-controls/components/split-view/component';
 import rect from 'ember-ux-controls/utils/dom/rect';
 import bem, { ClassNamesDriver, ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { camelize } from '@ember/string';
@@ -12,7 +12,6 @@ import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventA
 import closest from 'ember-ux-controls/utils/dom/closest';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import DragSensor from 'ember-ux-controls/common/classes/drag-sensor';
-import DragMouseSensor from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 
 
 interface IBlockSizes {
@@ -43,7 +42,7 @@ interface IDrag {
   decorator?: HTMLElement
 }
 
-export default class SplitViewBehavior implements IDisposable {
+export default class SplitViewBehavior {
   constructor(
     public owner: SplitView<ISplitViewArgs>,
     public element: HTMLElement,
@@ -55,11 +54,9 @@ export default class SplitViewBehavior implements IDisposable {
     this.panes = this.setupPanes();
     this.minSizes = this.calcMinSizes(minSize, minSizes);
     this.sizes = this.calcSizes(sizes);
-    this.setupBars();
+   
     this.applySizes();
     this.notifySizeChanged();
-
-    this.subscribe();
   }
 
   public get axis()
@@ -84,11 +81,6 @@ export default class SplitViewBehavior implements IDisposable {
   public get barSize()
     : number {
     return this.owner.barSize
-  }
-
-  public get eventHandler()
-    : IEventEmmiter {
-    return this.owner.eventHandler
   }
 
   public get classNamesBuilder()
@@ -120,46 +112,6 @@ export default class SplitViewBehavior implements IDisposable {
     return this.axis === Axes.X
       ? Side.Right
       : Side.Bottom;
-  }
-
-  public dispose() {
-    this.eventHandler.removeEventListener(
-      this,
-      DragStartSensorEventArgs,
-      this.dragStart
-    );
-
-    this.eventHandler.removeEventListener(
-      this,
-      DragMoveSensorEventArgs,
-      this.dragMove
-    );
-
-    this.eventHandler.removeEventListener(
-      this,
-      DragStopSensorEventArgs,
-      this.dragStop
-    );
-  }
-
-  private subscribe() {
-    this.eventHandler.addEventListener(
-      this,
-      DragStartSensorEventArgs,
-      this.dragStart
-    );
-
-    this.eventHandler.addEventListener(
-      this,
-      DragMoveSensorEventArgs,
-      this.dragMove
-    );
-
-    this.eventHandler.addEventListener(
-      this,
-      DragStopSensorEventArgs,
-      this.dragStop
-    );
   }
 
   public dragStart(
@@ -519,49 +471,6 @@ export default class SplitViewBehavior implements IDisposable {
     );
   }
 
-  private setupBars() {
-    let
-      pane: HTMLElement | null = null,
-      count: number,
-      index: number,
-      bar: HTMLDivElement;
-
-    this.dragSensors = [];
-
-    for (
-      index = 0,
-      count = this.panes.length;
-      index < count - 1;
-      index++
-    ) {
-      pane = this.panes[index];
-      bar = document.createElement('div');
-
-      addClass(bar, `${this.classNamesBuilder('bar', {
-        [`$${this.axis}`]: true
-      })}`);
-
-      css(bar, {
-        [this.sizeTarget]: `${this.barSize}px`
-      });
-      // add bar after pane (before next pane)
-      appendTo(
-        this.element,
-        bar,
-        pane.nextSibling
-      );
-
-      if (this.allowMouseSensor) {
-        this.dragSensors.push(new DragMouseSensor(
-          bar,
-          this.eventHandler
-        ));
-      }
-    }
-
-    this.dragSensors.forEach(sensor => sensor.attach());
-  }
-
   private applySizes() {
     let
       style: { [K in Size]?: string },
@@ -724,7 +633,6 @@ export default class SplitViewBehavior implements IDisposable {
   }
 
   private dragData?: IDrag
-  private dragSensors?: DragSensor[]
   private ids: string[]
   private panes: HTMLElement[]
   private sizes: Array<number>

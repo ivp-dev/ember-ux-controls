@@ -6,11 +6,10 @@ import {
   IGeneratorHost,
   IDisposable,
   ItemCollectionActions,
-  GeneratorStatus, IEventArgs, EventArgs
+  GeneratorStatus, IEventArgs, EventArgs, IEventEmmiter
 } from 'ember-ux-controls/common/types';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
-
 import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
 
 export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
@@ -62,15 +61,14 @@ export class GeneratorPosition implements IEquatable {
 export default class ItemContainerGenerator implements IDisposable {
   constructor(
     public host: IGeneratorHost,
+    private eventEmmiter: IEventEmmiter
   ) {
 
-    if (this.host instanceof ItemsControl) {
-      this.host.eventHandler.addEventListener(
-        this,
-        ItemCollectionChangedEventArgs,
-        this.onItemCollectionChanged
-      )
-    }
+    this.eventEmmiter.addEventListener(
+      this,
+      ItemCollectionChangedEventArgs,
+      this.onItemCollectionChanged
+    )
 
     this.refresh();
   }
@@ -359,7 +357,7 @@ export default class ItemContainerGenerator implements IDisposable {
     }
 
     if (this.host instanceof ItemsControl) {
-      this.host.eventHandler.removeEventListener(
+      this.eventEmmiter.removeEventListener(
         this,
         ItemCollectionChangedEventArgs,
         this.onItemCollectionChanged
@@ -818,9 +816,7 @@ export default class ItemContainerGenerator implements IDisposable {
     type: EventArgs<IEventArgs>,
     ...args: any[]
   ) {
-    if (this.host instanceof ItemsControl) {
-      this.host.eventHandler.emitEvent(this, type, ...args);
-    }
+    this.eventEmmiter.emitEvent(this, type, ...args);
   }
 
   //@ts-ignore
@@ -1268,7 +1264,7 @@ export default class ItemContainerGenerator implements IDisposable {
       );
 
       if (this.factory.host instanceof ItemsControl) {
-        this.factory.host.eventHandler.addEventListener(
+        this.factory.eventEmmiter.addEventListener(
           this,
           MapChangedEventArgs,
           this.onMapChanged
@@ -1286,7 +1282,7 @@ export default class ItemContainerGenerator implements IDisposable {
       if (
         this.factory.host instanceof ItemsControl
       ) {
-        this.factory.host.eventHandler.removeEventListener(
+        this.factory.eventEmmiter.removeEventListener(
           this,
           MapChangedEventArgs,
           this.onMapChanged
@@ -1446,14 +1442,12 @@ export default class ItemContainerGenerator implements IDisposable {
       oldStatus = this._status;
       this._status = newStatus;
 
-      if (this.host instanceof ItemsControl) {
-        this.host.eventHandler.emitEvent(
-          this,
-          GeneratorStatusChangedEventArgs,
-          oldStatus,
-          newStatus
-        );
-      }
+      this.eventEmmiter.emitEvent(
+        this,
+        GeneratorStatusChangedEventArgs,
+        oldStatus,
+        newStatus
+      );
     }
   }
 

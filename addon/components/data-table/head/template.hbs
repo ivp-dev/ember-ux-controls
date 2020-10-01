@@ -1,12 +1,15 @@
 <div 
   class="{{this.classNames}}"
   {{did-insert this.didInsert}}
+  {{did-update this.didUpdateAttrs @barSize @responsive @minSize @minSizes}}
 >
   {{#unless this.hasItemsSource}}
     {{yield (hash Column=(
-      component this.columnTemplateName 
+      component this.itemTemplateName 
+      axis=this.axis
+      barSize=this.barSize
       visualParent=this
-      classNamesBuilder=this.classNamesBuilder
-    ))}}
+      classNamesBuilder=this.classNamesBuilder))
+    }}
   {{/unless}}
 </div>
