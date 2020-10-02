@@ -224,7 +224,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   }
 
   public willDestroy() {
-    this.eventHandler.removeEventListener(
+    this.removeEventListener(
       this,
       TreeViewItemParentSelectionChangedEventArgs,
       this.onParentSelectionChanged
@@ -256,7 +256,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
   public didInsert() {
     this.root = this.findRoot();
 
-    this.eventHandler.addEventListener(
+    this.addEventListener(
       this,
       TreeViewItemParentSelectionChangedEventArgs,
       this.onParentSelectionChanged
@@ -332,12 +332,10 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
 
   @action
   private onParentSelectionChanged(
-    sender: TreeViewItem,
+    _: TreeViewItem,
     args: TreeViewItemParentSelectionChangedEventArgs
   ) {
-    if (sender === this.logicalParent) {
-      this.changeSelectionInternal(args.value);
-    }
+    this.changeSelectionInternal(args.value);
   }
 
   private notifyChildrenSelectionChanged(value: boolean) {
@@ -345,7 +343,7 @@ export class TreeViewItem extends SelectItemsControl<ITreeViewItemArgs> {
       args: TreeViewItemParentSelectionChangedEventArgs;
 
     args = new TreeViewItemParentSelectionChangedEventArgs(value);
-    this.eventHandler.emitEvent(
+    this.eventEmmiter.emitEvent(
       this,
       TreeViewItemParentSelectionChangedEventArgs,
       value

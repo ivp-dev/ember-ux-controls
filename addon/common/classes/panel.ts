@@ -85,7 +85,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   public willDestroy()
     : void {
 
-    this.eventHandler.removeEventListener(
+    this.removeEventListener(
       this, 
       ItemContainerGeneratorChangedEventArgs,
       this.onItemsChanged
@@ -143,7 +143,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   private connectToGenerator()
     : void {
-    this.eventHandler.addEventListener(
+    this.addEventListener(
       this,
       ItemContainerGeneratorChangedEventArgs,
       this.onItemsChanged
@@ -184,17 +184,15 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   }
 
   private onItemsChanged(
-    sender: ItemContainerGenerator,
+    _: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {
-    if (this._itemContainerGenerator === sender) {
-      assert(
-        'Panel._itemContainerGenerator can`t be null in this context',
-        this._itemContainerGenerator !== null
-      );
-      
-      this.onItemsChangedInternal(args);
-    }
+    assert(
+      'Panel._itemContainerGenerator can`t be null in this context',
+      this._itemContainerGenerator !== null
+    );
+    
+    this.onItemsChangedInternal(args);
   }
 
   // if panel is not items-host, children no need

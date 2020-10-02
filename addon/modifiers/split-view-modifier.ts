@@ -212,7 +212,7 @@ export class SplitViewBehavior {
 
   public subscribe() {
     if (this.host instanceof SplitView) {
-      this.host.eventHandler.addEventListener(
+      this.host.addEventListener(
         this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
       );
     }
@@ -252,7 +252,7 @@ export class SplitViewBehavior {
       if (
         this.host instanceof ItemsControl
       ) {
-        this.host.eventHandler.removeEventListener(
+        this.host.removeEventListener(
           this,
           GeneratorStatusChangedEventArgs,
           this.onGeneratorStatusChanged
@@ -262,12 +262,11 @@ export class SplitViewBehavior {
   }
 
   private onGeneratorStatusChanged(
-    sender: object,
+    _: object,
     args: GeneratorStatusChangedEventArgs
   ): void {
     if (
       this.host instanceof ItemsControl &&
-      this.host.itemContainerGenerator === sender &&
       args.newStatus === GeneratorStatus.ContainersGenerated
     ) {
       scheduleOnce('afterRender', this, this.update)

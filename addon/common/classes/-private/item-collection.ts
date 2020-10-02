@@ -5,8 +5,9 @@ import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
 import { BaseEventArgs } from "ember-ux-controls/common/classes/event-args";
-import { getOwner, setOwner } from '@ember/application';
-import { IEventEmmiter } from "ember-ux-controls/common/types";
+import { EventArgs, IEventArgs, IEventEmmiter } from "ember-ux-controls/common/types";
+import EventEmmiter from "ember-ux-controls/common/classes/event-emmiter";
+import Enumerable from "@ember/array/-private/enumerable";
 
 export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
   constructor(
@@ -19,10 +20,18 @@ export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public host: ItemsControl | null = null;
 
-  private get eventEmmiter() {
-    if(!this._eventEmmiter) {
-      this._eventEmmiter = getOwner(this).lookup('service:event-emmiter') as IEventEmmiter;
-    } 
+  public get cacher() {
+    if (!this._cacher) {
+      this._cacher = new ItemCollection.Cacher(this);
+    }
+
+    return this._cacher;
+  }
+
+  protected get eventEmmiter() {
+    if (!this._eventEmmiter) {
+      this._eventEmmiter = new EventEmmiter();
+    }
     return this._eventEmmiter;
   }
 
@@ -36,9 +45,23 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
       host
     });
 
-    setOwner(itemsCollection, getOwner(host));
-
     return itemsCollection;
+  }
+
+  public addEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.addEventListener(context, key, callback)
+  }
+
+  public removeEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.removeEventListener(context, key, callback)
   }
 
   protected changerDone(
@@ -134,5 +157,75 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     super.willDestroy();
   }
 
+  public pushObject(obj: unknown) {
+    if (this.cacher.isActive) {
+      this.cacher.pushObject(obj);
+    } else {
+      super.pushObject(obj);
+    }
+  }
+
+  public pushObjects(objects: Enumerable<unknown>) {
+    if (this.cacher.isActive) {
+      this.cacher.pushObjects(objects);
+    } else {
+      super.pushObjects(objects);
+    }
+
+    return this;
+  }
+
+  private static Cacher = class <T extends {}> implements ICacher<T> {
+    constructor(
+      private owner: ItemCollection
+    ) {
+      this.isActive = false;
+      this.cache = A();
+    }
+
+    public isActive: boolean;
+
+    public delay() {
+      if (this.isActive) return;
+      this.isActive = true;
+      this.cache.clear();
+    }
+
+    public apply() {
+      if (!this.isActive) return;
+
+      this.isActive = false;
+      this.owner.pushObjects(this.cache);
+      this.clear();
+    }
+
+    public pushObjects(obj: Enumerable<T>) {
+      if (Array.isArray(obj)) {
+        this.cache.pushObjects(obj);
+      } else if (isArray(obj)) {
+        this.cache.pushObjects(A(obj.toArray()));
+      }
+    }
+
+    public pushObject(obj: T) {
+      this.cache.pushObject(obj);
+    }
+
+    private clear() {
+      this.cache.clear();
+    }
+
+    private cache: NativeArray<unknown>
+  }
+
+  private _cacher?: ICacher<unknown>
   private _eventEmmiter?: IEventEmmiter
+}
+
+interface ICacher<T> {
+  isActive: boolean
+  delay: () => void
+  apply: () => void
+  pushObject: (obj: T) => void
+  pushObjects: (objs: Enumerable<T>) => void
 }

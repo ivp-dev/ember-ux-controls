@@ -180,6 +180,8 @@ export type EventArgs<T extends IEventArgs> = {
 } 
 
 export interface IEventEmmiter {
+  hasListeners: boolean
+  
   emitEvent<T extends IEventArgs>(
     sender: object,
     event: EventArgs<T>,
@@ -199,6 +201,4 @@ export interface IEventEmmiter {
   ): void
 
   clearEventListeners(): void
-
-  hasListeners: boolean
 }

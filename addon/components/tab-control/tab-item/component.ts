@@ -1,3 +1,5 @@
+// @ts-ignore
+import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { action } from '@ember/object';
 import { on, off, appendBetween } from 'ember-ux-controls/utils/dom';
@@ -7,9 +9,6 @@ import { TabItemModel } from 'ember-ux-controls/components/tab-control/component
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-
-// @ts-ignore
-import layout from './template';
 
 interface ITabControlItemArgs extends IUXElementArgs {
   container?: TabItemModel,

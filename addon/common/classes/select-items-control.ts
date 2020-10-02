@@ -7,12 +7,9 @@ import SelectedItemCollection, { SelectedItemCollectionChangedEventArgs } from '
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
 import { assert } from '@ember/debug';
 import EquatableArray from 'ember-ux-controls/common/classes/-private/equatable-array';
-import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
-
-
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   multipleSelectionEnable?: boolean
@@ -55,11 +52,9 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       return this._selectedItems;
     }
 
-    this._selectedItems = SelectedItemCollection.create({
-      source: A()
-    });
+    this._selectedItems = SelectedItemCollection.Create();
 
-    this.eventHandler.addEventListener(
+    this._selectedItems.addEventListener(
       this,
       SelectedItemCollectionChangedEventArgs,
       this.onSelectedItemsCollectionChanged
@@ -157,14 +152,21 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   }
 
   public willDestroy() {
-    removeObserver(this, 'multipleSelectionEnable', this.onMutlipleSelectionEnableChanged);
-    this.eventHandler.removeEventListener(
-      this,
-      SelectedItemCollectionChangedEventArgs,
-      this.onSelectedItemsCollectionChanged
-    );
-
     super.willDestroy();
+
+    if(this._selectedItems) {
+      this._selectedItems.removeEventListener(
+        this,
+        SelectedItemCollectionChangedEventArgs,
+        this.onSelectedItemsCollectionChanged
+      );
+    }
+    
+    removeObserver(
+      this, 
+      'multipleSelectionEnable', 
+      this.onMutlipleSelectionEnableChanged
+    );
   }
 
   protected unselectAllInternal() {
@@ -266,10 +268,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       oldItem: unknown,
       itemIndex: number,
       idx: number;
-
-    if (sender !== this.items) {
-      return;
-    }
 
     super.onItemCollectionChanged(sender, args);
 
@@ -443,17 +441,13 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   }
 
   private onSelectedItemsCollectionChanged(
-    sender: SelectedItemCollection,
+    _: SelectedItemCollection,
     args: SelectedItemCollectionChangedEventArgs<unknown>
   ): void {
     let
       oldItem: unknown,
       newItem: unknown,
       succeeded: boolean = false;
-
-    if (sender !== this.selectedItems) {
-      return;
-    }
 
     if (this.selectionChanger.isActive) {
       return;

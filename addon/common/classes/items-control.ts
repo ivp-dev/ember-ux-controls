@@ -118,19 +118,19 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   // IGeneratorHost implementation end
 
   public willDestroy() {
-    this.eventHandler.removeEventListener(
-      this, 
-      ItemCollectionChangedEventArgs,
-      this.onItemCollectionChanged
-    );
+    super.willDestroy();
+    if (this._items) {
+      this._items.removeEventListener(
+        this,
+        ItemCollectionChangedEventArgs,
+        this.onItemCollectionChanged
+      );
+    }
 
-    if(this._itemsContainerGenerator) {
+    if (this._itemsContainerGenerator) {
       this._itemsContainerGenerator.dispose();
       this._itemsContainerGenerator = void 0;
     }
-    
-
-    super.willDestroy();
   }
 
   public static Equals(
@@ -141,14 +141,10 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   protected onItemCollectionChanged(
-    sender: ItemCollection,
+    _: ItemCollection,
     args: ItemCollectionChangedEventArgs<unknown>
   ): void {
-    if (this.items !== sender) {
-      return;
-    }
-
-    if(typeof this.args.onItemsChanged === 'function') {
+    if (typeof this.args.onItemsChanged === 'function') {
       this.args.onItemsChanged(args.oldItems, args.newItems);
     }
   }
@@ -242,13 +238,13 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     let
       items: ItemCollection;
 
-    items = ItemCollection.Create( 
+    items = ItemCollection.Create(
       this
     );
 
-    this.eventHandler.addEventListener(
-      this, 
-      ItemCollectionChangedEventArgs, 
+    items.addEventListener(
+      this,
+      ItemCollectionChangedEventArgs,
       this.onItemCollectionChanged
     );
 

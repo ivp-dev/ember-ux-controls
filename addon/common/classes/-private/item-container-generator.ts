@@ -1,5 +1,4 @@
 import { assert } from '@ember/debug';
-import { getOwner } from '@ember/application';
 import {
   IEquatable, GeneratorDirection, IGeneratorHost,
   IDisposable, ItemCollectionActions,
@@ -8,6 +7,7 @@ import {
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
+import EventEmmiter from '../event-emmiter';
 
 export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
   constructor(
@@ -57,15 +57,24 @@ export class GeneratorPosition implements IEquatable {
 
 export default class ItemContainerGenerator implements IDisposable {
   constructor(
-    public host: IGeneratorHost
+    public host: IGeneratorHost,
   ) {
-    this.eventEmmiter.addEventListener(
+
+    this.itemsInternal.addEventListener(
       this,
       ItemCollectionChangedEventArgs,
       this.onItemCollectionChanged
-    )
+    );
 
     this.refresh();
+  }
+
+  private get eventEmmiter() {
+    if (!this._eventEmmiter) {
+      this._eventEmmiter = new EventEmmiter();
+    }
+
+    return this._eventEmmiter;
   }
 
   public get status() {
@@ -76,12 +85,20 @@ export default class ItemContainerGenerator implements IDisposable {
     return this.host.view;
   }
 
-  private get eventEmmiter() {
-    if (!this._eventEmmiter) {
-      this._eventEmmiter = getOwner(this.host).lookup('service:event-emmiter') as IEventEmmiter
-    }
+  public addEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.addEventListener(context, key, callback)
+  }
 
-    return this._eventEmmiter;
+  public removeEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.removeEventListener(context, key, callback)
   }
 
   public startAt(
@@ -301,7 +318,7 @@ export default class ItemContainerGenerator implements IDisposable {
       block: ItemBlock,
       container: object | null = null;
 
-    if (this._itemMap === null) {
+    if (!this._itemMap) {
       return null;
     }
 
@@ -360,7 +377,7 @@ export default class ItemContainerGenerator implements IDisposable {
     }
 
     if (this.host instanceof ItemsControl) {
-      this.eventEmmiter.removeEventListener(
+      this.itemsInternal.removeEventListener(
         this,
         ItemCollectionChangedEventArgs,
         this.onItemCollectionChanged
@@ -369,7 +386,7 @@ export default class ItemContainerGenerator implements IDisposable {
 
     if (this._generator) {
       this._generator.dispose();
-      this._generator = null;
+      this._generator = void 0;
     }
 
     this._isDisposed = true;
@@ -520,16 +537,16 @@ export default class ItemContainerGenerator implements IDisposable {
 
   private removeAllInternal() {
     let
-      itemMap: ItemBlock | null,
+      itemMap: ItemBlock | undefined,
       uib: UnrealizedItemBlock,
       block: ItemBlock,
       offset: number;
 
     itemMap = this._itemMap;
-    this._itemMap = null;
+    this._itemMap = void 0;
 
     try {
-      if (itemMap !== null) {
+      if (itemMap) {
         for (
           block = itemMap.next;
           block != itemMap;
@@ -583,7 +600,7 @@ export default class ItemContainerGenerator implements IDisposable {
       itemCount: number,
       index: number;
 
-    if (this._itemMap === null) {
+    if (!this._itemMap) {
       return;
     }
 
@@ -654,7 +671,7 @@ export default class ItemContainerGenerator implements IDisposable {
   }
 
   protected onItemCollectionChanged(
-    sender: ItemCollection, {
+    _: ItemCollection, {
       newItems,
       oldItems,
       offset
@@ -671,10 +688,6 @@ export default class ItemContainerGenerator implements IDisposable {
       removedItem: unknown,
       itemIndex: number,
       index: number;
-
-    if (sender !== this.itemsInternal) {
-      return;
-    }
 
     addedCount = newItems.length;
     removedCount = oldItems.length;
@@ -847,7 +860,7 @@ export default class ItemContainerGenerator implements IDisposable {
       uib: UnrealizedItemBlock,
       newBlock: RealizedItemBlock;
 
-    if (this._itemMap === null) {
+    if (!this._itemMap) {
       return;
     }
 
@@ -1034,7 +1047,7 @@ export default class ItemContainerGenerator implements IDisposable {
 
     if (itemIndex >= 0) {
       offsetFromBlockStart = correctIndex = itemIndex;
-      if (this._itemMap === null || itemIndex < 0) {
+      if (!this._itemMap || itemIndex < 0) {
         return [
           block,
           position,
@@ -1069,7 +1082,7 @@ export default class ItemContainerGenerator implements IDisposable {
         }
       }
     } else {
-      if (this._itemMap === null) {
+      if (!this._itemMap) {
         block = null;
         return [
           block,
@@ -1150,7 +1163,7 @@ export default class ItemContainerGenerator implements IDisposable {
       rib: RealizedItemBlock | null = null,
       startOffset: number;
 
-    if (this._itemMap === null) {
+    if (!this._itemMap) {
       return this._notFound;
     }
 
@@ -1234,7 +1247,7 @@ export default class ItemContainerGenerator implements IDisposable {
       start = this._itemMap,
       block: ItemBlock;
 
-    if (start === null) {
+    if (!start) {
       return count;
     }
 
@@ -1264,13 +1277,11 @@ export default class ItemContainerGenerator implements IDisposable {
         this._cachedState,
       );
 
-      if (this.factory.host instanceof ItemsControl) {
-        this.factory.eventEmmiter.addEventListener(
-          this,
-          MapChangedEventArgs,
-          this.onMapChanged
-        );
-      }
+      this.factory.addEventListener(
+        this,
+        MapChangedEventArgs,
+        this.onMapChanged
+      );
 
       this.factory.setStatus(GeneratorStatus.GeneratingContainers);
     }
@@ -1280,17 +1291,13 @@ export default class ItemContainerGenerator implements IDisposable {
         return;
       }
 
-      if (
-        this.factory.host instanceof ItemsControl
-      ) {
-        this.factory.eventEmmiter.removeEventListener(
-          this,
-          MapChangedEventArgs,
-          this.onMapChanged
-        );
-      }
+      this.factory.removeEventListener(
+        this,
+        MapChangedEventArgs,
+        this.onMapChanged
+      );
 
-      this.factory._generator = null;
+      this.factory._generator = void 0;
       this.factory.setStatus(GeneratorStatus.ContainersGenerated);
 
       //@ts-ignore
@@ -1370,7 +1377,7 @@ export default class ItemContainerGenerator implements IDisposable {
     }
 
     onMapChanged(
-      sender: ItemContainerGenerator,
+      _: ItemContainerGenerator,
       args: MapChangedEventArgs
     ) {
       const {
@@ -1383,9 +1390,6 @@ export default class ItemContainerGenerator implements IDisposable {
       } = args;
 
       if (!args) return;
-
-      if (this.factory !== sender) return;
-
 
       if (block !== null) {
         if (
@@ -1437,7 +1441,7 @@ export default class ItemContainerGenerator implements IDisposable {
 
   private setStatus(newStatus: GeneratorStatus) {
     let
-      oldStatus: GeneratorStatus | null;
+      oldStatus: GeneratorStatus | undefined;
 
     if (this._status !== newStatus) {
       oldStatus = this._status;
@@ -1453,9 +1457,9 @@ export default class ItemContainerGenerator implements IDisposable {
   }
 
   private _eventEmmiter?: IEventEmmiter
-  private _status: GeneratorStatus | null = null;
-  private _generator: Generator | null = null;
-  private _itemMap: ItemBlock | null = null;
+  private _status?: GeneratorStatus;
+  private _generator?: Generator;
+  private _itemMap?: ItemBlock;
   private _isDisposed: boolean = false
   private _startIndexForUIFromItem: number = 0;
   private _notFound: [
@@ -1471,7 +1475,10 @@ type Generator = {
     /*container       */ object | null,
     /*isNewlyRealized */ boolean
   ],
-  onMapChanged: (sender: ItemContainerGenerator, args: MapChangedEventArgs | null) => void
+  onMapChanged: (
+    sender: ItemContainerGenerator,
+    args: MapChangedEventArgs | null
+  ) => void
 } & IDisposable
 
 class GeneratorState {

@@ -257,9 +257,9 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     onDragMove = behavior.dragMove.bind(behavior);
     onDragStop = behavior.dragStop.bind(behavior);
 
-    this.eventHandler.addEventListener(this, DragStartSensorEventArgs, onDragStart);
-    this.eventHandler.addEventListener(this, DragMoveSensorEventArgs, onDragMove);
-    this.eventHandler.addEventListener(this, DragStopSensorEventArgs, onDragStop);
+    this.addEventListener(this, DragStartSensorEventArgs, onDragStart);
+    this.addEventListener(this, DragMoveSensorEventArgs, onDragMove);
+    this.addEventListener(this, DragStopSensorEventArgs, onDragStop);
 
     this._onDragStart = onDragStart;
     this._onDragMove = onDragMove;

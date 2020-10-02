@@ -1,14 +1,12 @@
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 import UXElement from 'ember-ux-controls/common/classes/ux-element';
 import Modifier from 'ember-modifier';
-import { next } from '@ember/runloop';
+import { scheduleOnce } from '@ember/runloop';
 
 export default class AddChild extends Modifier {
   public didInstall() {
-    let
-      child: unknown;
-
-    [child] = [...this.args.positional];
+    const
+      [child] = [...this.args.positional];
 
     if (
       child &&
@@ -16,16 +14,15 @@ export default class AddChild extends Modifier {
       child.logicalParent instanceof ItemsControl &&
       child.logicalParent.hasItemsSource === false
     ) {
-      
-      next(this, nextCallback, child, child.logicalParent);
+      const
+        logicalParent = child.logicalParent;
+
+      if (!logicalParent.items.cacher.isActive) {
+        logicalParent.items.cacher.delay();
+      }
+
+      child.logicalParent.addChild(child);
+      scheduleOnce('actions', this, () => { logicalParent.items.cacher.apply(); })
     }
   }
-
-}
-
-function nextCallback(
-  child: UXElement, 
-  parent: ItemsControl
-  ) {
-  parent.addChild(child);
 }

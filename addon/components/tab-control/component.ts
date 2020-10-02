@@ -1,7 +1,6 @@
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
-import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-controls/common/types';
+import { Direction, Side, Axes } from 'ember-ux-controls/common/types';
 import { scheduleOnce } from '@ember/runloop';
-import ItemContainerGenerator, { GeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import { TabControlItem } from './tab-item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
@@ -90,10 +89,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     args: ITabControlArgs
   ) {
     super(owner, args);
-
-    this.eventHandler.addEventListener(
-      this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
-    );
   }
 
   public get itemTemplateName() {
@@ -183,10 +178,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public willDestroy() {
-    this.eventHandler.removeEventListener(
-      this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
-    );
-
     super.willDestroy();
   }
 
@@ -241,7 +232,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     _: TabItemModel | Component,
     _item: unknown
   ): void {
-    
+
   }
 
   public linkContainerToItem(
@@ -270,25 +261,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return container;
   }
 
-  private onGeneratorStatusChanged(
-    sender: ItemContainerGenerator,
-    args: GeneratorStatusChangedEventArgs
-  ): void {
-    if (
-      this.itemContainerGenerator === sender && 
-      args.newStatus === GeneratorStatus.ContainersGenerated
-    ) {
-      if (
-        this.items.count > 0 &&
-        this.selectedItems.count === 0
-      ) {
-        scheduleOnce('afterRender', this, () => {
-          this.selectedIndex = 0
-        });
-      }
-    }
-  }
-
   @action
   public didInsert(
     html: HTMLElement
@@ -303,10 +275,16 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     if (!this.contentPresenter) {
       throw new Error('TabControl.Content was not found');
     }
+
+    scheduleOnce('afterRender', this, () => {
+      this.selectedIndex = 0
+    })
   }
 
   private _contentPresenter: Element | null = null;
 }
+
+
 
 function isHeaderContentElement(
   obj: unknown
