@@ -1,6 +1,7 @@
+// @ts-ignore
+import layout from './template';
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
 import { Direction, Side, Axes } from 'ember-ux-controls/common/types';
-import { scheduleOnce } from '@ember/runloop';
 import { TabControlItem } from './tab-item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
@@ -10,9 +11,6 @@ import { find } from 'ember-ux-controls/utils/dom'
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { ISelectable } from 'ember-ux-controls/common/types'
-
-// @ts-ignore
-import layout from './template';
 
 export class TabItemModel implements ISelectable {
   public get item() {
@@ -275,10 +273,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     if (!this.contentPresenter) {
       throw new Error('TabControl.Content was not found');
     }
-
-    scheduleOnce('afterRender', this, () => {
-      this.selectedIndex = 0
-    })
   }
 
   private _contentPresenter: Element | null = null;

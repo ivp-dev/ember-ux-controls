@@ -217,7 +217,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       this.args.onSizeChanged(sizes);
     }
 
-    this.eventHandler.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
+    this.eventEmmiter.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
   }
 
   @action
@@ -274,7 +274,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     };
 
     if (this._onDragStart) {
-      this.eventHandler.removeEventListener(
+      this.removeEventListener(
         this,
         DragStartSensorEventArgs,
         this._onDragStart
@@ -282,7 +282,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     }
 
     if (this._onDragMove) {
-      this.eventHandler.removeEventListener(
+      this.removeEventListener(
         this,
         DragMoveSensorEventArgs,
         this._onDragMove
@@ -290,7 +290,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     }
 
     if (this._onDragStop) {
-      this.eventHandler.removeEventListener(
+      this.removeEventListener(
         this,
         DragStopSensorEventArgs,
         this._onDragStop

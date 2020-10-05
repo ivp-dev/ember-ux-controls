@@ -1,14 +1,20 @@
 
-import { IDisposable } from "ember-ux-controls/common/types";
-import using from 'ember-ux-controls/utils/using';
 import EquatableArray from './equatable-array';
 
 export default class ObservableProxyArray<TContent> extends EquatableArray<TContent> {
-  init() {
+  public init() {
     super.init();
   }
 
-  arrayContentWillChange(
+  private get changer(): IChanger<TContent> {
+    if (!this._changer) {
+      this._changer = this._changer = new ObservableProxyArray.Changer<TContent>();
+    }
+
+    return this._changer;
+  }
+
+  public arrayContentWillChange(
     startIdx: number,
     removeAmt: number,
     addAmt: number
@@ -22,14 +28,11 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       addAmt
     );
 
-    if (typeof this._changer === 'undefined') {
-      this._changer = new ObservableProxyArray.Changer<TContent>(this);
-    }
 
-    if (this._changer.isActive === false) {
-      this._changer.begin();
+    if (this.changer.isActive === false) {
+      this.changer.begin();
       if (removeAmt > 0) {
-        this._changer.sourceToRemove = this._changer.sourceToRemove.concat(
+        this.changer.sourceToRemove = this.changer.sourceToRemove.concat(
           array.slice(startIdx, startIdx + removeAmt)
         );
       }
@@ -38,7 +41,7 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
     return array;
   }
 
-  arrayContentDidChange(
+  public arrayContentDidChange(
     startIdx: number,
     removeAmt: number,
     addAmt: number
@@ -52,19 +55,36 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       addAmt
     );
 
-    if (this._changer && this._changer.isActive) {
-      using(this._changer, (changer) => {
-        if (addAmt > 0) {
-          changer.sourceToAdd = changer.sourceToAdd.concat(
-            array.slice(startIdx, startIdx + addAmt)
-          );
-        }
-
-        this.changerDone(...changer.prepareChanges(startIdx));
-      });
+    if (!this.changer.isActive) {
+      throw 'Change process was not start';
     }
 
+    if (addAmt > 0) {
+      this.changer.sourceToAdd = this.changer.sourceToAdd.concat(
+        array.slice(startIdx, startIdx + addAmt)
+      );
+    }
+
+    this.changerDone(...this.changer.prepareChanges(startIdx));
+
+    this.changer.end();
+
     return array;
+  }
+
+  public willDestroy() {
+    super.willDestroy();
+
+    if (
+      this._changer
+    ) {
+      if (this._changer.isActive) {
+        this._changer.end();
+      }
+
+      this._changer = void 0;
+    }
+
   }
 
   protected changerDone(
@@ -75,18 +95,16 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
 
   private _changer?: IChanger<TContent>;
 
-  private static Changer = class Changer<T> implements IChanger<T>, IDisposable {
-    constructor(
-      private owner?: ObservableProxyArray<any>
-    ) {
+  private static Changer = class Changer<T> implements IChanger<T> {
+    constructor() {
       this.isActive = false;
       this.sourceToAdd = [];
       this.sourceToRemove = [];
     }
 
-    isActive: boolean;
-    sourceToRemove: Array<T>;
-    sourceToAdd: Array<T>;
+    isActive: boolean
+    sourceToRemove: Array<T>
+    sourceToAdd: Array<T>
 
     begin() {
       this.isActive = true;
@@ -111,21 +129,6 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       this.sourceToRemove.length = 0;
       this.sourceToAdd.length = 0
     }
-
-    dispose() {
-      if (this._disposed === false) {
-        this.end();
-
-        if (this.owner) {
-          this.owner._changer = void 0;
-          this.owner = void 0
-        }
-
-        this._disposed = true;
-      }
-    }
-
-    private _disposed: boolean = false
   }
 }
 
@@ -134,7 +137,6 @@ interface IChanger<T> {
   sourceToRemove: Array<unknown>,
   sourceToAdd: Array<unknown>,
   cleanup: () => void,
-  dispose: () => void,
   begin: () => void,
   prepareChanges: (offset: number) => [Array<T>, Array<T>, number]
   end: () => void

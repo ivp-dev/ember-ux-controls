@@ -103,6 +103,7 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
 
   public createContainerForItem()
     : DataTableItemModel {
+      
     return new DataTableItemModel();
   }
 

@@ -12,6 +12,7 @@ import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
+  selectFirstAfterLoad?: boolean
   multipleSelectionEnable?: boolean
   onSelectionChanged?: (selectedItems: Array<unknown>, unselectedItems: Array<unknown>) => boolean
 }
@@ -24,26 +25,23 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   ) {
     super(owner, args);
 
-    addObserver(this, 'multipleSelectionEnable', this.onMutlipleSelectionEnableChanged);
+    addObserver(
+      this,
+      'multipleSelectionEnable',
+      this.onMutlipleSelectionEnableChanged
+    );
   }
 
   @computed('args.{multipleSelectionEnable}')
   public get multipleSelectionEnable()
     : boolean {
-    return (
-      this.args.multipleSelectionEnable ??
-      this._multipleSelectionEnable ??
-      false
-    );
+    return this.args.multipleSelectionEnable ?? false;
   }
 
-  public set multipleSelectionEnable(
-    value: boolean
-  ) {
-    if (this._multipleSelectionEnable !== value) {
-      this._multipleSelectionEnable = value;
-      notifyPropertyChange(this, 'multipleSelectionEnable');
-    }
+  @computed('args.{selectFirstAfterLoad}')
+  public get selectFirstAfterLoad()
+    : boolean {
+    return this.args.selectFirstAfterLoad ?? true;
   }
 
   public get selectedItems()
@@ -154,17 +152,17 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   public willDestroy() {
     super.willDestroy();
 
-    if(this._selectedItems) {
+    if (this._selectedItems) {
       this._selectedItems.removeEventListener(
         this,
         SelectedItemCollectionChangedEventArgs,
         this.onSelectedItemsCollectionChanged
       );
     }
-    
+
     removeObserver(
-      this, 
-      'multipleSelectionEnable', 
+      this,
+      'multipleSelectionEnable',
       this.onMutlipleSelectionEnableChanged
     );
   }
@@ -194,7 +192,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       this.selectionChanger.end();
     }
   }
-
 
   protected selectAllInternal() {
     let
@@ -239,21 +236,33 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     }
   }
 
-  protected itemSetIsSelected(
-    info: ItemInfo,
+  protected containerSetIsSelected(
+    container: unknown,
     value: boolean
-  ): void {
+  ) {
     if (
-      info.container && typeof (<ISelectable>info.container).isSelected !== 'undefined' &&
-      (<ISelectable>info.container).isSelected !== value
+      typeof (<ISelectable>container).isSelected !== 'undefined' &&
+      (<ISelectable>container).isSelected !== value
     ) {
-      (<ISelectable>info.container).isSelected = value;
+      (<ISelectable>container).isSelected = value;
+    }
+  }
+
+  protected itemSetIsSelected(
+    item: unknown,
+    value: boolean
+  ) {
+    if (
+      typeof (<ISelectable>item).isSelected !== 'undefined' &&
+      (<ISelectable>item).isSelected !== value
+    ) {
+      (<ISelectable>item).isSelected = value;
     }
   }
 
   protected onItemCollectionChanged(
     sender: ItemCollection,
-    args: ItemCollectionChangedEventArgs<unknown>
+    args: ItemCollectionChangedEventArgs
   ): void {
     let
       newItems: Array<unknown>,
@@ -291,7 +300,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
         itemIndex = offset + idx;
         newItem = newItems[idx];
         oldItem = oldItems[idx];
-        this.itemSetIsSelected(this.createInfo(null, newItem, itemIndex), false);
+        this.infoCheckIsSelected(this.createInfo(null, newItem, itemIndex), false);
         this.onItemRemoved(oldItem, itemIndex);
       }
       // in case of items.replace(offset, 1, [x1, x2])
@@ -347,6 +356,19 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   protected onMutlipleSelectionEnableChanged() {
     this.validate();
+  }
+
+  private infoCheckIsSelected(
+    info: ItemInfo,
+    value: boolean
+  ): void {
+    if (info.container) {
+      this.containerSetIsSelected(info.container, value);
+    }
+
+    if (info.item) {
+      this.itemSetIsSelected(info.item, value)
+    }
   }
 
   private onItemAdded(
@@ -442,7 +464,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   private onSelectedItemsCollectionChanged(
     _: SelectedItemCollection,
-    args: SelectedItemCollectionChangedEventArgs<unknown>
+    args: SelectedItemCollectionChangedEventArgs
   ): void {
     let
       oldItem: unknown,
@@ -749,7 +771,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       // #5 clear waiting list of selection if multiple selection not allowed 
       if (this.owner.multipleSelectionEnable === false && this.toSelect.count) {
         this.toSelect.forEach(shouldBeUnselected =>
-          this.owner.itemSetIsSelected(shouldBeUnselected, false)
+          this.owner.infoCheckIsSelected(shouldBeUnselected, false)
         );
         this.toSelect.clear();
       }
@@ -852,7 +874,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
         ) {
           info = this.toUnselect.objectAt(idx) as ItemInfo;
           if (info.isResolved) {
-            this.owner.itemSetIsSelected(info, false);
+            this.owner.infoCheckIsSelected(info, false);
             this.owner.selectedInfos.removeObject(info);
             toUnselect.push(info);
           } else {
@@ -870,7 +892,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
             );
 
             if (match) {
-              this.owner.itemSetIsSelected(match, false);
+              this.owner.infoCheckIsSelected(match, false);
               this.owner.selectedInfos.removeObject(match);
               toUnselect.push(match);
             }
@@ -885,7 +907,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       ) {
         info = this.toSelect.objectAt(idx) as ItemInfo;
         if (info.isResolved) {
-          this.owner.itemSetIsSelected(info, true);
+          this.owner.infoCheckIsSelected(info, true);
           if (!this.owner.selectedInfos.includes(info)) {
             this.owner.selectedInfos.pushObject(info);
             toSelect.push(info);
@@ -917,7 +939,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
           this.toSelect.includes(key) &&
           !this.owner.selectedInfos.includes(info)
         ) {
-          this.owner.itemSetIsSelected(info, true);
+          this.owner.infoCheckIsSelected(info, true);
           this.owner.selectedInfos.pushObject(info);
           toSelect.push(info);
           this.toSelect.removeObject(key);
@@ -953,7 +975,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     }
   }
 
-  private _multipleSelectionEnable?: boolean
   private _selectedInfos?: SelectedItemStorage
   private _selectedItems?: SelectedItemCollection
   private _selector?: SelectorChanger

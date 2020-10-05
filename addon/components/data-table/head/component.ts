@@ -113,7 +113,7 @@ export class DataTableHead<T extends IDataTableHeadArgs = {}> extends SplitView<
 
   protected onItemCollectionChanged(
     sender: ItemCollection,
-    args: ItemCollectionChangedEventArgs<unknown>
+    args: ItemCollectionChangedEventArgs
   ) {
     super.onItemCollectionChanged(sender, args);
 

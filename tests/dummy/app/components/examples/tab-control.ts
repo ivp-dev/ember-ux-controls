@@ -23,7 +23,7 @@ export default class TabControlExample extends Component<TabControlExampleArgs> 
   selectFirst: boolean = true;
 
   @tracked
-  itemsSourceEnable: boolean = false
+  itemsSourceEnable: boolean = true
 
   @action
   onSideChanged(event: Event) {

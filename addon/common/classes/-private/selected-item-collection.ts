@@ -3,7 +3,7 @@ import EventEmmiter from "../event-emmiter";
 import { ItemCollectionChangedEventArgs } from "./item-collection";
 import { A } from '@ember/array';
 import SyncProxyArray from "./sync-proxy-array";
-export class SelectedItemCollectionChangedEventArgs<T> extends ItemCollectionChangedEventArgs<T> { }
+export class SelectedItemCollectionChangedEventArgs extends ItemCollectionChangedEventArgs { }
 
 export default class SelectedItemCollection extends SyncProxyArray<unknown, unknown> {
   public static Create(): SelectedItemCollection {

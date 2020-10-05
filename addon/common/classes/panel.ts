@@ -25,13 +25,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
     if (this.isItemsHost) {
       (<ItemsControl>parentElement).itemsHost = this;
-    } else {
-      // we should to create the generator here because we 
-      // will not access to the children property in a template
-      // where the generator initializes in case of 
-      // is-items-host:true
-      this.ensureGenerator();
-    }
+    } 
   }
 
   public get isItemsHost()
@@ -85,13 +79,12 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   public willDestroy()
     : void {
 
-    this.removeEventListener(
-      this, 
-      ItemContainerGeneratorChangedEventArgs,
-      this.onItemsChanged
-    );
-
     if (this._itemContainerGenerator) {
+      this._itemContainerGenerator.removeEventListener(this,
+        ItemContainerGeneratorChangedEventArgs,
+        this.onItemContainerGeneratorStatusChanged
+      );
+
       this._itemContainerGenerator.dispose();
       this._itemContainerGenerator = void 0;
     }
@@ -143,16 +136,15 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   private connectToGenerator()
     : void {
-    this.addEventListener(
-      this,
-      ItemContainerGeneratorChangedEventArgs,
-      this.onItemsChanged
-    );
 
     if (this.visualParent instanceof ItemsControl) {
       this._itemContainerGenerator = this.visualParent.itemContainerGenerator;
       if (this._itemContainerGenerator) {
         this._itemContainerGenerator.removeAll();
+        this._itemContainerGenerator.addEventListener(this,
+          ItemContainerGeneratorChangedEventArgs,
+          this.onItemContainerGeneratorStatusChanged
+        );
       }
     }
   }
@@ -162,28 +154,31 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
     const
       containerGenerator = this._itemContainerGenerator;
 
-    if (containerGenerator) {
-      using(containerGenerator.startAt(
-        new GeneratorPosition(-1, 0),
-        GeneratorDirection.Forward
-      ), (generator) => {
-        let
-          child: object | null;
-
-        for (
-          [child] = generator.generateNext(true);
-          child !== null;
-          [child] = generator.generateNext(true)
-        ) {
-          this.addIfItemsHost(child);
-          //this.children.pushObject(child); // childrent should exist 
-          containerGenerator.prepareItemContainer(child);
-        }
-      });
+    if (!containerGenerator) {
+      return;
     }
+
+    using(containerGenerator.startAt(
+      new GeneratorPosition(-1, 0),
+      GeneratorDirection.Forward
+    ), (generator) => {
+      let
+        child: object | null;
+
+      for (
+        [child] = generator.generateNext(true);
+        child !== null;
+        [child] = generator.generateNext(true)
+      ) {
+        this.addIfItemsHost(child);
+        //this.children.pushObject(child); // childrent should exist 
+        containerGenerator.prepareItemContainer(child);
+      }
+    });
+
   }
 
-  private onItemsChanged(
+  private onItemContainerGeneratorStatusChanged(
     _: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {
@@ -191,7 +186,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
       'Panel._itemContainerGenerator can`t be null in this context',
       this._itemContainerGenerator !== null
     );
-    
+
     this.onItemsChangedInternal(args);
   }
 
@@ -224,31 +219,33 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
       itemCount === containerCount
     );
 
-    if (containerGenerator) {
-      using(containerGenerator.startAt(
-        position,
-        GeneratorDirection.Forward,
-        true
-      ), (generator) => {
-        let
-          child: object | null,
-          isNewlyRealized: boolean,
-          i: number;
-
-        for (i = 0; i < itemCount; ++i) {
-          [child, isNewlyRealized] = generator.generateNext(false)
-
-          assert('panel expect replace to affect only realzied items', !isNewlyRealized)
-
-          if (child !== null && !isNewlyRealized) {
-            this.addIfItemsHost(child, position.index + i);
-            containerGenerator.prepareItemContainer(child);
-          } else {
-            //TODO: something wrong
-          }
-        }
-      });
+    if (!containerGenerator) {
+      return;
     }
+
+    using(containerGenerator.startAt(
+      position,
+      GeneratorDirection.Forward,
+      true
+    ), (generator) => {
+      let
+        child: object | null,
+        isNewlyRealized: boolean,
+        i: number;
+
+      for (i = 0; i < itemCount; ++i) {
+        [child, isNewlyRealized] = generator.generateNext(false)
+
+        assert('panel expect replace to affect only realzied items', !isNewlyRealized)
+
+        if (child !== null && !isNewlyRealized) {
+          this.addIfItemsHost(child, position.index + i);
+          containerGenerator.prepareItemContainer(child);
+        } else {
+          //TODO: something wrong
+        }
+      }
+    });
   }
 
   // try to add

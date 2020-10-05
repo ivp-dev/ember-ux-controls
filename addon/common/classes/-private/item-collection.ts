@@ -9,43 +9,57 @@ import { EventArgs, IEventArgs, IEventEmmiter } from "ember-ux-controls/common/t
 import EventEmmiter from "ember-ux-controls/common/classes/event-emmiter";
 import Enumerable from "@ember/array/-private/enumerable";
 
-export class ItemCollectionChangedEventArgs<T> extends BaseEventArgs {
+export class ItemCollectionPushCompleteArgs extends BaseEventArgs {
+
+}
+
+export class ItemCollectionChangedEventArgs extends BaseEventArgs {
   constructor(
     public offset: number,
-    public newItems: Array<T>,
-    public oldItems: Array<T>
+    public newItems: Array<unknown>,
+    public oldItems: Array<unknown>
+  ) { super() }
+}
+
+export class ItemCollectionSourceChangedEventArgs extends BaseEventArgs {
+  constructor(
+    public newSource: Array<unknown> | undefined,
+    public oldSource: Array<unknown> | undefined
   ) { super() }
 }
 
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public host: ItemsControl | null = null;
 
-  public get cacher() {
-    if (!this._cacher) {
-      this._cacher = new ItemCollection.Cacher(this);
-    }
-
-    return this._cacher;
-  }
-
-  protected get eventEmmiter() {
+  private get eventEmmiter() {
     if (!this._eventEmmiter) {
       this._eventEmmiter = new EventEmmiter();
     }
     return this._eventEmmiter;
   }
 
-  public static Create(
-    host: ItemsControl
-  ) {
-    let
-      itemsCollection: ItemCollection
+  public get isPushingActive() {
+    return this.pusher.isActive;
+  }
 
-    itemsCollection = ItemCollection.create({
-      host
-    });
+  private get pusher() {
+    if (!this._pusher) {
+      this._pusher = new ItemCollection.Pusher(this);
+    }
 
-    return itemsCollection;
+    return this._pusher;
+  }
+
+  public deferPush() {
+    if (!this.pusher.isActive) {
+      this.pusher.deferPush();
+    }
+  }
+
+  public applyPush() {
+    if (this.pusher.isActive) {
+      this.pusher.applyPush();
+    }
   }
 
   public addEventListener(
@@ -64,6 +78,38 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     this.eventEmmiter.removeEventListener(context, key, callback)
   }
 
+  public init() {
+    if (!this.host) {
+      throw new Error("Host was not set");
+    }
+
+    if (this.host.itemsSource) {
+      set(this, 'source', this.host.itemsSource)
+    }
+
+    super.init();
+
+    addObserver(
+      this.host,
+      'hasItemsSource',
+      this,
+      this.onSourceChanged
+    );
+  }
+
+  public static Create(
+    host: ItemsControl
+  ) {
+    let
+      itemsCollection: ItemCollection
+
+    itemsCollection = ItemCollection.create({
+      host
+    });
+
+    return itemsCollection;
+  }
+
   protected changerDone(
     sourceToAdd: unknown[],
     sourceToRemove: unknown[],
@@ -76,20 +122,6 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
       sourceToAdd,
       sourceToRemove
     );
-  }
-
-  public init() {
-    if (!this.host) {
-      throw new Error("Host was not set");
-    }
-
-    if (this.host.itemsSource) {
-      set(this, 'source', this.host.itemsSource)
-    }
-
-    super.init();
-
-    addObserver(this.host, 'hasItemsSource', this, this.onSourceChanged);
   }
 
   protected serializeToSource(content: unknown) {
@@ -142,32 +174,41 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
       )));
     }
 
+    this.eventEmmiter.emitEvent(
+      this,
+      ItemCollectionSourceChangedEventArgs,
+      newSource,
+      oldSource
+    );
+
     //this.content.replace(0, this.count, A(newSource?.map(item =>
     //  this.serializeToContent(item)
     //)));
   }
 
   public willDestroy() {
-    removeObserver(this, 'host.hasItemsSource', this.onSourceChanged);
-
-    if (this.changer.isActive) {
-      this.changer.dispose();
-    }
+    removeObserver(
+      this,
+      'host.hasItemsSource',
+      this.onSourceChanged
+    );
 
     super.willDestroy();
   }
 
   public pushObject(obj: unknown) {
-    if (this.cacher.isActive) {
-      this.cacher.pushObject(obj);
+    if (this.pusher.isActive) {
+      this.pusher.pushObject(obj);
     } else {
       super.pushObject(obj);
     }
   }
 
-  public pushObjects(objects: Enumerable<unknown>) {
-    if (this.cacher.isActive) {
-      this.cacher.pushObjects(objects);
+  public pushObjects(
+    objects: Enumerable<unknown>
+  ) {
+    if (this.pusher.isActive) {
+      this.pusher.pushObjects(objects);
     } else {
       super.pushObjects(objects);
     }
@@ -175,7 +216,7 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     return this;
   }
 
-  private static Cacher = class <T extends {}> implements ICacher<T> {
+  private static Pusher = class <T extends {}> implements IPusher<T> {
     constructor(
       private owner: ItemCollection
     ) {
@@ -185,17 +226,26 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
 
     public isActive: boolean;
 
-    public delay() {
-      if (this.isActive) return;
+    public deferPush() {
+      if (this.isActive) {
+        return;
+      }
+
       this.isActive = true;
       this.cache.clear();
     }
 
-    public apply() {
-      if (!this.isActive) return;
+    public applyPush() {
+      if (!this.isActive) {
+        return;
+      }
 
+      // first we should set isActive:false 
+      // to allow pushing into source array
       this.isActive = false;
+
       this.owner.pushObjects(this.cache);
+
       this.clear();
     }
 
@@ -218,14 +268,14 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     private cache: NativeArray<unknown>
   }
 
-  private _cacher?: ICacher<unknown>
+  private _pusher?: IPusher<unknown>
   private _eventEmmiter?: IEventEmmiter
 }
 
-interface ICacher<T> {
+interface IPusher<T> {
   isActive: boolean
-  delay: () => void
-  apply: () => void
+  deferPush: () => void
+  applyPush: () => void
   pushObject: (obj: T) => void
   pushObjects: (objs: Enumerable<T>) => void
 }

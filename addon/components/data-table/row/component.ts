@@ -55,7 +55,7 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
     return '';
   }
 
-  //@computed('args.{columns.[]}', 'args.{columnSizes.[]}')
+  @computed('args.{columns.[]}', 'args.{columnSizes.[]}')
   public get cells() {
     let
       item: object | null,

@@ -10,13 +10,13 @@ import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import { IGeneratorHost } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
-
+import { next } from '@ember/runloop';
 import Panel from './panel';
 
 export interface IItemsControlArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>
   itemTemplateName?: string,
-  onItemsChanged?: (oldItems: Array<unknown>, newItems: Array<unknown>) => void
+  onItemsChanged?: (source: ItemCollection, oldItems: Array<unknown>, newItems: Array<unknown>) => void
 }
 
 /**
@@ -58,7 +58,17 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   public get items() {
     if (!this._items) {
-      this._items = this.createItemCollection();
+      this._items = ItemCollection.Create(this);
+
+      if (!this._itemsContainerGenerator) {
+        this._itemsContainerGenerator = new ItemContainerGenerator(this);
+      }
+
+      this._items.addEventListener(
+        this,
+        ItemCollectionChangedEventArgs,
+        this.onItemCollectionChanged
+      );
     }
 
     return this._items;
@@ -70,7 +80,18 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   public get itemContainerGenerator() {
     if (!this._itemsContainerGenerator) {
-      this._itemsContainerGenerator = this.createItemContainerGenerator();
+      
+      if (!this._items) {
+        this._items = ItemCollection.Create(this);
+      }
+
+      this._itemsContainerGenerator = new ItemContainerGenerator(this);
+
+      this._items.addEventListener(
+        this,
+        ItemCollectionChangedEventArgs,
+        this.onItemCollectionChanged
+      );
     }
 
     return this._itemsContainerGenerator!;
@@ -88,7 +109,13 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   public addChild(child: object) {
-    //TODO: maybe add childs in cashe array and in next loop copy entry to items?
+    if (!this.items.isPushingActive) {
+      this.items.deferPush();
+      next(this, () => {
+        this.items.applyPush();
+      });
+    }
+
     this.items.pushObject(child);
   }
 
@@ -141,11 +168,11 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   protected onItemCollectionChanged(
-    _: ItemCollection,
-    args: ItemCollectionChangedEventArgs<unknown>
+    sender: ItemCollection,
+    args: ItemCollectionChangedEventArgs
   ): void {
     if (typeof this.args.onItemsChanged === 'function') {
-      this.args.onItemsChanged(args.oldItems, args.newItems);
+      this.args.onItemsChanged(sender, args.oldItems, args.newItems);
     }
   }
 
@@ -231,28 +258,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
         }
       }
     }
-  }
-
-  private createItemCollection()
-    : ItemCollection {
-    let
-      items: ItemCollection;
-
-    items = ItemCollection.Create(
-      this
-    );
-
-    items.addEventListener(
-      this,
-      ItemCollectionChangedEventArgs,
-      this.onItemCollectionChanged
-    );
-
-    return items;
-  }
-
-  private createItemContainerGenerator() {
-    return new ItemContainerGenerator(this);
   }
 
   private _itemsHost?: Panel

@@ -6,7 +6,7 @@ import {
 } from 'ember-ux-controls/common/types';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
-import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
+import ItemCollection, { ItemCollectionChangedEventArgs, ItemCollectionSourceChangedEventArgs } from './item-collection';
 import EventEmmiter from '../event-emmiter';
 
 export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
@@ -20,7 +20,7 @@ export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
   }
 }
 
-export class GeneratorStatusChangedEventArgs extends BaseEventArgs {
+export class ItemContainerGeneratorStatusChangedEventArgs extends BaseEventArgs {
   constructor(
     public oldStatus: GeneratorStatus | null,
     public newStatus: GeneratorStatus | null
@@ -675,7 +675,7 @@ export default class ItemContainerGenerator implements IDisposable {
       newItems,
       oldItems,
       offset
-    }: ItemCollectionChangedEventArgs<unknown>
+    }: ItemCollectionChangedEventArgs
   ): void {
     let
       addedCount: number,
@@ -1449,7 +1449,7 @@ export default class ItemContainerGenerator implements IDisposable {
 
       this.eventEmmiter.emitEvent(
         this,
-        GeneratorStatusChangedEventArgs,
+        ItemContainerGeneratorStatusChangedEventArgs,
         oldStatus,
         newStatus
       );
