@@ -11,6 +11,7 @@ import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from './-private/item-container-generator';
+import { once } from '@ember/runloop';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   selectFirstAfterLoad?: boolean
@@ -42,17 +43,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     );
   }
 
-  protected onGeneratorStatusChanged(
-    _: ItemContainerGenerator,
-    args: ItemContainerGeneratorStatusChangedEventArgs
-  ) {
-    if (args.newStatus === GeneratorStatus.ContainersGenerated) {
-      if(this.selectFirstAfterLoad && this.selectedIndex === -1) {
-        this.selectedIndex = 0;
-      }
-    }
-  }
-
   @computed('args.{multipleSelectionEnable}')
   public get multipleSelectionEnable()
     : boolean {
@@ -62,7 +52,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   @computed('args.{selectFirstAfterLoad}')
   public get selectFirstAfterLoad()
     : boolean {
-    return this.args.selectFirstAfterLoad ?? true;
+    return this.args.selectFirstAfterLoad ?? false;
   }
 
   public get selectedItems()
@@ -84,7 +74,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   public get selectedIndex()
     : number {
-    return this.selectedInfos.objectAt(0)?.index ?? -1;
+    return this._selectedIndex ?? -1;
   }
 
   public set selectedIndex(value: number) {
@@ -107,7 +97,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   public get selectedItem()
     : unknown {
-    return this.selectedInfos.objectAt(0)?.item ?? null;
+    return this._selectedItem;
   }
 
   public set selectedItem(value: unknown) {
@@ -192,6 +182,24 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       ItemContainerGeneratorStatusChangedEventArgs,
       this.onGeneratorStatusChanged
     );
+  }
+
+  protected onGeneratorStatusChanged(
+    _: ItemContainerGenerator,
+    args: ItemContainerGeneratorStatusChangedEventArgs
+  ) {
+    if (args.newStatus === GeneratorStatus.ContainersGenerated) {
+      if (
+        this.selectFirstAfterLoad &&
+        this.selectedIndex === -1 &&
+        this.items.count
+      ) {
+        //this._selectedIndex = 0;
+        once(this, () => {
+          this.selectedIndex = 0;
+        })
+      }
+    }
   }
 
   protected unselectAllInternal() {
@@ -606,6 +614,14 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   }
 
   private notifyPublicPropertyChanged() {
+    let
+      selectedInfo: ItemInfo | undefined;
+
+    selectedInfo = this.selectedInfos.objectAt(0);
+
+    this._selectedIndex = selectedInfo?.index ?? -1;
+    this._selectedItem = selectedInfo?.item
+
     notifyPropertyChange(this, 'selectedItem');
     notifyPropertyChange(this, 'selectedIndex');
     notifyPropertyChange(this, 'hasSelectedItems')
@@ -866,8 +882,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
     begin() {
       this.isActive = true;
-      this.toSelect.clear();
-      this.toUnselect.clear();
     }
 
     cleanup() {
@@ -981,6 +995,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   private static SelectedItemStorage = class extends EquatableArray<ItemInfo> {
     matchUnresolved: boolean = false
+
     protected compare(
       left: any,
       right: any
@@ -1000,6 +1015,8 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     }
   }
 
+  private _selectedIndex?: number
+  private _selectedItem?: unknown
   private _selectedInfos?: SelectedItemStorage
   private _selectedItems?: SelectedItemCollection
   private _selector?: SelectorChanger

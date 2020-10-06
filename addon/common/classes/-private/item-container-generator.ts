@@ -656,7 +656,7 @@ export default class ItemContainerGenerator implements IDisposable {
       }
 
       state.block.moveBackward(state, true);
-      
+
       ++offset;
 
       while (offset < 0) {
@@ -1360,7 +1360,7 @@ export default class ItemContainerGenerator implements IDisposable {
           isNewlyRealized = false;
           container = (
             this._cachedState.block as RealizedItemBlock
-          ).containerAt(this._cachedState.offset)
+          ).containerAt(this._cachedState.offset);
         }
 
         this._cachedState.index = itemIndex;

@@ -1,4 +1,3 @@
-import { isArray } from '@ember/array';
 import NativeArray from "@ember/array/-private/native-array";
 import { IArrayObserver } from '../../types';
 import ObservableProxyArray from './observable-proxy-array';
@@ -13,10 +12,7 @@ export default abstract class SyncProxyArray<TContent, TSource> extends Observab
 
     source = this.source;
 
-    if (
-      isArray(source)
-    ) {
-
+    if (Array.isArray(source)) {
       this.content = A(source.map(item =>
         this.serializeToContent(item)
       ));

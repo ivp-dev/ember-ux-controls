@@ -10,7 +10,7 @@ import { isArray } from '@ember/array';
 export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
   init() {
     if (!this.content) {
-      this.content = A();
+      this.content = A([]);
     }
 
     super.init();
@@ -21,7 +21,7 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
     return this.get('length');
   }
 
-  pushObjects(objects: Enumerable<TContent>) {
+  public pushObjects(objects: Enumerable<TContent>) {
     if (Array.isArray(objects)) {
       return super.pushObjects(objects)
     } else if (isArray(objects)) {
@@ -34,7 +34,12 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
     searchElement: TContent,
     startAt?: number
   ): number {
-    return indexOf(this, this.compare, searchElement, startAt);
+    return indexOf(
+      this,
+      this.compare,
+      searchElement,
+      startAt
+    );
   }
 
   public lastIndexOf(
@@ -118,7 +123,9 @@ function indexOf<T>(
   withNaNCheck: boolean = false
 ): number {
   let
-    len = get(array, 'length');
+    len: number
+
+  len = get(array, 'length');
 
   if (startAt < 0) {
     startAt = startAt + len;

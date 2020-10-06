@@ -10,7 +10,7 @@ export default class SelectedItemCollection extends SyncProxyArray<unknown, unkn
       itemsCollection: SelectedItemCollection
 
     itemsCollection = SelectedItemCollection.create({
-      source: A()
+      source: A([])
     });
 
     return itemsCollection;

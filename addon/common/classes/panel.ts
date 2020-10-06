@@ -10,7 +10,7 @@ import NativeArray from "@ember/array/-private/native-array";
 import { ItemCollectionActions } from 'ember-ux-controls/common/types';
 import using from 'ember-ux-controls/utils/using';
 import { assert } from '@ember/debug';
-
+import MutableArray from '@ember/array/mutable';
 export interface IPanelArgs extends IUXElementArgs { }
 
 export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
@@ -42,7 +42,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   }
 
   public get children()
-    : NativeArray<object> {
+    : MutableArray<object> {
     return this.internalChildren;
   }
 
@@ -56,7 +56,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   }
 
   protected get internalChildren()
-    : NativeArray<object> {
+    : MutableArray<object> {
     if (this.isItemsHost) {
       this.ensureGenerator();
     }
@@ -208,7 +208,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
     if (index === -1) {
       this.children.pushObject(child);
     } else {
-      this.children[index] = child;
+      this.children.insertAt(index, child);
     }
   }
 
@@ -294,10 +294,10 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   private createChildren(
     source: Array<any> = []
-  ): NativeArray<any> {
+  ): MutableArray<any> {
     return A(source);
   }
 
-  private _children?: NativeArray<object>
+  private _children?: MutableArray<object>
   private _itemContainerGenerator?: ItemContainerGenerator
 }

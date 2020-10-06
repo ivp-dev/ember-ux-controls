@@ -93,6 +93,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return super.itemTemplateName ?? 'tab-control/tab-item';
   }
 
+  public get selectFirstAfterLoad() {
+    return this.args.selectFirstAfterLoad ?? true;
+  }
+
   @computed('side', 'direction', 'scrollable')
   public get classNamesBuilder()
     : ClassNamesBuilder {
