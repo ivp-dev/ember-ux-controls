@@ -6,7 +6,7 @@ import {
 } from 'ember-ux-controls/common/types';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import ItemsControl from 'ember-ux-controls/common/classes/items-control';
-import ItemCollection, { ItemCollectionChangedEventArgs, ItemCollectionSourceChangedEventArgs } from './item-collection';
+import ItemCollection, { ItemCollectionChangedEventArgs } from './item-collection';
 import EventEmmiter from '../event-emmiter';
 
 export class ItemContainerGeneratorChangedEventArgs extends BaseEventArgs {
@@ -66,7 +66,7 @@ export default class ItemContainerGenerator implements IDisposable {
       this.onItemCollectionChanged
     );
 
-    this.refresh();
+    this.onRefresh();
   }
 
   private get eventEmmiter() {
@@ -418,10 +418,6 @@ export default class ItemContainerGenerator implements IDisposable {
     host.linkContainerToItem(container, item);
   }
 
-  protected refresh() {
-    this.removeAll();
-  }
-
   private realize(
     block: UnrealizedItemBlock,
     offset: number,
@@ -583,6 +579,8 @@ export default class ItemContainerGenerator implements IDisposable {
         /*newOffset: */ 0,
         /*deltaCount:*/ 0
       );
+
+
     }
   }
 
@@ -657,7 +655,8 @@ export default class ItemContainerGenerator implements IDisposable {
         state.index = state.count = this.itemsInternal.count;
       }
 
-      state.block.moveBackward(state, true)
+      state.block.moveBackward(state, true);
+      
       ++offset;
 
       while (offset < 0) {
@@ -833,7 +832,6 @@ export default class ItemContainerGenerator implements IDisposable {
     this.eventEmmiter.emitEvent(this, type, ...args);
   }
 
-  //@ts-ignore
   private onRefresh() {
     let
       position: GeneratorPosition;

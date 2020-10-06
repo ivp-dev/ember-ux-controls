@@ -108,6 +108,16 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     }
   }
 
+  public abstract createContainerForItem(item: unknown): unknown;
+
+  public abstract prepareItemContainer(container: unknown): void;
+
+  public abstract clearContainerForItem(container: unknown, item: unknown): void;
+
+  public abstract linkContainerToItem(container: unknown, item: unknown): void;
+
+  public abstract readItemFromContainer(container: unknown): unknown;
+
   public addChild(child: object) {
     if (!this.items.isPushingActive) {
       this.items.deferPush();
@@ -119,8 +129,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     this.items.pushObject(child);
   }
 
-  // IGeneratorHost implementation
-
   public containerForItem(item: unknown) {
     if (this.itemItsOwnContainer(item)) {
       return item;
@@ -131,18 +139,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   public itemItsOwnContainer(item: unknown): boolean {
     return item instanceof Component;
   }
-
-  public abstract createContainerForItem(item: unknown): unknown;
-
-  public abstract prepareItemContainer(container: unknown): void;
-
-  public abstract clearContainerForItem(container: unknown, item: unknown): void;
-
-  public abstract linkContainerToItem(container: unknown, item: unknown): void;
-
-  public abstract readItemFromContainer(container: unknown): unknown;
-
-  // IGeneratorHost implementation end
 
   public willDestroy() {
     super.willDestroy();

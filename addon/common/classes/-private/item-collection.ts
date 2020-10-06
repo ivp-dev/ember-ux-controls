@@ -5,8 +5,6 @@ import NativeArray from "@ember/array/-private/native-array";
 import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
 import { BaseEventArgs } from "ember-ux-controls/common/classes/event-args";
-import { EventArgs, IEventArgs, IEventEmmiter } from "ember-ux-controls/common/types";
-import EventEmmiter from "ember-ux-controls/common/classes/event-emmiter";
 import Enumerable from "@ember/array/-private/enumerable";
 
 export class ItemCollectionPushCompleteArgs extends BaseEventArgs {
@@ -31,11 +29,24 @@ export class ItemCollectionSourceChangedEventArgs extends BaseEventArgs {
 export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public host: ItemsControl | null = null;
 
-  private get eventEmmiter() {
-    if (!this._eventEmmiter) {
-      this._eventEmmiter = new EventEmmiter();
+  //constructor
+  public init() {
+    if (!this.host) {
+      throw new Error("Host was not set");
     }
-    return this._eventEmmiter;
+
+    if (this.host.itemsSource) {
+      set(this, 'source', this.host.itemsSource)
+    }
+
+    addObserver(
+      this.host,
+      'hasItemsSource',
+      this,
+      this.onSourceChanged
+    );
+
+    super.init();
   }
 
   public get isPushingActive() {
@@ -62,41 +73,6 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     }
   }
 
-  public addEventListener(
-    context: object,
-    key: EventArgs<IEventArgs>,
-    callback: (sender: object, args: IEventArgs
-    ) => void) {
-    this.eventEmmiter.addEventListener(context, key, callback)
-  }
-
-  public removeEventListener(
-    context: object,
-    key: EventArgs<IEventArgs>,
-    callback: (sender: object, args: IEventArgs
-    ) => void) {
-    this.eventEmmiter.removeEventListener(context, key, callback)
-  }
-
-  public init() {
-    if (!this.host) {
-      throw new Error("Host was not set");
-    }
-
-    if (this.host.itemsSource) {
-      set(this, 'source', this.host.itemsSource)
-    }
-
-    super.init();
-
-    addObserver(
-      this.host,
-      'hasItemsSource',
-      this,
-      this.onSourceChanged
-    );
-  }
-
   public static Create(
     host: ItemsControl
   ) {
@@ -110,7 +86,7 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     return itemsCollection;
   }
 
-  protected changerDone(
+  protected notifyListeners(
     sourceToAdd: unknown[],
     sourceToRemove: unknown[],
     offset: number
@@ -269,7 +245,6 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   }
 
   private _pusher?: IPusher<unknown>
-  private _eventEmmiter?: IEventEmmiter
 }
 
 interface IPusher<T> {

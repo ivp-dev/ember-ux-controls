@@ -25,7 +25,13 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
     if (this.isItemsHost) {
       (<ItemsControl>parentElement).itemsHost = this;
-    } 
+    } else {
+      // we should to create the generator here because we 
+      // will not access to the children property in a template
+      // where the generator initializes in case of 
+      // is-items-host:true
+      this.ensureGenerator();
+    }
   }
 
   public get isItemsHost()
@@ -82,7 +88,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
     if (this._itemContainerGenerator) {
       this._itemContainerGenerator.removeEventListener(this,
         ItemContainerGeneratorChangedEventArgs,
-        this.onItemContainerGeneratorStatusChanged
+        this.onItemContainerGeneratorChanged
       );
 
       this._itemContainerGenerator.dispose();
@@ -143,7 +149,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
         this._itemContainerGenerator.removeAll();
         this._itemContainerGenerator.addEventListener(this,
           ItemContainerGeneratorChangedEventArgs,
-          this.onItemContainerGeneratorStatusChanged
+          this.onItemContainerGeneratorChanged
         );
       }
     }
@@ -178,7 +184,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
 
   }
 
-  private onItemContainerGeneratorStatusChanged(
+  private onItemContainerGeneratorChanged(
     _: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {

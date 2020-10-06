@@ -4,8 +4,28 @@ import { IArrayObserver } from '../../types';
 import ObservableProxyArray from './observable-proxy-array';
 import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
-export default abstract class SyncProxyArray<TContent, TSource>
-  extends ObservableProxyArray<TContent> {
+
+export default abstract class SyncProxyArray<TContent, TSource> extends ObservableProxyArray<TContent> {
+  //constructor
+  public init() {
+    let
+      source: NativeArray<TSource> | undefined;
+
+    source = this.source;
+
+    if (
+      isArray(source)
+    ) {
+
+      this.content = A(source.map(item =>
+        this.serializeToContent(item)
+      ));
+
+      source.addArrayObserver(this, this.sourceArrayObserver);
+    }
+
+    super.init();
+  }
 
   public get source() {
     return this._source;
@@ -18,25 +38,6 @@ export default abstract class SyncProxyArray<TContent, TSource>
       this._source = value;
       notifyPropertyChange(this, 'source')
     }
-  }
-
-  public init() {
-    let
-      source: NativeArray<TSource> | undefined;
-
-    source = this.source;
-
-    if (
-      isArray(source)
-    ) {
-      this.content = A(source.map(item =>
-        this.serializeToContent(item)
-      ));
-
-      source.addArrayObserver(this, this.sourceArrayObserver);
-    }
-
-    super.init();
   }
 
   public willDestroy() {

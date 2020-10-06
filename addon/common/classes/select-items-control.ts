@@ -2,7 +2,7 @@
 import { IItemsControlArgs } from './items-control';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import ItemsControl from './items-control'
-import { ISelectable } from 'ember-ux-controls/common/types';
+import { GeneratorStatus, ISelectable } from 'ember-ux-controls/common/types';
 import SelectedItemCollection, { SelectedItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/selected-item-collection';
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
 import { assert } from '@ember/debug';
@@ -10,6 +10,7 @@ import EquatableArray from 'ember-ux-controls/common/classes/-private/equatable-
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
+import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from './-private/item-container-generator';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   selectFirstAfterLoad?: boolean
@@ -24,12 +25,32 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     args: TA
   ) {
     super(owner, args);
+    this.subscribe();
+  }
 
+  private subscribe() {
     addObserver(
       this,
       'multipleSelectionEnable',
       this.onMutlipleSelectionEnableChanged
     );
+
+    this.itemContainerGenerator.addEventListener(
+      this,
+      ItemContainerGeneratorStatusChangedEventArgs,
+      this.onGeneratorStatusChanged
+    );
+  }
+
+  protected onGeneratorStatusChanged(
+    _: ItemContainerGenerator,
+    args: ItemContainerGeneratorStatusChangedEventArgs
+  ) {
+    if (args.newStatus === GeneratorStatus.ContainersGenerated) {
+      if(this.selectFirstAfterLoad && this.selectedIndex === -1) {
+        this.selectedIndex = 0;
+      }
+    }
   }
 
   @computed('args.{multipleSelectionEnable}')
@@ -130,7 +151,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
   protected get selectionChanger()
     : SelectorChanger {
-    if (typeof this._selector === 'undefined') {
+    if (!this._selector) {
       this._selector = new SelectItemsControl.SelectionChanger(this);
     }
 
@@ -164,6 +185,12 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       this,
       'multipleSelectionEnable',
       this.onMutlipleSelectionEnableChanged
+    );
+
+    this.itemContainerGenerator.removeEventListener(
+      this,
+      ItemContainerGeneratorStatusChangedEventArgs,
+      this.onGeneratorStatusChanged
     );
   }
 
@@ -603,7 +630,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       idx < count;
       idx++
     ) {
-      this.selectedItems.addObject(toAddArray[idx].item);
+      this.selectedItems.pushObject(toAddArray[idx].item);
     }
 
     for (
@@ -614,8 +641,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     ) {
       this.selectedItems.removeAt(~toRemoveArray[idx].index);
     }
-
-
   }
 
   private static CoerceSelectedIndex(
@@ -715,7 +740,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
         return true;
       }
 
-      // ignore if is not  selected
+      // ignore if is not selected
       if (!this.owner.selectedInfos.includes(key)) {
         return false;
       }

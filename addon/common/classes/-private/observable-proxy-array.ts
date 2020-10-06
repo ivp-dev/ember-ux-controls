@@ -1,5 +1,16 @@
 
+import { EventArgs, IEventArgs, IEventEmmiter } from 'ember-ux-controls/common/types';
+import { BaseEventArgs } from '../event-args';
+import EventEmmiter from '../event-emmiter';
 import EquatableArray from './equatable-array';
+
+export class ObservableProxyArrayChangedEventArgs extends BaseEventArgs {
+  constructor(
+    public offset: number,
+    public newItems: Array<unknown>,
+    public oldItems: Array<unknown>
+  ) { super() }
+}
 
 export default class ObservableProxyArray<TContent> extends EquatableArray<TContent> {
   public init() {
@@ -27,7 +38,6 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       removeAmt,
       addAmt
     );
-
 
     if (this.changer.isActive === false) {
       this.changer.begin();
@@ -65,11 +75,29 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       );
     }
 
-    this.changerDone(...this.changer.prepareChanges(startIdx));
+    this.notifyListeners(
+      ...this.changer.prepareChanges(startIdx)
+    );
 
     this.changer.end();
 
     return array;
+  }
+
+  public addEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.addEventListener(context, key, callback)
+  }
+
+  public removeEventListener(
+    context: object,
+    key: EventArgs<IEventArgs>,
+    callback: (sender: object, args: IEventArgs
+    ) => void) {
+    this.eventEmmiter.removeEventListener(context, key, callback)
   }
 
   public willDestroy() {
@@ -85,14 +113,34 @@ export default class ObservableProxyArray<TContent> extends EquatableArray<TCont
       this._changer = void 0;
     }
 
+    //TODO: if forget to unsubscribe. Maybe no need?
+    if(this._eventEmmiter && this._eventEmmiter.hasListeners) {
+      this._eventEmmiter.clearEventListeners();
+    }
   }
 
-  protected changerDone(
-    _sourceToAdd: TContent[],
-    _sourceToRemove: TContent[],
-    _offset: number
-  ) { }
+  protected notifyListeners(
+    sourceToAdd: TContent[],
+    sourceToRemove: TContent[],
+    offset: number
+  ) {
+    this.eventEmmiter.emitEvent(
+      this,
+      ObservableProxyArrayChangedEventArgs,
+      offset,
+      sourceToAdd,
+      sourceToRemove
+    );
+  }
 
+  protected get eventEmmiter() {
+    if (!this._eventEmmiter) {
+      this._eventEmmiter = new EventEmmiter();
+    }
+    return this._eventEmmiter;
+  }
+
+  private _eventEmmiter?: IEventEmmiter;
   private _changer?: IChanger<TContent>;
 
   private static Changer = class Changer<T> implements IChanger<T> {
