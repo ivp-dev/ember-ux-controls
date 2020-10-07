@@ -8,7 +8,7 @@ import equals from 'ember-ux-controls/utils/equals';
 import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
-import { IGeneratorHost } from 'ember-ux-controls/common/types';
+import { DeferredAction, IGeneratorHost } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
 import { next } from '@ember/runloop';
 import Panel from './panel';
@@ -80,7 +80,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   public get itemContainerGenerator() {
     if (!this._itemsContainerGenerator) {
-      
+
       if (!this._items) {
         this._items = ItemCollection.Create(this);
       }
@@ -119,15 +119,35 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   public abstract readItemFromContainer(container: unknown): unknown;
 
   public addChild(child: object) {
-    if (!this.items.isPushingActive) {
-      this.items.deferPush();
+    let
+      action: DeferredAction;
+
+    if (!this.items.isDeferred) {
+      action = DeferredAction.Push;
+      this.items.defer(DeferredAction.Push);
       next(this, () => {
-        this.items.applyPush();
+        this.items.apply(action);
       });
     }
 
     this.items.pushObject(child);
   }
+
+  public removeChild(child: object) {
+    let
+      action: DeferredAction
+
+    if (!this.items.isDeferred) {
+      action = DeferredAction.Remove;
+      this.items.defer(action);
+      next(this, () => {
+        this.items.apply(action);
+      });
+    }
+
+    this.items.removeObject(child);
+  }
+
 
   public containerForItem(item: unknown) {
     if (this.itemItsOwnContainer(item)) {
@@ -238,7 +258,12 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
       if (index >= 0) {
         container = this.itemContainerGenerator.containerFromIndex(index);
       } else {
-        [/*findResult*/, container, /*item*/, index] = this.itemContainerGenerator.findItem(
+        [
+          /*findResult*/,
+          container,
+          /*item*/,
+          index
+        ] = this.itemContainerGenerator.findItem(
           (innerItem: unknown, innerContainer: object) => (
             ItemsControl.Equals(innerItem, info.item) &&
             !claimedContainers.some(claimed => claimed === innerContainer)

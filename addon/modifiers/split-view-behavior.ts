@@ -1,5 +1,5 @@
 import closest from 'ember-ux-controls/utils/dom/closest';
-import { DragMoveSensorEventArgs, DragStartSensorEvent, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
+import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 import DragSensor from 'ember-ux-controls/common/classes/drag-sensor';
 import DraggableModifier, { IDraggableModifierArgs } from './allow-draggable';
 
@@ -11,7 +11,7 @@ export default class SplitView extends DraggableModifier<ISplitViewBehaviorArgs>
     
     this.eventEmmiter.addEventListener(
       this,
-      DragStartSensorEvent,
+      DragStartSensorEventArgs,
       this.dragStart
     );
 
@@ -33,7 +33,7 @@ export default class SplitView extends DraggableModifier<ISplitViewBehaviorArgs>
 
     this.eventEmmiter.removeEventListener(
       this,
-      DragStartSensorEvent,
+      DragStartSensorEventArgs,
       this.dragStart
     );
 
@@ -51,13 +51,13 @@ export default class SplitView extends DraggableModifier<ISplitViewBehaviorArgs>
   }
 
   dragMove(_sender: DragSensor, args: DragMoveSensorEventArgs) {
-    if (closest(args.target as Element, this.element)) {
-      console.log(args.target);
+    if (closest(args.dragginTarget as Element, this.element)) {
+      console.log(args.dragginTarget);
     }
     //preventNativeEvent(_args.originalEvent)
   }
 
-  dragStart(_sender: DragSensor, _args: DragStartSensorEvent) {
+  dragStart(_sender: DragSensor, _args: DragStartSensorEventArgs) {
     //preventNativeEvent(_args.originalEvent)
   }
 

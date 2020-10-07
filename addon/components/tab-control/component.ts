@@ -1,7 +1,7 @@
 // @ts-ignore
 import layout from './template';
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
-import { Direction, Side, Axes } from 'ember-ux-controls/common/types';
+import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-controls/common/types';
 import { TabControlItem } from './tab-item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
@@ -11,6 +11,7 @@ import { find } from 'ember-ux-controls/utils/dom'
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { ISelectable } from 'ember-ux-controls/common/types'
+import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 
 export class TabItemModel implements ISelectable {
   public get item() {
@@ -91,10 +92,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   public get itemTemplateName() {
     return super.itemTemplateName ?? 'tab-control/tab-item';
-  }
-
-  public get selectFirstAfterLoad() {
-    return this.args.selectFirstAfterLoad ?? true;
   }
 
   @computed('side', 'direction', 'scrollable')
@@ -277,6 +274,26 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     if (!this.contentPresenter) {
       throw new Error('TabControl.Content was not found');
     }
+
+    if (!this.hasItemsSource) {
+      this.selectFist()
+    }
+  }
+
+  protected onGeneratorStatusChanged(
+    //@ts-ignore
+    sender: ItemContainerGenerator,
+    args: ItemContainerGeneratorStatusChangedEventArgs
+  ) {
+    if (args.newStatus === GeneratorStatus.ContainersGenerated) {
+      this.selectFist();
+    }
+  }
+
+  private selectFist() {
+    setTimeout(() => {
+      this.selectedIndex = 0
+    }, 0);
   }
 
   private _contentPresenter: Element | null = null;

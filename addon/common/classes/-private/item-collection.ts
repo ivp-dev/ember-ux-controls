@@ -6,10 +6,9 @@ import ItemsControl from "ember-ux-controls/common/classes/items-control";
 import { set } from '@ember/object';
 import { BaseEventArgs } from "ember-ux-controls/common/classes/event-args";
 import Enumerable from "@ember/array/-private/enumerable";
+import { DeferredAction } from "ember-ux-controls/common/types";
 
-export class ItemCollectionPushCompleteArgs extends BaseEventArgs {
-
-}
+export class ItemCollectionPushCompleteArgs extends BaseEventArgs { }
 
 export class ItemCollectionChangedEventArgs extends BaseEventArgs {
   constructor(
@@ -39,37 +38,34 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
       set(this, 'source', this.host.itemsSource)
     }
 
-    addObserver(
-      this.host,
-      'hasItemsSource',
-      this,
-      this.onSourceChanged
-    );
+    addObserver(this.host, 'hasItemsSource', this, this.onSourceChanged);
 
     super.init();
   }
 
-  public get isPushingActive() {
-    return this.pusher.isActive;
+  public get isDeferred() {
+    return this.deferrer.isDeferred;
   }
 
-  private get pusher() {
-    if (!this._pusher) {
-      this._pusher = new ItemCollection.Pusher(this);
+  private get deferrer() {
+    if (!this._deferrer) {
+      this._deferrer = new ItemCollection.Deferrer(this);
     }
 
-    return this._pusher;
+    return this._deferrer;
   }
 
-  public deferPush() {
-    if (!this.pusher.isActive) {
-      this.pusher.deferPush();
+  public defer(
+    action: DeferredAction
+  ) {
+    if (!this.deferrer.isDeferred) {
+      this.deferrer.defer(action);
     }
   }
 
-  public applyPush() {
-    if (this.pusher.isActive) {
-      this.pusher.applyPush();
+  public apply(action: DeferredAction) {
+    if (this.deferrer.isDeferred) {
+      this.deferrer.apply(action);
     }
   }
 
@@ -173,8 +169,8 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   }
 
   public pushObject(obj: unknown) {
-    if (this.pusher.isActive) {
-      this.pusher.pushObject(obj);
+    if (this.deferrer.isDeferred) {
+      this.deferrer.deferObject(obj);
     } else {
       super.pushObject(obj);
     }
@@ -183,8 +179,8 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
   public pushObjects(
     objects: Enumerable<unknown>
   ) {
-    if (this.pusher.isActive) {
-      this.pusher.pushObjects(objects);
+    if (this.deferrer.isDeferred) {
+      this.deferrer.deferObjects(objects);
     } else {
       super.pushObjects(objects);
     }
@@ -192,65 +188,97 @@ export default class ItemCollection extends SyncProxyArray<unknown, unknown> {
     return this;
   }
 
-  private static Pusher = class <T extends {}> implements IPusher<T> {
+  public removeObjects(
+    objects: Enumerable<unknown>
+  ) {
+    if (this.deferrer.isDeferred) {
+      this.deferrer.deferObjects(objects);
+    } else {
+      super.removeObjects(objects);
+    }
+
+    return this;
+  }
+
+  private static Deferrer = class <T extends {}> implements IDeferrer<T> {
     constructor(
       private owner: ItemCollection
     ) {
-      this.isActive = false;
-      this.cache = A();
+      this.isDeferred = false;
+      this.deferedObjects = A();
     }
 
-    public isActive: boolean;
+    public isDeferred: boolean;
+    public deferredAction?: DeferredAction
 
-    public deferPush() {
-      if (this.isActive) {
-        return;
+    public defer(
+      action: DeferredAction
+    ) {
+      if (this.isDeferred) {
+        throw 'Already defer';
       }
 
-      this.isActive = true;
-      this.cache.clear();
+      this.deferredAction = action;
+      this.isDeferred = true;
+      this.deferedObjects.clear();
     }
 
-    public applyPush() {
-      if (!this.isActive) {
-        return;
+    public apply(
+      action: DeferredAction
+    ) {
+      if (this.deferredAction !== action) {
+        throw 'Start defer action isn`t match'
+      }
+
+      if (!this.isDeferred) {
+        throw 'Defer not active'
       }
 
       // first we should set isActive:false 
       // to allow pushing into source array
-      this.isActive = false;
+      this.isDeferred = false;
 
-      this.owner.pushObjects(this.cache);
+      if (this.deferredAction === DeferredAction.Push) {
+        this.owner.pushObjects(this.deferedObjects);
+      } else if (this.deferredAction === DeferredAction.Remove) {
+        this.owner.removeObjects(this.deferedObjects)
+      } else {
+        throw 'Action was not set';
+      }
 
       this.clear();
     }
 
-    public pushObjects(obj: Enumerable<T>) {
+    public deferObjects(obj: Enumerable<T>) {
       if (Array.isArray(obj)) {
-        this.cache.pushObjects(obj);
+        this.deferedObjects.pushObjects(obj);
       } else if (isArray(obj)) {
-        this.cache.pushObjects(A(obj.toArray()));
+        this.deferedObjects.pushObjects(A(obj.toArray()));
       }
     }
 
-    public pushObject(obj: T) {
-      this.cache.pushObject(obj);
+
+    public deferObject(obj: T) {
+      this.deferedObjects.pushObject(obj);
     }
 
     private clear() {
-      this.cache.clear();
+      this.deferedObjects.clear();
     }
 
-    private cache: NativeArray<unknown>
+    private deferedObjects: NativeArray<unknown>
   }
 
-  private _pusher?: IPusher<unknown>
+  private _deferrer?: IDeferrer<unknown>
 }
 
-interface IPusher<T> {
-  isActive: boolean
-  deferPush: () => void
-  applyPush: () => void
-  pushObject: (obj: T) => void
-  pushObjects: (objs: Enumerable<T>) => void
+
+
+interface IDeferrer<T> {
+  isDeferred: boolean
+  deferredAction?: DeferredAction
+  defer: (action: DeferredAction) => void
+  apply: (action: DeferredAction) => void
+  deferObject: (obj: T) => void
+  deferObjects: (objs: Enumerable<T>) => void
 }

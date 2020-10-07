@@ -1,5 +1,5 @@
 import EmberArray from '@ember/array';
-import ItemCollection from './classes/-private/item-collection';
+import ItemCollection from 'ember-ux-controls/common/classes/-private/item-collection';
 
 export const Axes = {
   X: 'x' as 'x',
@@ -35,6 +35,13 @@ export interface ISize {
   width: number;
   height: number;
 }
+
+export const DeferredAction = {
+  Push: 'push' as 'push',
+  Remove: 'remove' as 'remove'
+}
+
+export type DeferredAction = typeof DeferredAction[keyof typeof DeferredAction]
 
 export interface IPointer {
   position: number

@@ -14,7 +14,6 @@ import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } 
 import { once } from '@ember/runloop';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
-  selectFirstAfterLoad?: boolean
   multipleSelectionEnable?: boolean
   onSelectionChanged?: (selectedItems: Array<unknown>, unselectedItems: Array<unknown>) => boolean
 }
@@ -47,12 +46,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
   public get multipleSelectionEnable()
     : boolean {
     return this.args.multipleSelectionEnable ?? false;
-  }
-
-  @computed('args.{selectFirstAfterLoad}')
-  public get selectFirstAfterLoad()
-    : boolean {
-    return this.args.selectFirstAfterLoad ?? false;
   }
 
   public get selectedItems()
@@ -89,7 +82,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
         this.createInfo(null, null, value).reset(this.items.objectAt(value)),
         true
       );
-
       //notification of the property changed will happen 
       //in method: SelectedItemsControl.notifyPublicPropertyChanged
     }
@@ -126,9 +118,19 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     );
   }
 
+  protected get selectedIndexInternal()
+    : unknown {
+    return this._selectedInfos?.objectAt(0)?.index ?? -1;
+  }
+
   protected get selectedItemInternal()
     : unknown {
     return this._selectedInfos?.objectAt(0)?.item ?? null;
+  }
+
+  protected get selectedInfoInternal()
+    : unknown {
+    return this._selectedInfos?.objectAt(0);
   }
 
   protected get selectedInfos()
@@ -184,22 +186,14 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     );
   }
 
+
   protected onGeneratorStatusChanged(
-    _: ItemContainerGenerator,
+    //@ts-ignore 
+    sender: ItemContainerGenerator,
+    //@ts-ignore 
     args: ItemContainerGeneratorStatusChangedEventArgs
   ) {
-    if (args.newStatus === GeneratorStatus.ContainersGenerated) {
-      if (
-        this.selectFirstAfterLoad &&
-        this.selectedIndex === -1 &&
-        this.items.count
-      ) {
-        //this._selectedIndex = 0;
-        once(this, () => {
-          this.selectedIndex = 0;
-        })
-      }
-    }
+
   }
 
   protected unselectAllInternal() {
@@ -608,12 +602,12 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
     if (toAddArray.length > 0 || toRemoveArray.length > 0) {
       this.applyUpdateSelectedItems(toAddArray, toRemoveArray);
+      this.applyUpdatePublicProperty();
       this.notifyPublicPropertyChanged();
-
     }
   }
 
-  private notifyPublicPropertyChanged() {
+  private applyUpdatePublicProperty() {
     let
       selectedInfo: ItemInfo | undefined;
 
@@ -621,7 +615,9 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
 
     this._selectedIndex = selectedInfo?.index ?? -1;
     this._selectedItem = selectedInfo?.item
+  }
 
+  private notifyPublicPropertyChanged() {
     notifyPropertyChange(this, 'selectedItem');
     notifyPropertyChange(this, 'selectedIndex');
     notifyPropertyChange(this, 'hasSelectedItems')

@@ -18,14 +18,13 @@ export class DataTableColumn extends SplitViewPane<IDataTableColumnArgs> impleme
     return this.args.classNamesBuilder;
   }
 
-  @computed('isFixed', 'axis')
+  @computed('isFixed')
   public get classNames() {
     if (this.classNamesBuilder) {
       return [
         `${super.classNames}`,
         `${this.classNamesBuilder('column', {
-          '$fixed': this.isFixed,
-          [`$${this.axis}`]: true
+          '$fixed': this.isFixed
         })}`
       ].join(' ');
     }

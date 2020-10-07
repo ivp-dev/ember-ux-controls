@@ -1,5 +1,5 @@
 import Modifier, { ModifierArgs as IModifierArgs } from 'ember-modifier';
-import { inject } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { IEventEmmiter } from 'ember-ux-controls/common/types'
 import Sensor from 'ember-ux-controls/common/classes/sensor';
 import MouseSensor from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
@@ -18,7 +18,9 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
 
   protected get eventEmmiter() {
     if (!this._eventEmmiter) {
-      throw 'EventEmmiter was not set'
+      this._eventEmmiter = (
+        getOwner(this).lookup('service:event-emmiter')
+      ) as IEventEmmiter
     }
 
     return this._eventEmmiter;
@@ -57,8 +59,6 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
     this.sensors.length = 0;
   }
 
-  @inject('event-emmiter')
   private _eventEmmiter?: IEventEmmiter
-  
   private _sensors?: Array<Sensor>
 }

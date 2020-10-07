@@ -1,25 +1,22 @@
 import { CompareCallback } from 'ember-ux-controls/common/types';
 import equals from 'ember-ux-controls/utils/equals';
-import { get } from '@ember/object';
-import EmberArray from '@ember/array';
 import ArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
 import Enumerable from "@ember/array/-private/enumerable";
 import { isArray } from '@ember/array';
+import { reads } from '@ember/object/computed';
 
 export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
   init() {
     if (!this.content) {
-      this.content = A([]);
+      this.set('content', A([]))
     }
 
     super.init();
   }
 
-  public get count()
-    : number {
-    return this.get('length');
-  }
+  @reads('length')
+  public count: number = 0
 
   public pushObjects(objects: Enumerable<TContent>) {
     if (Array.isArray(objects)) {
@@ -30,16 +27,15 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
     throw 'objects should be an array'
   }
 
+  public pushObject(object: TContent) {
+    return super.pushObject(object)
+  }
+
   public indexOf(
     searchElement: TContent,
     startAt?: number
   ): number {
-    return indexOf(
-      this,
-      this.compare,
-      searchElement,
-      startAt
-    );
+    return indexOfEquatable(this, this.compare, searchElement, startAt);
   }
 
   public lastIndexOf(
@@ -59,7 +55,7 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
     searchElement: TContent,
     fromIndex?: number
   ): boolean {
-    return indexOf(this, this.compare, searchElement, fromIndex, true) !== -1;
+    return indexOfEquatable(this, this.compare, searchElement, fromIndex, true) !== -1;
   }
 
   protected lastIndexOfOverride(
@@ -115,8 +111,8 @@ export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
   }
 }
 
-function indexOf<T>(
-  array: Array<T> | EmberArray<T>,
+function indexOfEquatable<T>(
+  array: EquatableArray<T>,
   compare: CompareCallback,
   value: T,
   startAt = 0,
@@ -125,7 +121,7 @@ function indexOf<T>(
   let
     len: number
 
-  len = get(array, 'length');
+  len = array.count;
 
   if (startAt < 0) {
     startAt = startAt + len;
@@ -138,12 +134,12 @@ function indexOf<T>(
   return findIndex(array, predicate, startAt);
 }
 
-function findIndex(
-  array: Array<unknown> | EmberArray<unknown>,
+function findIndex<T>(
+  array: EquatableArray<T>,
   predicate: (
     item: unknown,
     index: number,
-    array: Array<unknown> | EmberArray<unknown>
+    array: EquatableArray<T>
   ) => boolean,
   startAt: number
 ): number {
@@ -152,7 +148,7 @@ function findIndex(
     index: number,
     item: unknown;
 
-  len = get(array, 'length');
+  len = array.count;
 
   for (index = startAt; index < len; index++) {
     item = objectAt(array, index);
@@ -167,11 +163,8 @@ function findIndex(
 }
 
 function objectAt<T>(
-  array: Array<T> | EmberArray<T>,
+  array: EquatableArray<T>,
   index: number
 ) {
-  if (Array.isArray(array)) {
-    return array[index];
-  }
   return array.objectAt(index);
 }

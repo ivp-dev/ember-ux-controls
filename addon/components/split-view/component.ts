@@ -2,7 +2,7 @@
 import layout from './template';
 import ItemsControl, { IItemsControlArgs } from 'ember-ux-controls/common/classes/items-control'
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { Axes, Side, Size } from 'ember-ux-controls/common/types';
+import { Axes, IEventEmmiter, Side, Size } from 'ember-ux-controls/common/types';
 import { SplitViewPane } from 'ember-ux-controls/components/split-view/pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
 import { camelize } from '@ember/string';
@@ -12,6 +12,7 @@ import { action } from '@ember/object';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import Sensor from 'ember-ux-controls/common/classes/sensor';
 import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
+import { getOwner } from '@ember/application';
 
 export class SplitViewPaneSizeChangedEventArgs extends BaseEventArgs {
   constructor(public sizes: number[]) {
@@ -153,6 +154,16 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return this._behavior;
   }
 
+  private get globalEventEmmiter(): IEventEmmiter {
+    if (!this._globalEventEmmiter) {
+      this._globalEventEmmiter = (
+        getOwner(this).lookup('service:event-emmiter')
+      ) as IEventEmmiter;
+    }
+
+    return this._globalEventEmmiter;
+  }
+
   public itemItsOwnContainer(
     item: unknown
   ): item is ISplitViewContainer {
@@ -235,6 +246,30 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   public willDestroy() {
+    if (this._onDragStart) {
+      this.globalEventEmmiter.addEventListener(
+        this,
+        DragStartSensorEventArgs,
+        this._onDragStart
+      );
+    }
+
+    if (this._onDragMove) {
+      this.globalEventEmmiter.addEventListener(
+        this,
+        DragMoveSensorEventArgs,
+        this._onDragMove
+      );
+    }
+
+    if (this._onDragStop) {
+      this.globalEventEmmiter.addEventListener(
+        this,
+        DragStopSensorEventArgs,
+        this._onDragStop
+      );
+    }
+
     this.removeBehavior();
   }
 
@@ -245,9 +280,13 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       onDragMove: (sender: Sensor, args: DragMoveSensorEventArgs) => void,
       onDragStop: (sender: Sensor, args: DragStopSensorEventArgs) => void;
 
+    if (!this.html) {
+      throw `Element was not set`;
+    }
+
     behavior = new SplitViewBehavior(
       this,
-      this.html!,
+      this.html,
       this.args.sizes,
       this.args.minSize,
       this.args.minSizes,
@@ -257,9 +296,9 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     onDragMove = behavior.dragMove.bind(behavior);
     onDragStop = behavior.dragStop.bind(behavior);
 
-    this.addEventListener(this, DragStartSensorEventArgs, onDragStart);
-    this.addEventListener(this, DragMoveSensorEventArgs, onDragMove);
-    this.addEventListener(this, DragStopSensorEventArgs, onDragStop);
+    this.globalEventEmmiter.addEventListener(this, DragStartSensorEventArgs, onDragStart);
+    this.globalEventEmmiter.addEventListener(this, DragMoveSensorEventArgs, onDragMove);
+    this.globalEventEmmiter.addEventListener(this, DragStopSensorEventArgs, onDragStop);
 
     this._onDragStart = onDragStart;
     this._onDragMove = onDragMove;
@@ -269,10 +308,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   private removeBehavior() {
-    if (!this._behavior) {
-      return;
-    };
-
     if (this._onDragStart) {
       this.removeEventListener(
         this,
@@ -305,6 +340,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   private _html?: HTMLElement
+  private _globalEventEmmiter?: IEventEmmiter
   private _behavior?: SplitViewBehavior
   private _onDragStart?: (sender: Sensor, args: DragStartSensorEventArgs) => void
   private _onDragMove?: (sender: Sensor, args: DragMoveSensorEventArgs) => void

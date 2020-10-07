@@ -7,7 +7,7 @@ import { ISelectable } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
 import { SplitViewPaneSizeChangedEventArgs } from 'ember-ux-controls/components/split-view/component';
 import { A } from '@ember/array';
-import { DataTableColumnsChangedEventArgs, DataTableHead, IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
+import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 import MutableArray from '@ember/array/mutable';
 
 export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs { }
@@ -60,9 +60,11 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     this.columnSizes = A();
   }
 
-  @tracked public columnSizes: MutableArray<number>
+  @tracked
+  public columnSizes: MutableArray<number>
 
-  @tracked public columns: MutableArray<IDataTableColumnContainer>
+  @tracked
+  public columns: MutableArray<IDataTableColumnContainer>
 
   public get classNamesBuilder() {
     return bem('data-table');
@@ -103,23 +105,35 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
 
   public createContainerForItem()
     : DataTableItemModel {
-      
+
     return new DataTableItemModel();
   }
 
-  public prepareItemContainer(_container: DataTableItemModel): void {
+  public prepareItemContainer(
+    //@ts-ignore
+    container: DataTableItemModel
+  ): void {
 
   }
 
-  public clearContainerForItem(container: DataTableItemModel, item: object): void {
+  public clearContainerForItem(
+    container: DataTableItemModel,
+    //@ts-ignore
+    item: object
+  ): void {
     container.item = null;
   }
 
-  public linkContainerToItem(container: DataTableItemModel, item: object): void {
+  public linkContainerToItem(
+    container: DataTableItemModel,
+    item: object
+  ): void {
     container.item = item;
   }
 
-  public readItemFromContainer(container: DataTableItemModel): object | null {
+  public readItemFromContainer(
+    container: DataTableItemModel
+  ): object | null {
     return container.item;
   }
 

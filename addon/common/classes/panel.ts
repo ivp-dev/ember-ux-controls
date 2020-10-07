@@ -6,7 +6,6 @@ import UXElement, { IUXElementArgs } from './ux-element';
 import ItemsControl from './items-control';
 import { GeneratorDirection } from 'ember-ux-controls/common/types';
 import { A } from '@ember/array';
-import NativeArray from "@ember/array/-private/native-array";
 import { ItemCollectionActions } from 'ember-ux-controls/common/types';
 import using from 'ember-ux-controls/utils/using';
 import { assert } from '@ember/debug';
@@ -30,7 +29,7 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
       // will not access to the children property in a template
       // where the generator initializes in case of 
       // is-items-host:true
-      this.ensureGenerator();
+      // this.ensureGenerator();
     }
   }
 
@@ -177,7 +176,6 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
         [child] = generator.generateNext(true)
       ) {
         this.addIfItemsHost(child);
-        //this.children.pushObject(child); // childrent should exist 
         containerGenerator.prepareItemContainer(child);
       }
     });
@@ -200,9 +198,9 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
   private addIfItemsHost(
     child: object,
     index: number = -1
-  ): void {
+  ): boolean {
     if (!this.isItemsHost) {
-      return;
+      return false;
     }
 
     if (index === -1) {
@@ -210,6 +208,8 @@ export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
     } else {
       this.children.insertAt(index, child);
     }
+
+    return true;
   }
 
   private replaceChildren(
