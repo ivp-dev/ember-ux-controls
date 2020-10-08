@@ -1,14 +1,13 @@
 <div 
   class="{{this.classNames}}"
   {{did-insert this.didInsert}}
-  
    ...attributes
 >
   <TabControl::TabPane
     @visualParent={{this}}
+    @isItemsHost={{this.hasItemsSource}}
     @scrollable={{this.scrollable}}
     @scrollAxis={{this.scrollAxis}}
-    @hasItemsSource={{this.hasItemsSource}}
     @itemTemplateName={{this.itemTemplateName}}
     @headerTemplateName={{this.headerTemplateName}}
     @contentTemplateName={{this.contentTemplateName}}

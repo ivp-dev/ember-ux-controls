@@ -26,6 +26,8 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
     return this._eventEmmiter;
   }
 
+  index = 0
+
   public didInstall() {
     let
       delay: number,
@@ -50,7 +52,6 @@ export default class DraggableModifier<T extends IDraggableModifierArgs> extends
     }
 
     //TODO: add another sensors
-
     this.sensors.forEach(sensor => sensor.attach());
   }
 

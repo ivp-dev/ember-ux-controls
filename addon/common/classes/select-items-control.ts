@@ -2,7 +2,7 @@
 import { IItemsControlArgs } from './items-control';
 import { addObserver, removeObserver } from '@ember/object/observers';
 import ItemsControl from './items-control'
-import { GeneratorStatus, ISelectable } from 'ember-ux-controls/common/types';
+import { ISelectable } from 'ember-ux-controls/common/types';
 import SelectedItemCollection, { SelectedItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/selected-item-collection';
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
 import { assert } from '@ember/debug';
@@ -11,7 +11,7 @@ import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from './-private/item-container-generator';
-import { once } from '@ember/runloop';
+import { action } from '@ember/object';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   multipleSelectionEnable?: boolean
@@ -150,12 +150,14 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     return this._selector;
   }
 
+  @action
   public onSelect(
     container: unknown
   ): void {
     this.selectionChangeHelper(container, true);
   }
 
+  @action
   public onUnselect(
     container: unknown
   ): void {

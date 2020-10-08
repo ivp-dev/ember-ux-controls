@@ -1,34 +1,19 @@
 // @ts-ignore
 import layout from './template';
 import { SplitViewPane, ISplitViewPaneArgs } from 'ember-ux-controls/components/split-view/pane/component';
-import { computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
-import { IDataTableColumnContainer } from '../head/component';
+import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 
 export interface IDataTableColumnArgs extends ISplitViewPaneArgs {
   path?: string
 }
 
 export class DataTableColumn extends SplitViewPane<IDataTableColumnArgs> implements IDataTableColumnContainer {
-  
-  @reads('args.path')
-  public path!: string 
-
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
-
-  @computed('isFixed')
-  public get classNames() {
-    if (this.classNamesBuilder) {
-      return [
-        `${super.classNames}`,
-        `${this.classNamesBuilder('column', {
-          '$fixed': this.isFixed
-        })}`
-      ].join(' ');
+  public get path() {
+    if(!this.args.path) {
+      throw 'Path should be set';
     }
-    return '';
+
+    return this.args.path;
   }
 }
 

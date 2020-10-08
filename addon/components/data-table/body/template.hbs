@@ -4,7 +4,7 @@
   ) as |Body|
 }}
 
-  <div class="{{this.classNames}}">
+  <div class="{{bem (bem "data-table") "body"}}">
     {{#if this.scrollable}}
       <ScrollPort 
         @scrollAxis={{this.scrollAxis}} 
@@ -20,13 +20,14 @@
               @columns={{this.columns}}
               @columnSizes={{this.columnSizes}}
               @hasItemsSource={{this.hasItemsSource}}
-              @classNamesBuilder={{this.classNamesBuilder}}
               @cellTemplateName={{this.cellTemplateName}}
               @container={{container}}
               @isSelected={{container.isSelected}}
               @item={{container.item}}
               @header={{container.header}}
               @content={{container.content}}
+              @onSelect={{this.onSelect}}
+              @onUnselect={{this.onUnselect}}
             />
           {{/each}}
         </Port.Content>
@@ -44,8 +45,9 @@
           @columns={{this.columns}}
           @columnSizes={{this.columnSizes}}
           @hasItemsSource={{this.hasItemsSource}}
-          @classNamesBuilder={{this.classNamesBuilder}}
           @cellTemplateName={{this.cellTemplateName}}
+          @onSelect={{this.onSelect}}
+          @onUnselect={{this.onUnselect}}
         />
       {{/each}}
     {{/if}}

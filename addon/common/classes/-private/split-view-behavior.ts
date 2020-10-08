@@ -12,7 +12,7 @@ import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventA
 import closest from 'ember-ux-controls/utils/dom/closest';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import DragSensor from 'ember-ux-controls/common/classes/drag-sensor';
-
+import Disposable from './disposable';
 
 interface IBlockSizes {
   size: number,
@@ -42,7 +42,7 @@ interface IDrag {
   decorator?: HTMLElement
 }
 
-export default class SplitViewBehavior {
+export default class SplitViewBehavior extends Disposable {
   constructor(
     public owner: SplitView<ISplitViewArgs>,
     public element: HTMLElement,
@@ -50,11 +50,12 @@ export default class SplitViewBehavior {
     minSize?: number,
     minSizes?: Array<number>
   ) {
+    super();
     this.ids = this.setupIds();
     this.panes = this.setupPanes();
     this.minSizes = this.calcMinSizes(minSize, minSizes);
     this.sizes = this.calcSizes(sizes);
-   
+
     this.applySizes();
     this.notifySizeChanged();
   }
@@ -125,7 +126,7 @@ export default class SplitViewBehavior {
       layout: (string | string[])[],
       startOffset: number,
       clientAxis: number,
-      decorator: HTMLDivElement | undefined;
+      decorator: HTMLElement | undefined;
 
     target = args.dragginTarget;
 
@@ -248,23 +249,36 @@ export default class SplitViewBehavior {
     args.preventDefault();
   }
 
+  public dispose() {
+    super.dispose();
+
+
+  }
+
   private notifySizeChanged() {
-    this.owner.onSizesChanged(this.sizes.slice());
+    this.owner.onSizeChanged(this.sizes.slice());
   }
 
   private createDecorator()
-    : HTMLDivElement {
+    : HTMLElement {
     let
-      decorator: HTMLDivElement;
+      decorator: HTMLElement,
+      className: string;
 
     decorator = document.createElement('div');
-    addClass(decorator, `${this.classNamesBuilder('decorator')}`);
+    className = `${this.classNamesBuilder('decorator')}`;
+
+    addClass(
+      decorator,
+      className
+    );
+
     return decorator;
   }
 
   private removeDecorator() {
     if (
-      this.dragData && 
+      this.dragData &&
       this.dragData.decorator
     ) {
       this.dragData.decorator.remove();
@@ -282,7 +296,7 @@ export default class SplitViewBehavior {
     if (!hasClass(target, classes.base)) return false;
     //if fixed
     if (hasClass(target, classes.names[0])) return false;
-    //if not this splitview
+    //if is not current splitview
     if (!closest(target, this.element)) return false;
 
     return true;

@@ -13,6 +13,7 @@ import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
 import Sensor from 'ember-ux-controls/common/classes/sensor';
 import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 import { getOwner } from '@ember/application';
+import { computed } from '@ember/object';
 
 export class SplitViewPaneSizeChangedEventArgs extends BaseEventArgs {
   constructor(public sizes: number[]) {
@@ -91,6 +92,12 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return this.args.fluent ?? false;
   }
 
+  @computed('args.{axis}')
+  public get axis()
+    : Axes {
+    return this.args.axis ?? Axes.X;
+  }
+
   public get minSizes()
     : Array<number> | undefined {
     return this.args.minSizes;
@@ -128,6 +135,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       : Side.Bottom;
   }
 
+  @computed('axis')
   public get classNamesBuilder()
     : ClassNamesBuilder {
     return bem(`split-view`, `$${this.axis}`);
@@ -136,14 +144,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   public get classNames()
     : string {
     return `${this.classNamesBuilder}`;
-  }
-
-  public get axis()
-    : Axes {
-    return (
-      this.args.axis ??
-      Axes.X
-    );
   }
 
   public get html() {
@@ -223,7 +223,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return container.item;
   }
 
-  public onSizesChanged(sizes: number[]) {
+  public onSizeChanged(sizes: number[]) {
     if (typeof this.args.onSizeChanged === 'function') {
       this.args.onSizeChanged(sizes);
     }
@@ -309,27 +309,15 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
 
   private removeBehavior() {
     if (this._onDragStart) {
-      this.removeEventListener(
-        this,
-        DragStartSensorEventArgs,
-        this._onDragStart
-      );
+      this.globalEventEmmiter.removeEventListener(this, DragStartSensorEventArgs, this._onDragStart);
     }
 
     if (this._onDragMove) {
-      this.removeEventListener(
-        this,
-        DragMoveSensorEventArgs,
-        this._onDragMove
-      );
+      this.globalEventEmmiter.removeEventListener(this, DragMoveSensorEventArgs, this._onDragMove);
     }
 
     if (this._onDragStop) {
-      this.removeEventListener(
-        this,
-        DragStopSensorEventArgs,
-        this._onDragStop
-      );
+      this.globalEventEmmiter.removeEventListener(this, DragStopSensorEventArgs, this._onDragStop);
     }
 
     this._onDragStart = void 0;

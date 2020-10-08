@@ -1,5 +1,5 @@
 <div
-  class="{{this.classNames}}"
+  class="{{bem 'data-table'}}"
   ...attributes
 >
   {{#with 
@@ -11,28 +11,25 @@
 
     {{yield (hash Columns=(
       component this.headTemplateName
-      visualParent=this
-      classNamesBuilder=this.classNamesBuilder
       itemTemplateName=this.columnTemplateName
-      onSizeChanged=this.onColumnSizeChanged
-      onColumnsChanged=this.onColumnsChanged))
+      onColumnsChangedInternal=this.onColumnsChangedInternal
+      onColumnSizeChangedInternal=this.onColumnSizeChangedInternal))
     }}
     
     <Table.Body 
-      @visualParent={{this}}
       @columns={{this.columns}}
       @columnSizes={{this.columnSizes}}
       @scrollable={{this.scrollable}}
       @scrollAxis={{this.scrollAxis}}
+      @onSelect={{this.onSelect}}
+      @onUnselect={{this.onUnselect}}
+      @isItemsHost={{this.hasItemsSource}}
       @hasItemsSource={{this.hasItemsSource}}
       @itemTemplateName={{this.itemTemplateName}}
-      @classNamesBuilder={{this.classNamesBuilder}}
       @cellTemplateName={{this.cellTemplateName}}
     />
 
-    <Table.Foot 
-      @classNamesBuilder={{this.classNamesBuilder}}
-    />
+    <Table.Foot />
 
   {{/with}}
 </div>

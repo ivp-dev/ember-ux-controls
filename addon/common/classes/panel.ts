@@ -10,48 +10,27 @@ import { ItemCollectionActions } from 'ember-ux-controls/common/types';
 import using from 'ember-ux-controls/utils/using';
 import { assert } from '@ember/debug';
 import MutableArray from '@ember/array/mutable';
-export interface IPanelArgs extends IUXElementArgs { }
+import { reads } from '@ember/object/computed';
 
-export default class Panel<TA extends IPanelArgs = {}> extends UXElement<TA> {
+export interface IPanelArgs extends IUXElementArgs { 
+  isItemsHost?: boolean
+  itemContainerGenerator?: ItemContainerGenerator
+}
+
+export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   constructor(
     owner: any,
     args: TA
   ) {
     super(owner, args);
-
-    let
-      parentElement = this.visualParent;
-
-    if (this.isItemsHost) {
-      (<ItemsControl>parentElement).itemsHost = this;
-    } else {
-      // we should to create the generator here because we 
-      // will not access to the children property in a template
-      // where the generator initializes in case of 
-      // is-items-host:true
-      // this.ensureGenerator();
-    }
   }
 
-  public get isItemsHost()
-    : boolean {
-    return (
-      this.visualParent instanceof ItemsControl && this.visualParent.hasItemsSource
-    );
-  }
+  @reads('args.isItemsHost')
+  public isItemsHost?: boolean
 
   public get children()
     : MutableArray<object> {
     return this.internalChildren;
-  }
-
-  protected get parentItemsControl()
-    : ItemsControl | null {
-    if (this.visualParent instanceof ItemsControl) {
-      return this.visualParent;
-    }
-
-    return null;
   }
 
   protected get internalChildren()

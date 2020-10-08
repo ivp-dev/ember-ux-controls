@@ -1,5 +1,5 @@
 <div
-  class={{this.classNames}}
+  class="{{bem (bem "data-table") "row" (hash $selected=this.isSelected)}}"
   {{did-insert this.didInsert}}
   ...attributes
 >
@@ -7,8 +7,7 @@
     {{#each this.cells as |value index|}}
       <Row.Cell 
         @width={{get this.columnSizes index}}
-        @classNamesBuilder={{this.classNamesBuilder}}
-      >
+      > 
         {{value}} 
       </Row.Cell>
     {{/each}}

@@ -1,22 +1,22 @@
 // @ts-ignore
 import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { DataTable, DataTableItemModel } from '../component';
+import { DataTableItemModel } from '../component';
 import MutableArray from '@ember/array/mutable';
 import { reads } from '@ember/object/computed';
 import { action } from '@ember/object';
 import on from 'ember-ux-controls/utils/dom/on';
 import { computed } from '@ember/object';
 import off from 'ember-ux-controls/utils/dom/off';
-import { IDataTableColumnContainer } from '../head/component';
+import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 
 interface IDataTableRowArgs extends IUXElementArgs {
   columnSizes?: MutableArray<number>,
   columns?: MutableArray<IDataTableColumnContainer>
   container?: DataTableItemModel
   cellTemplateName?: string
-  classNamesBuilder?: ClassNamesBuilder
+  onSelect: (container: unknown) => void
+  onUnselect: (container: unknown) => void
 }
 
 export class CellModel {
@@ -26,7 +26,7 @@ export class CellModel {
   ) { }
 }
 
-class DataTableRow extends UXElement<IDataTableRowArgs> {
+class DataTableRow<T extends IDataTableRowArgs> extends UXElement<T> {
   @reads('args.cellTemplateName')
   cellTemplateName?: string
 
@@ -39,21 +39,8 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
   @reads('args.container')
   container?: DataTableItemModel
 
-  @reads('args.classNamesBuilder')
-  classNamesBuilder?: ClassNamesBuilder
-
   @reads('container.isSelected')
   isSelected?: boolean
-
-  @computed('isSelected')
-  public get classNames() {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('row', {
-        [`$selected`]: this.isSelected,
-      })}`
-    }
-    return '';
-  }
 
   @computed('args.{columns.[]}', 'args.{columnSizes.[]}')
   public get cells() {
@@ -81,33 +68,28 @@ class DataTableRow extends UXElement<IDataTableRowArgs> {
   @action
   public didInsert(element: Element) {
     on(element, 'click', this.onClickEventHandler);
-
     this._html = element;
   }
 
   public willDestroy() {
     let
       element: Element | null
-      
-    element = this._html;
 
+    element = this._html;
     if (!element) {
       return;
     }
 
     off(element, 'click', this.onClickEventHandler);
-
     super.willDestroy();
   }
 
   @action
   private onClickEventHandler() {
-    if (this.logicalParent instanceof DataTable) {
-      if (this.isSelected === true) {
-        this.logicalParent.onUnselect(this.container);
-      } else if(this.isSelected === false) {
-        this.logicalParent.onSelect(this.container);
-      }
+    if (this.isSelected === true) {
+      this.args.onSelect(this.container)
+    } else if (this.isSelected === false) {
+      this.args.onUnselect(this.container)
     }
   }
 

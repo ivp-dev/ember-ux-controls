@@ -1,5 +1,5 @@
 //original source-code https://github.com/romeobravo/bem-classes
-//TODO: mayby it's better to make bem part a of the ember-ux-controls?
+
 import { assert } from '@ember/debug';
 
 export type ClassNamesBuilder = {
@@ -31,7 +31,7 @@ function bem(
   ) => (
       formatter
         ? formatter(new ClassNamesDriver(block, false, args))
-        : new ClassNamesDriver(block, false, args).toString()
+        : `${new ClassNamesDriver(block, false, args)}`
     );
 
   return classNamesBuilder;
@@ -92,7 +92,7 @@ export class ClassNamesDriver {
   }
 
   public toString(formatter?: (driver: ClassNamesDriver) => string) {
-    return formatter 
+    return formatter
       ? formatter(this)
       : this.classes.join(' ').trim();
   }

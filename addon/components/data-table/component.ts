@@ -1,6 +1,5 @@
 // @ts-ignore
 import layout from './template';
-import bem from "ember-ux-controls/utils/bem";
 import SelectItemsControl, { ISelectItemsControlArgs } from "ember-ux-controls/common/classes/select-items-control";
 import { notifyPropertyChange } from '@ember/object';
 import { ISelectable } from 'ember-ux-controls/common/types';
@@ -9,6 +8,7 @@ import { SplitViewPaneSizeChangedEventArgs } from 'ember-ux-controls/components/
 import { A } from '@ember/array';
 import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 import MutableArray from '@ember/array/mutable';
+import { action } from '@ember/object';
 
 export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs { }
 
@@ -18,7 +18,6 @@ export interface IDataTableArgs extends ISelectItemsControlArgs {
   headTemplateName: string;
   footTemplateName: string;
   bodyTemplateName: string;
-  onColumnSizeChanged: (sizes: number[]) => void
 }
 
 export class DataTableItemModel implements ISelectable {
@@ -56,6 +55,7 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     args: IDataTableArgs
   ) {
     super(owner, args);
+
     this.columns = A();
     this.columnSizes = A();
   }
@@ -66,16 +66,8 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
   @tracked
   public columns: MutableArray<IDataTableColumnContainer>
 
-  public get classNamesBuilder() {
-    return bem('data-table');
-  }
-
   public get itemTemplateName() {
     return super.itemTemplateName ?? 'data-table/row';
-  }
-
-  public get classNames() {
-    return `${this.classNamesBuilder}`;
   }
 
   public get cellTemplateName()
@@ -105,7 +97,6 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
 
   public createContainerForItem()
     : DataTableItemModel {
-
     return new DataTableItemModel();
   }
 
@@ -137,7 +128,8 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     return container.item;
   }
 
-  public onColumnsChanged(
+  @action
+  public onColumnsChangedInternal(
     offset: number,
     newColumns: IDataTableColumnContainer[],
     oldColumns: IDataTableColumnContainer[]
@@ -149,7 +141,8 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     );
   }
 
-  public onColumnSizeChanged(sizes: number[]) {
+  @action
+  public onColumnSizeChangedInternal (sizes: number[]) {
     this.columnSizes = A(sizes);
   }
 }

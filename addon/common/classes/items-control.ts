@@ -5,13 +5,11 @@ import ItemContainerGenerator from 'ember-ux-controls/common/classes/-private/it
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import ItemInfo, { CONTAINERS } from 'ember-ux-controls/common/classes/-private/item-info';
 import equals from 'ember-ux-controls/utils/equals';
-import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import { DeferredAction, IGeneratorHost } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
 import { next } from '@ember/runloop';
-import Panel from './panel';
 
 export interface IItemsControlArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>
@@ -97,16 +95,7 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return this._itemsContainerGenerator!;
   }
 
-  public get itemsHost() {
-    return this._itemsHost;
-  }
-
-  public set itemsHost(value: Panel | undefined) {
-    if (this._itemsHost !== value) {
-      this._itemsHost = value;
-      notifyPropertyChange(this, 'itemsHost');
-    }
-  }
+  
 
   public abstract createContainerForItem(item: unknown): unknown;
 
@@ -281,7 +270,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     }
   }
 
-  private _itemsHost?: Panel
   private _items?: ItemCollection
   private _itemsContainerGenerator?: ItemContainerGenerator
 }

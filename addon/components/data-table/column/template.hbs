@@ -1,6 +1,9 @@
 <div
   id={{this.elementId}}
-  class={{this.classNames}}
+  class="
+    {{bem (bem "split-view") "pane" (hash $fixed=this.isFixed) (concat "$" this.axis)}} 
+    {{bem (bem "data-table") "column" (hash $fixed=this.isFixed)}}
+  "
   {{add-child this}}
   {{allow-draggable}}
 >
@@ -11,6 +14,5 @@
   <DataTable::Bar
     @axis={{this.axis}}
     @barSize={{this.barSize}}
-    @classNamesBuilder={{this.classNamesBuilder}}
   />
 {{/unless}}

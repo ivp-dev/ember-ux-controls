@@ -134,7 +134,7 @@ export default class DragMouseSensor extends DragSensor {
       document.addEventListener('mousemove', this.onMouseMove);
     }
   }
-
+  
   @action
   private onMouseMove(event: MouseEvent) {
     let

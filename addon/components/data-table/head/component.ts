@@ -1,6 +1,5 @@
 // @ts-ignore
 import layout from './template';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { SplitView, ISplitViewArgs, SplitViewPaneModel, ISplitViewContainer } from 'ember-ux-controls/components/split-view/component';
 import { DataTable } from 'ember-ux-controls/components/data-table/component';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
@@ -23,8 +22,9 @@ export interface IDataTableColumnContainer extends ISplitViewContainer {
 }
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
-  classNamesBuilder?: ClassNamesBuilder
   onColumnsChanged?: (columns: ItemCollection) => void
+  onColumnsChangedInternal: (offset: number, newColumns: Array<IDataTableColumnContainer>, oldColumns: Array<IDataTableColumnContainer>) => void
+  onColumnSizeChangedInternal: (sizes: Array<number>) => void
 }
 
 export class DataTableColumnModel extends SplitViewPaneModel implements IDataTableColumnContainer {
@@ -42,27 +42,10 @@ export class DataTableColumnModel extends SplitViewPaneModel implements IDataTab
   private _path!: string
 }
 
-export class DataTableHead<T extends IDataTableHeadArgs = {}> extends SplitView<T> {
-  public get classNamesBuilder() {
-    if (!this.args.classNamesBuilder) {
-      throw 'ClassNamesBuilder should be set';
-    }
-    return this.args.classNamesBuilder;
-  }
-
-  public get classNames() {
-    return [
-      `${super.classNamesBuilder}`,
-      `${this.classNamesBuilder('head')}`
-    ].join(' ')
-  }
-
-  public onSizesChanged(sizes: number[]) {
-    if (this.logicalParent instanceof DataTable) {
-      this.logicalParent.onColumnSizeChanged(sizes);
-    }
-
-    super.onSizesChanged(sizes);
+export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
+  public onSizeChanged(sizes: number[]) {
+    super.onSizeChanged(sizes);
+    this.args.onColumnSizeChangedInternal(sizes);
   }
 
   public itemItsOwnContainer(
@@ -117,13 +100,11 @@ export class DataTableHead<T extends IDataTableHeadArgs = {}> extends SplitView<
   ) {
     super.onItemCollectionChanged(sender, args);
 
-    if (this.logicalParent instanceof DataTable) {
-      this.logicalParent.onColumnsChanged(
-        args.offset,
-        args.newItems as IDataTableColumnContainer[],
-        args.oldItems as IDataTableColumnContainer[]
-      );
-    }
+    this.args.onColumnsChangedInternal(
+      args.offset,
+      args.newItems as IDataTableColumnContainer[],
+      args.oldItems as IDataTableColumnContainer[]
+    );
   }
 }
 

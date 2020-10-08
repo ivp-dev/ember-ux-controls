@@ -2,21 +2,20 @@
 import layout from './template';
 import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 import { Axes } from 'ember-ux-controls/common/types';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import MutableArray from '@ember/array/mutable';
-import { Column } from 'ember-ux-controls/components/data-table/component';
+import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 import { reads } from '@ember/object/computed';
-import { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 
 interface IDataTableBodyArgs extends IPanelArgs {
   scrollable?: boolean
   scrollAxis?: Axes
-  columns?: MutableArray<Column>
+  columns?: MutableArray<IDataTableColumnContainer>
   columnSizes: Array<number>
   hasItemsSource?: boolean
   itemTemplateName?: string
   cellTemplateName?: string
-  classNamesBuilder?: ClassNamesBuilder
+  onSelect: (container: unknown) => void
+  onUnselect: (container: unknown) => void
 }
 
 export class DataTableBody extends Panel<IDataTableBodyArgs> {
@@ -46,18 +45,13 @@ export class DataTableBody extends Panel<IDataTableBodyArgs> {
   scrollAxis?: Axes 
 
   @reads('args.columns') 
-  columns?: MutableArray<Column> 
+  columns?: MutableArray<IDataTableColumnContainer> 
 
-  @reads('args.classNamesBuilder') 
-  classNamesBuilder?: ClassNamesBuilder
+  @reads('args.onSelect') 
+  onSelect?: (container: unknown) => void 
 
-  public get classNames()
-    : string {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('body')}`;
-    }
-    return '';
-  }
+  @reads('args.onUnselect') 
+  onUnselect?: (container: unknown) => void 
 }
 
 export default DataTableBody.RegisterTemplate(layout);
