@@ -1,10 +1,10 @@
 {{#if this.isItemsHost}}
   {{#each this.children as |pane|}}
     <SplitView::Pane 
-      @barSize={{this.barSize}}
-      @axis={{this.axis}}
-      @visualParent={{this}}
       @pane={{pane}}
+      @axis={{this.axis}}
+      @barSize={{this.barSize}}
+      @lastItem={{this.children.lastObject}}
     />
   {{/each}}
 {{else}}

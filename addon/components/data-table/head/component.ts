@@ -1,7 +1,6 @@
 // @ts-ignore
 import layout from './template';
 import { SplitView, ISplitViewArgs, SplitViewPaneModel, ISplitViewContainer } from 'ember-ux-controls/components/split-view/component';
-import { DataTable } from 'ember-ux-controls/components/data-table/component';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import { DataTableColumn } from 'ember-ux-controls/components/data-table/column/component';
 import { notifyPropertyChange } from '@ember/object';

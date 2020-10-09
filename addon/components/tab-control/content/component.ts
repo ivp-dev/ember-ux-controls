@@ -1,32 +1,17 @@
-import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { computed } from '@ember/object';
 // @ts-ignore
 import layout from './template';
+import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
+import { reads } from '@ember/object/computed';
+
 
 
 interface ITabControlContentArgs extends IUXElementArgs {
   content?: unknown
-  classNamesBuilder?: ClassNamesBuilder
 }
 
 class TabControlContent extends UXElement<ITabControlContentArgs> {
-  @computed('args.{content}')
-  public get content() {
-    return this.args.content;
-  }
-
-  @computed('args.{classNamesBuilder}')
-  public get classNamesBuilder() {
-    return this.args.classNamesBuilder;
-  }
-
-  public get classNames() {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('content')}`
-    }
-    return '';
-  }
+  @reads('args.{content}')
+  public content?: unknown
 }
 
 export default TabControlContent.RegisterTemplate(layout);

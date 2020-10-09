@@ -1,1 +1,0 @@
-export { default } from 'ember-ux-controls/components/tab-control/tab-pane/component';

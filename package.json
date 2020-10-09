@@ -29,6 +29,7 @@
     "ember-cli-htmlbars": "^5.3.1",
     "ember-cli-sass": "^10.0.1",
     "ember-cli-typescript": "^4.0.0",
+    "ember-truth-helpers": "2.1.0",
     "ember-modifier": "^2.1.1",
     "@ember/render-modifiers": "^1.0.2",
     "sass": "^1.26.11"

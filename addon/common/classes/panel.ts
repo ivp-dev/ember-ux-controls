@@ -3,7 +3,6 @@ import ItemContainerGenerator, {
   ItemContainerGeneratorChangedEventArgs
 } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import UXElement, { IUXElementArgs } from './ux-element';
-import ItemsControl from './items-control';
 import { GeneratorDirection } from 'ember-ux-controls/common/types';
 import { A } from '@ember/array';
 import { ItemCollectionActions } from 'ember-ux-controls/common/types';
@@ -11,10 +10,13 @@ import using from 'ember-ux-controls/utils/using';
 import { assert } from '@ember/debug';
 import MutableArray from '@ember/array/mutable';
 import { reads } from '@ember/object/computed';
+import { notifyPropertyChange } from '@ember/object';
 
-export interface IPanelArgs extends IUXElementArgs { 
+export interface IPanelArgs extends IUXElementArgs {
   isItemsHost?: boolean
   itemContainerGenerator?: ItemContainerGenerator
+  addChild: (child: unknown) => void
+  removeChild: (child: unknown) => void
 }
 
 export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
@@ -28,13 +30,15 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   @reads('args.isItemsHost')
   public isItemsHost?: boolean
 
+  @reads('args.addChild')
+  public addChild?: (child: unknown) => void
+
+  @reads('args.removeChild')
+  public removeChild?: (child: unknown) => void
+
   public get children()
     : MutableArray<object> {
-    return this.internalChildren;
-  }
 
-  protected get internalChildren()
-    : MutableArray<object> {
     if (this.isItemsHost) {
       this.ensureGenerator();
     }
@@ -46,31 +50,28 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     return this._children;
   }
 
-  public addChild(
-    child: object
-  ): void {
-    if (!child) {
-      throw new Error('child cant be null');
-    }
+  private get itemContainerGenerator() {
+    return this._itemContainerGenerator;
+  }
 
-    if (this.isItemsHost) {
-      throw new Error('can not add child if itemssource was set')
+  private set itemContainerGenerator(
+    value: ItemContainerGenerator | undefined
+  ) {
+    if (this._itemContainerGenerator !== value) {
+      this._itemContainerGenerator = value;
+      notifyPropertyChange(this, 'itemContainerGenerator');
     }
-
-    this.children.pushObject(child);
   }
 
   public willDestroy()
     : void {
-
-    if (this._itemContainerGenerator) {
-      this._itemContainerGenerator.removeEventListener(this,
+    if (this.itemContainerGenerator) {
+      this.itemContainerGenerator.removeEventListener(this,
         ItemContainerGeneratorChangedEventArgs,
         this.onItemContainerGeneratorChanged
       );
 
-      this._itemContainerGenerator.dispose();
-      this._itemContainerGenerator = void 0;
+      this.itemContainerGenerator = void 0;
     }
 
     super.willDestroy();
@@ -102,9 +103,8 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     return true;
   }
 
-  private ensureGenerator()
-    : void {
-    if (typeof this._itemContainerGenerator === 'undefined') {
+  private ensureGenerator() {
+    if (!this.itemContainerGenerator) {
       this.connectToGenerator();
       this.ensureEmptyChildren();
       this.generateChildren();
@@ -120,23 +120,20 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
 
   private connectToGenerator()
     : void {
-
-    if (this.visualParent instanceof ItemsControl) {
-      this._itemContainerGenerator = this.visualParent.itemContainerGenerator;
-      if (this._itemContainerGenerator) {
-        this._itemContainerGenerator.removeAll();
-        this._itemContainerGenerator.addEventListener(this,
-          ItemContainerGeneratorChangedEventArgs,
-          this.onItemContainerGeneratorChanged
-        );
-      }
+    this.itemContainerGenerator = this.args.itemContainerGenerator;
+    if (this.itemContainerGenerator) {
+      this.itemContainerGenerator.removeAll();
+      this.itemContainerGenerator.addEventListener(this,
+        ItemContainerGeneratorChangedEventArgs,
+        this.onItemContainerGeneratorChanged
+      );
     }
   }
 
   private generateChildren()
     : void {
     const
-      containerGenerator = this._itemContainerGenerator;
+      containerGenerator = this.itemContainerGenerator;
 
     if (!containerGenerator) {
       return;
@@ -162,14 +159,10 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   }
 
   private onItemContainerGeneratorChanged(
-    _: ItemContainerGenerator,
+    //@ts-ignore
+    sender: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {
-    assert(
-      'Panel._itemContainerGenerator can`t be null in this context',
-      this._itemContainerGenerator !== null
-    );
-
     this.onItemsChangedInternal(args);
   }
 
@@ -197,10 +190,10 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     containerCount: number
   ): void {
     const
-      containerGenerator = this._itemContainerGenerator;
+      containerGenerator = this.itemContainerGenerator;
 
     assert(
-      'panel expect replace to affect only realzied containers',
+      'Panel expect replace to affect only realzied containers',
       itemCount === containerCount
     );
 
@@ -239,7 +232,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     addCount: number
   ): void {
     const
-      containerGenerator = this._itemContainerGenerator;
+      containerGenerator = this.itemContainerGenerator;
 
     if (containerGenerator) {
       using(containerGenerator.startAt(
@@ -268,7 +261,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     position: GeneratorPosition,
     removeCount: number
   ): void {
-    this.internalChildren.replace(position.index, removeCount, []);
+    this.children.replace(position.index, removeCount, []);
   }
 
   private createChildren(
@@ -277,6 +270,6 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     return A(source);
   }
 
-  private _children?: MutableArray<object>
   private _itemContainerGenerator?: ItemContainerGenerator
+  private _children?: MutableArray<object>
 }

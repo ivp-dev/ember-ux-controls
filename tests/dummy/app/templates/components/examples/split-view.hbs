@@ -79,31 +79,31 @@
       </div>
     </Splitter.Pane>
     <Splitter.Pane>
-      <SplitView::Light
+      <SplitView
         @axis={{this.axis}}
         @minSize={{this.minSize}} 
-        @barSize={{this.barSize}} 
+        @barSize={{this.barSize}}
         @fluent={{this.fluent}} 
         @responsive={{this.responsive}}
         @onSizeChanged={{this.onSizeChanged}}
-        as |SplitterInter|
+        as |SplitViewExample|
       >
-        <SplitterInter.Pane>
+        <SplitViewExample.Pane>
           <div class="left-panel">
             <span>Left panel</span>
           </div>
-        </SplitterInter.Pane>
-        <SplitterInter.Pane>
+        </SplitViewExample.Pane>
+        <SplitViewExample.Pane>
           <div class="middle-panel">
             <span>Middle panel</span>
           </div>
-        </SplitterInter.Pane>
-        <SplitterInter.Pane>
+        </SplitViewExample.Pane>
+        <SplitViewExample.Pane>
           <div class="right-panel">
             <span>Right panel</span>
           </div>
-        </SplitterInter.Pane>
-      </SplitView::Light>
+        </SplitViewExample.Pane>
+      </SplitView>
     </Splitter.Pane>
   </SplitView::Light>
 </div>

@@ -4,8 +4,8 @@
     {{bem (bem "split-view") "pane" (hash $fixed=this.isFixed) (concat "$" this.axis)}} 
     {{bem (bem "data-table") "column" (hash $fixed=this.isFixed)}}
   "
-  {{add-child this}}
   {{allow-draggable}}
+  {{did-insert this.didInsert}}
 >
   <span>{{@title}}</span>
 </div>

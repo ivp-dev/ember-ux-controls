@@ -1,22 +1,26 @@
 <div 
-  class={{this.classNames}}
+  class="{{bem "split-view"}}"
   {{did-insert this.didInsert}}
   ...attributes
   >
-  <SplitView::SplitPanel
-    @visualParent={{this}}
-    @barsize={{this.barSize}}
+  <SplitView::Panel
     @axis={{this.axis}}
-    @hasItemsSource={{this.hasItemsSource}}
+    @barSize={{this.barSize}}
+    @addChild={{this.addChild}}
+    @removeChild={{this.removeChild}}
+    @isItemsHost={{this.hasItemsSource}}
+    @itemContainerGenerator={{this.itemContainerGenerator}}
   >
     {{#unless this.hasItemsSource}}
       {{yield (hash Pane=(
-        component this.itemTemplateName
-        barSize=this.barSize
+        component 
+        this.itemTemplateName
         axis=this.axis
-        visualParent=this
+        barSize=this.barSize
+        lastItem=this.items.lastObject
+        isItemsHost=this.hasItemsSource
         content=@content))
       }}
     {{/unless}}
-  </SplitView::SplitPanel>
+  </SplitView::Panel>
 </div>

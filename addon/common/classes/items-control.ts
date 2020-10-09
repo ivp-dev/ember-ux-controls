@@ -29,6 +29,9 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     args: TA
   ) {
     super(owner, args);
+
+    this.addChild = this.addChild.bind(this);
+    this.removeChild = this.removeChild.bind(this);
   }
 
   @computed('args.{itemTemplateName}')
@@ -95,8 +98,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return this._itemsContainerGenerator!;
   }
 
-  
-
   public abstract createContainerForItem(item: unknown): unknown;
 
   public abstract prepareItemContainer(container: unknown): void;
@@ -107,13 +108,14 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   public abstract readItemFromContainer(container: unknown): unknown;
 
-  public addChild(child: object) {
+  public addChild(child: object)
+  : void {
     let
       action: DeferredAction;
 
     if (!this.items.isDeferred) {
       action = DeferredAction.Push;
-      this.items.defer(DeferredAction.Push);
+      this.items.defer(action);
       next(this, () => {
         this.items.apply(action);
       });
@@ -122,7 +124,8 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     this.items.pushObject(child);
   }
 
-  public removeChild(child: object) {
+  public removeChild(child: object)
+  : void {
     let
       action: DeferredAction
 

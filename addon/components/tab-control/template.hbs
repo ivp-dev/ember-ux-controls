@@ -1,23 +1,27 @@
 <div 
-  class="{{this.classNames}}"
+  class="{{bem "tab-control" this.modifers}}"
   {{did-insert this.didInsert}}
    ...attributes
 >
-  <TabControl::TabPane
-    @visualParent={{this}}
+  <TabControl::Panel
     @isItemsHost={{this.hasItemsSource}}
     @scrollable={{this.scrollable}}
     @scrollAxis={{this.scrollAxis}}
+    @addChild={{this.addChild}}
+    @removeChild={{this.removeChild}}
+    @onSelect={{this.onSelect}}
+    @onUnselect={{this.onUnselect}}
+    @contentPresenter={{this.contentPresenter}}
     @itemTemplateName={{this.itemTemplateName}}
     @headerTemplateName={{this.headerTemplateName}}
     @contentTemplateName={{this.contentTemplateName}}
-    @classNamesBuilder={{this.classNamesBuilder}}
+    @itemContainerGenerator={{this.itemContainerGenerator}}
     as |Tabs|
   >
     {{#unless this.hasItemsSource}}
       {{yield Tabs}}
     {{/unless}}
-  </TabControl::TabPane>
+  </TabControl::Panel>
 
   <TabControl::Content
     @classNamesBuilder={{this.classNamesBuilder}}

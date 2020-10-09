@@ -1,7 +1,6 @@
 // @ts-ignore
 import layout from './template';
 import ItemsControl, { IItemsControlArgs } from 'ember-ux-controls/common/classes/items-control'
-import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { Axes, IEventEmmiter, Side, Size } from 'ember-ux-controls/common/types';
 import { SplitViewPane } from 'ember-ux-controls/components/split-view/pane/component';
 import { IContentElement } from 'ember-ux-controls/common/types';
@@ -133,17 +132,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return this.axis === Axes.X
       ? Side.Right
       : Side.Bottom;
-  }
-
-  @computed('axis')
-  public get classNamesBuilder()
-    : ClassNamesBuilder {
-    return bem(`split-view`, `$${this.axis}`);
-  }
-
-  public get classNames()
-    : string {
-    return `${this.classNamesBuilder}`;
   }
 
   public get html() {

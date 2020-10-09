@@ -1,6 +1,5 @@
 // @ts-ignore
 import { setComponentTemplate, getComponentTemplate, TemplateFactory } from '@ember/component';
-import { computed } from '@ember/object';
 import Component from '@glimmer/component';
 import { EventArgs, IEventArgs, IEventEmmiter } from 'ember-ux-controls/common/types';
 import EventEmmiter from 'ember-ux-controls/common/classes/event-emmiter';
@@ -40,19 +39,6 @@ export default class UXElement<T extends IUXElementArgs = {}> extends Component<
     callback: (sender: object, args: IEventArgs
   ) => void) {
     this.eventEmmiter.removeEventListener(context, key, callback)
-  }
-
-  @computed('args.{logicalParent,visualParent}')
-  public get logicalParent() {
-    return (
-      this.args.logicalParent ??
-      this.args.visualParent
-    );
-  }
-
-  @computed('args.{visualParent}')
-  public get visualParent() {
-    return this.args.visualParent;
   }
 
   protected static get Template()

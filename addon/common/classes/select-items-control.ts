@@ -11,7 +11,6 @@ import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
 import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-collection';
 import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from './-private/item-container-generator';
-import { action } from '@ember/object';
 
 export interface ISelectItemsControlArgs extends IItemsControlArgs {
   multipleSelectionEnable?: boolean
@@ -25,6 +24,9 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     args: TA
   ) {
     super(owner, args);
+
+    this.onSelect = this.onSelect.bind(this);
+    this.onUnselect = this.onUnselect.bind(this)
     this.subscribe();
   }
 
@@ -150,14 +152,12 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     return this._selector;
   }
 
-  @action
   public onSelect(
     container: unknown
   ): void {
     this.selectionChangeHelper(container, true);
   }
 
-  @action
   public onUnselect(
     container: unknown
   ): void {

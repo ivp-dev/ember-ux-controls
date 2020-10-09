@@ -1,0 +1,40 @@
+{{#with (hash 
+  Header=(component this.headerTemplateName)
+  Content=(component this.contentTemplateName)) 
+  as |Tab|
+}}
+  <a 
+    href="#" 
+    class="{{bem (bem "tab-control") "tab" (hash $active=this.isSelected)}}" 
+    {{did-insert this.didInsert}}
+  >
+    {{#if this.hasHeaderTemplate}}
+      <Tab.Header
+        @header={{this.header}}
+      />
+    {{else}}
+      {{this.header}}
+    {{/if}}
+  </a>
+  {{#if this.isSelected}}
+    <template 
+      {{did-insert this.onSelectionChanged}}
+    >
+      {{this.openNode}}
+        {{#if this.isItemsHost}}
+          {{#if this.hasContentTemplate}}
+            <Tab.Content 
+              @content={{this.content}}
+            />
+          {{else}}
+            {{this.content}}
+          {{/if}}
+        {{else}}
+          {{yield}}
+        {{/if}}
+      {{this.closeNode}}
+    </template>
+  {{/if}}
+{{/with}}
+
+

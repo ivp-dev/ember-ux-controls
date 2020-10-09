@@ -5,9 +5,12 @@
   >
     {{#unless this.hasItemsSource}}
       {{yield (hash Column=(
-        component this.itemTemplateName 
+        component this.itemTemplateName
         axis=this.axis
-        barSize=this.barSize))
+        barSize=this.barSize
+        addChild=this.addChild
+        isItemsHost=this.hasItemsSource
+        removeChild=this.removeChild))
       }}
     {{/unless}}
   </div>

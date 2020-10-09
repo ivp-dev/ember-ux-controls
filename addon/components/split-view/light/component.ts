@@ -1,9 +1,9 @@
-import UXElement, { IUXElementArgs } from "ember-ux-controls/common/classes/ux-element";
-import { Axes } from 'ember-ux-controls/common/types';
-import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import { action } from '@ember/object';
 // @ts-ignore
 import layout from './template';
+import UXElement, { IUXElementArgs } from "ember-ux-controls/common/classes/ux-element";
+import { Axes } from 'ember-ux-controls/common/types';
+import { action } from '@ember/object';
+
 
 export interface ISplitViewLightArgs extends IUXElementArgs {
   axis?: Axes
@@ -25,16 +25,6 @@ export class SplitViewLight<T extends ISplitViewLightArgs> extends UXElement<T>{
     super(owner, args)
   }
 
-  public get classNamesBuilder()
-    : ClassNamesBuilder {
-    return bem(`split-view`, `$${this.axis}`);
-  }
-
-  public get classNames()
-    : string {
-    return `${this.classNamesBuilder}`;
-  }
-
   public get axis()
     : Axes {
     return (
@@ -45,7 +35,7 @@ export class SplitViewLight<T extends ISplitViewLightArgs> extends UXElement<T>{
 
   @action
   public didUpdateAttrs() {
-    console.log([...arguments])
+    
   }
 }
 

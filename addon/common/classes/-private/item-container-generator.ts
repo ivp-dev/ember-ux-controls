@@ -60,7 +60,7 @@ export default class ItemContainerGenerator implements IDisposable {
     public host: IGeneratorHost,
   ) {
 
-    this.itemsInternal.addEventListener(
+    this.view.addEventListener(
       this,
       ItemCollectionChangedEventArgs,
       this.onItemCollectionChanged
@@ -81,7 +81,7 @@ export default class ItemContainerGenerator implements IDisposable {
     return this._status;
   }
 
-  protected get itemsInternal(): ItemCollection {
+  public get view(): ItemCollection {
     return this.host.view;
   }
 
@@ -377,7 +377,7 @@ export default class ItemContainerGenerator implements IDisposable {
     }
 
     if (this.host instanceof ItemsControl) {
-      this.itemsInternal.removeEventListener(
+      this.view.removeEventListener(
         this,
         ItemCollectionChangedEventArgs,
         this.onItemCollectionChanged
@@ -568,7 +568,7 @@ export default class ItemContainerGenerator implements IDisposable {
       this._itemMap.prev = this._itemMap.next = this._itemMap;
       uib = new UnrealizedItemBlock();
       uib.insertAfter(this._itemMap);
-      uib.itemCount = this.itemsInternal.count;
+      uib.itemCount = this.view.count;
 
       this.notifyListeners(
         MapChangedEventArgs,
@@ -652,7 +652,7 @@ export default class ItemContainerGenerator implements IDisposable {
       }
     } else if (offset < 0) {
       if (state.block === this._itemMap) {
-        state.index = state.count = this.itemsInternal.count;
+        state.index = state.count = this.view.count;
       }
 
       state.block.moveBackward(state, true);
@@ -868,9 +868,9 @@ export default class ItemContainerGenerator implements IDisposable {
     unrealizedItemsSkipped = 0;
 
     if (itemIndex >= 0) {
-      assert('Item index is not correct', this.itemsInternal.objectAt(itemIndex) === item)
+      assert('Item index is not correct', this.view.objectAt(itemIndex) === item)
     } else {
-      itemIndex = this.itemsInternal.indexOf(item);
+      itemIndex = this.view.indexOf(item);
       assert('Item missing', itemIndex < 0)
     }
 
@@ -1114,7 +1114,7 @@ export default class ItemContainerGenerator implements IDisposable {
             block.next.containerCount > 0
           ) {
             rib = block.next as RealizedItemBlock;
-            currentItem = this.itemsInternal.objectAt(
+            currentItem = this.view.objectAt(
               correctIndex + block.itemCount - deletionOffset
             );
             itemIsInCurrentBlock = rib.itemAt(0) === currentItem;
@@ -1122,7 +1122,7 @@ export default class ItemContainerGenerator implements IDisposable {
             count = correctIndex + block.itemCount - deletionOffset;
             itemIsInCurrentBlock = (
               block.prev === this._itemMap ||
-              this.itemsInternal.count === count
+              this.view.count === count
             )
           }
 
@@ -1317,7 +1317,7 @@ export default class ItemContainerGenerator implements IDisposable {
         uBlock: UnrealizedItemBlock;
 
       while (container === null) {
-        items = this.factory.itemsInternal;
+        items = this.factory.view;
         itemIndex = this._cachedState.index;
         isf = this.direction === GeneratorDirection.Forward;
 

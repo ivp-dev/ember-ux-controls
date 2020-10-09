@@ -4,22 +4,27 @@ import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-e
 import { action } from '@ember/object';
 import { on, off, appendBetween } from 'ember-ux-controls/utils/dom';
 import { scheduleOnce } from '@ember/runloop';
-import { TabControl } from '../component';
 import { TabItemModel } from 'ember-ux-controls/components/tab-control/component';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
-import { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
+import { reads } from '@ember/object/computed';
+import preventNativeEvent from 'ember-ux-controls/utils/prevent-native-event';
+import { notEmpty } from '@ember/object/computed';
 
 interface ITabControlItemArgs extends IUXElementArgs {
-  container?: TabItemModel,
-  isSelected?: boolean
   item?: unknown,
   header?: unknown,
   content?: unknown,
-  hasItemsSource?: boolean
+  isSelected?: boolean
+  isItemsHost?: boolean
+  container?: TabItemModel,
+  contentPresenter?: Element
   contentTemplateName?: string
   headerTemplateName?: string
-  classNamesBuilder?: ClassNamesBuilder
+  onSelect?: (container: unknown) => void
+  onUnselect?: (container: unknown) => void
+  addChild?: (child: unknown) => void
+  removeChild?: (child: unknown) => void
 }
 
 export class TabControlItem extends UXElement<ITabControlItemArgs> {
@@ -33,35 +38,40 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     this._closeNode = document.createTextNode('');
   }
 
+  @reads('args.headerTemplateName')
+  public headerTemplateName?: string
+
+  @notEmpty('headerTemplateName')
+  public hasHeaderTemplate?: boolean
+
+  @reads('args.contentTemplateName')
+  public contentTemplateName?: string
+
+  @notEmpty('contentTemplateName')
+  public hasContentTemplate?: boolean
+  
+  @reads('args.isItemsHost')
+  public isItemsHost?: boolean
+
+  @reads('args.contentPresenter')
+  public contentPresenter?: Element
+
+  @reads('args.onSelect')
+  public onSelect?: (container: unknown) => void
+
+  @reads('args.onUnselect')
+  public onUnselect?: (container: unknown) => void
+
+  @reads('args.addChild')
+  public addChild?: (child: unknown) => void
+
+  @reads('args.removeChild')
+  public removeChild?: (child: unknown) => void
+
   @computed('args.{container}')
   public get container()
     : TabItemModel | this {
     return this.args.container ?? this;
-  }
-
-
-  @computed('args.{headerTemplateName}')
-  public get headerTemplateName()
-    : string | undefined {
-    return this.args.headerTemplateName;
-  }
-
-  @computed('args.{contentTemplateName}')
-  public get contentTemplateName()
-    : string | undefined {
-    return this.args.contentTemplateName;
-  }
-
-  @computed('args.{classNamesBuilder}')
-  public get classNamesBuilder()
-    : ClassNamesBuilder | undefined {
-    return this.args.classNamesBuilder;
-  }
-
-  @computed('args.{hasItemsSource}')
-  public get hasItemsSource()
-    : boolean | undefined {
-    return this.args.hasItemsSource;
   }
 
   @computed('args.{header}')
@@ -133,16 +143,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     }
   }
 
-  public get classNames()
-    : string {
-    if (this.classNamesBuilder) {
-      return `${this.classNamesBuilder('tab', {
-        '$active': this.isSelected
-      })}`;
-    }
-    return '';
-  }
-
   public get openNode()
     : Node {
     return this._openNode;
@@ -171,6 +171,15 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     element: HTMLElement
   ): void {
     on(element, 'click', this.onTabClick);
+
+    if (
+      this.isItemsHost === false &&
+      typeof this.addChild === 'function'
+    ) {
+      
+      this.addChild(this)
+    }
+
     this.html = element;
   }
 
@@ -187,12 +196,13 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     event: MouseEvent | TouchEvent
   ): void {
     if (
-      this.logicalParent instanceof TabControl &&
-      !this.isSelected
+      typeof this.onSelect === "function" &&
+      this.isSelected === false
     ) {
-      this.logicalParent.onSelect(this.container);
+      this.onSelect(this.container);
     }
-    event.preventDefault();
+
+    preventNativeEvent(event);
   }
 
   public willDestroy()
@@ -206,18 +216,23 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
       this.html = null;
     }
 
+    if (
+      this.isItemsHost === false &&
+      typeof this.removeChild === 'function'
+    ) {
+      this.removeChild(this)
+    }
+
     super.willDestroy();
 
     //TODO: maybe I need to remove it from TabControl.Items here
   }
 
   private updateContentPresenter() {
-    if (
-      this.logicalParent instanceof TabControl &&
-      this.logicalParent.contentPresenter
-    ) {
+
+    if (this.contentPresenter) {
       appendBetween(
-        this.logicalParent.contentPresenter,
+        this.contentPresenter,
         this.openNode,
         this.closeNode,
         true

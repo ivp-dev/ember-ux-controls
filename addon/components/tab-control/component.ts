@@ -2,16 +2,17 @@
 import layout from './template';
 import SelectItemsControl, { ISelectItemsControlArgs } from 'ember-ux-controls/common/classes/select-items-control';
 import { Direction, Side, Axes, GeneratorStatus } from 'ember-ux-controls/common/types';
-import { TabControlItem } from './tab-item/component';
+import { TabControlItem } from 'ember-ux-controls/components/tab-control/item/component';
 import { computed } from '@ember/object';
 import { IHeaderContentElement } from 'ember-ux-controls/common/types';
-import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import { notifyPropertyChange } from '@ember/object';
 import { find } from 'ember-ux-controls/utils/dom'
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { ISelectable } from 'ember-ux-controls/common/types'
 import ItemContainerGenerator, { ItemContainerGeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
+import { reads } from '@ember/object/computed';
+import bem from 'ember-ux-controls/utils/bem';
 
 export class TabItemModel implements ISelectable {
   public get item() {
@@ -91,33 +92,23 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   public get itemTemplateName() {
-    return super.itemTemplateName ?? 'tab-control/tab-item';
+    return super.itemTemplateName ?? 'tab-control/item';
   }
 
-  @computed('side', 'direction', 'scrollable')
-  public get classNamesBuilder()
-    : ClassNamesBuilder {
-    let
-      classNamesBuilder: ClassNamesBuilder
+  @reads('args.contentTemplateName')
+  public contentTemplateName?:string
 
-    classNamesBuilder = bem(
-      'tab-control', {
+  @reads('args.headerTemplateName')
+  public headerTemplateName?: string
+
+  @computed('side', 'direction', 'scrollable')
+  public get modifers()
+    : object {
+    return {
       [`$${this.side}`]: this.side !== Side.Top,
       [`$${this.direction}`]: this.direction !== Direction.Forward,
       [`$scrollable-tabs`]: this.scrollable
-    });
-
-    return classNamesBuilder;
-  }
-
-  @computed('args.{contentTemplateName}')
-  public get contentTemplateName() {
-    return this.args.contentTemplateName;
-  }
-
-  @computed('args.{headerTemplateName}')
-  public get headerTemplateName() {
-    return this.args.headerTemplateName;
+    };
   }
 
   @computed('args.{direction}')
@@ -152,19 +143,11 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return this._contentPresenter;
   }
 
-  public set contentPresenter(value: Element | null) {
+  public set contentPresenter(value: Element | undefined) {
     if (this._contentPresenter !== value) {
       this._contentPresenter = value;
       notifyPropertyChange(this, 'contentPresenter')
     }
-  }
-
-  public get classNames() {
-    return `${this.classNamesBuilder}`;
-  }
-
-  public get contentClassNames() {
-    return `${this.classNamesBuilder('content')}`;
   }
 
   public get scrollAxis() {
@@ -191,9 +174,8 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     return result;
   }
 
-  public createContainerForItem(
-    _item: unknown
-  )
+  //@ts-ignore
+  public createContainerForItem(item: unknown)
     : TabItemModel {
     //it`s better to create new component as a container, 
     //but unfortunately it's impossible in code. This question
@@ -227,12 +209,8 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     }
   }
 
-  public clearContainerForItem(
-    _: TabItemModel | Component,
-    _item: unknown
-  ): void {
-
-  }
+  //@ts-ignore
+  public clearContainerForItem(sender: TabItemModel | Component, item: unknown): void { }
 
   public linkContainerToItem(
     container: unknown,
@@ -264,16 +242,20 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   public didInsert(
     html: HTMLElement
   ) {
-    this.contentPresenter = find(
-      html,
-      `.${this.classNamesBuilder('content').toString(driver =>
-        driver.base
-      )}`
-    )[0];
+    let 
+      elements: Array<Element>;
 
-    if (!this.contentPresenter) {
-      throw new Error('TabControl.Content was not found');
+    elements = find(html, `.${bem('tab-control')("content")}`);
+
+    if (!elements.length) {
+      throw 'TabControl.Content was not found';
     }
+
+    if (elements.length > 1) {
+      throw 'TabControl.Content should be one';
+    }
+
+    this.contentPresenter = elements[0];
 
     if (!this.hasItemsSource) {
       this.selectFist()
@@ -291,12 +273,10 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   private selectFist() {
-    setTimeout(() => {
-      this.selectedIndex = 0
-    }, 0);
+    setTimeout(() => this.selectedIndex = 0, 0);
   }
 
-  private _contentPresenter: Element | null = null;
+  private _contentPresenter?: Element;
 }
 
 

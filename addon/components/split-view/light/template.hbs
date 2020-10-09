@@ -1,5 +1,5 @@
 <div 
-  class={{this.classNames}}
+  class="{{bem "split-view"}}"
   {{did-update 
     this.didUpdateAttrs 
     @barSize
@@ -8,7 +8,6 @@
   {{split-view-modifier
     host=this
     axis=this.axis
-    classNamesBuilder=this.classNamesBuilder
     minSizes=@minSizes
     sizes=@sizes
     barSize=@barSize
@@ -20,7 +19,7 @@
   >
   {{yield (hash Pane=(
     component "split-view/pane"
-    content=@content
-    classNamesBuilder=this.classNamesBuilder))
+    axis=this.axis
+    content=@content))
   }}
 </div>
