@@ -77,7 +77,7 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
       return; //TODO: check what should I to return
     }
 
-    value = SelectItemsControl.CoerceSelectedIndex(this, value);
+    //value = SelectItemsControl.CoerceSelectedIndex(this, value);
 
     if (!this.selectionChanger.isActive && value >= 0) {
       this.selectionChanger.selectSingle(

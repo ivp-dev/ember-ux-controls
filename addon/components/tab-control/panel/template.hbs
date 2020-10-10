@@ -1,5 +1,5 @@
 <div class="{{bem (bem "tab-control") "tabs"}}">
-  {{#if this.isItemsHost}}
+  {{#if this.hasItemsSource}}
     {{#with 
       (hash
         Tab=(component this.itemTemplateName)
@@ -17,7 +17,7 @@
           >
             {{#each this.children as |container|}}
               <Tabs.Tab
-                @isItemsHost={{this.isItemsHost}}
+                @hasItemsSource={{this.hasItemsSource}}
                 @headerTemplateName={{this.headerTemplateName}}
                 @contentTemplateName={{this.contentTemplateName}}
                 @contentPresenter={{this.contentPresenter}}
@@ -36,7 +36,7 @@
     {{else}}
       {{#each this.children as |container|}}
         <Tabs.Tab
-          @isItemsHost={{this.isItemsHost}}
+          @hasItemsSource={{this.hasItemsSource}}
           @headerTemplateName={{this.headerTemplateName}}
           @contentTemplateName={{this.contentTemplateName}}
           @contentPresenter={{this.contentPresenter}}
@@ -59,7 +59,7 @@
         removeChild=this.removeChild
         onSelect=this.onSelect        
         onUnselect=this.onUnselect
-        isItemsHost=this.isItemsHost
+        hasItemsSource=this.hasItemsSource
         contentPresenter=this.contentPresenter
         headerTemplateName=this.headerTemplateName
         contentTemplateName=this.contentTemplateName

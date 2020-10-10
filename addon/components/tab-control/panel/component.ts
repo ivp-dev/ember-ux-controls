@@ -7,7 +7,6 @@ import { reads } from '@ember/object/computed';
 interface ITabPaneArgs extends IPanelArgs {
   scrollable?: boolean
   scrollAxis?: Axes
-  hasItemsSource?: boolean
   contentPresenter?: Element
   itemTemplateName?: string
   headerTemplateName?: string
@@ -35,9 +34,6 @@ export class TabControlPanel extends Panel<ITabPaneArgs> {
 
   @reads('args.scrollable')
   public scrollable?: boolean
-  
-  @reads('args.hasItemsSource')
-  public hasItemsSource?: boolean
 
   @reads('args.scrollAxis')
   public scrollAxis?: Axes

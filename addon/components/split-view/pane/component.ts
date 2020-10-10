@@ -10,10 +10,10 @@ import { action } from '@ember/object';
 import { notifyPropertyChange } from '@ember/object';
 
 export interface ISplitViewPaneArgs extends IUXElementArgs {
+  axis?: Axes
   pane?: SplitViewPaneModel
   content?: unknown
   barSize?: number
-  axis?: Axes
   isFixed?: boolean
   lastItem?: unknown
   hasItemsSource?: boolean
@@ -29,8 +29,8 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
     super(owner, args);
   }
 
-  @reads('args.isItemsHost')
-  public isItemsHost?: boolean
+  @reads('args.hasItemsSource')
+  public hasItemsSource?: boolean
 
   @reads('args.addChild')
   public addChild?: (child: unknown) => void
@@ -41,6 +41,15 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
   @reads('args.lastItem')
   public lastItem?: unknown
 
+  @reads('args.barSize')
+  public barSize?: number
+
+  @reads('args.axis')
+  public axis?: Axes
+
+  @reads('args.isFixed')
+  public isFixed?: boolean
+
   public set item(
     value: unknown
   ) {
@@ -48,23 +57,6 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
       this._item = value;
       notifyPropertyChange(this, 'item');
     }
-  }
-
-  public get barSize() {
-    return this.args.barSize;
-  }
-
-  public get axis() {
-    return this.args.axis;
-  }
-
-  public get isFixed() {
-    return this.args.isFixed;
-  }
-
-  public get hasItemsSource()
-    : boolean | undefined {
-    return this.args.hasItemsSource
   }
 
   public get item() {
@@ -91,9 +83,8 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
 
   @action
   public didInsert() {
-    debugger
     if (
-      this.isItemsHost === false &&
+      this.hasItemsSource === false &&
       typeof this.addChild === 'function'
     ) {
       this.addChild(this);
@@ -104,7 +95,7 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
     super.willDestroy();
 
     if (
-      this.isItemsHost === false &&
+      this.hasItemsSource === false &&
       typeof this.removeChild === 'function'
     ) {
       this.removeChild(this);

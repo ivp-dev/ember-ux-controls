@@ -670,7 +670,7 @@ export default class ItemContainerGenerator implements IDisposable {
   }
 
   protected onItemCollectionChanged(
-    _: ItemCollection, {
+    _sender: ItemCollection, {
       newItems,
       oldItems,
       offset

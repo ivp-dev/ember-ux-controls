@@ -4,13 +4,13 @@
    ...attributes
 >
   <TabControl::Panel
-    @isItemsHost={{this.hasItemsSource}}
     @scrollable={{this.scrollable}}
     @scrollAxis={{this.scrollAxis}}
     @addChild={{this.addChild}}
-    @removeChild={{this.removeChild}}
     @onSelect={{this.onSelect}}
+    @removeChild={{this.removeChild}}
     @onUnselect={{this.onUnselect}}
+    @hasItemsSource={{this.hasItemsSource}}
     @contentPresenter={{this.contentPresenter}}
     @itemTemplateName={{this.itemTemplateName}}
     @headerTemplateName={{this.headerTemplateName}}

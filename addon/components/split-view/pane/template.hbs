@@ -1,11 +1,6 @@
 <div 
   id="{{this.elementId}}" 
-  class="{{
-    bem (bem "split-view") 
-    "pane" 
-    (concat "$" this.axis) 
-    (hash $fixed=this.isFixed)
-  }}"
+  class="{{bem (bem "split-view") "pane" (concat "$" this.axis) (hash $fixed=this.isFixed)}}"
   {{did-insert this.didInsert}} 
 >
   {{#if this.hasItemsSource}}
@@ -15,7 +10,7 @@
   {{/if}}
 </div>
 
-{{#let (eq this this.lastItem) as |isLast|}}
+{{#let (or (not this.lastItem) (eq this this.lastItem)) as |isLast|}}
   {{#unless isLast}}
     <SplitView::Bar
       @axis={{this.axis}} 
@@ -23,4 +18,3 @@
     />
   {{/unless}}
 {{/let}}
-

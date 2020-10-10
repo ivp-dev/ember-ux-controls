@@ -13,9 +13,6 @@ export class ObservableProxyArrayChangedEventArgs extends BaseEventArgs {
 }
 
 export default class ObservableProxyArray<TContent> extends EquatableArray<TContent> {
-  public init() {
-    super.init();
-  }
 
   private get changer(): IChanger<TContent> {
     if (!this._changer) {

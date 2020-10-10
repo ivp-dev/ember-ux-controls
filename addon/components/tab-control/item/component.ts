@@ -16,7 +16,7 @@ interface ITabControlItemArgs extends IUXElementArgs {
   header?: unknown,
   content?: unknown,
   isSelected?: boolean
-  isItemsHost?: boolean
+  hasItemsSource?: boolean
   container?: TabItemModel,
   contentPresenter?: Element
   contentTemplateName?: string
@@ -50,8 +50,8 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   @notEmpty('contentTemplateName')
   public hasContentTemplate?: boolean
   
-  @reads('args.isItemsHost')
-  public isItemsHost?: boolean
+  @reads('args.hasItemsSource')
+  public hasItemsSource?: boolean
 
   @reads('args.contentPresenter')
   public contentPresenter?: Element
@@ -154,12 +154,12 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   }
 
   protected get html()
-    : HTMLElement | null {
+    : HTMLElement | undefined {
     return this._html;
   }
 
   protected set html(
-    value: HTMLElement | null
+    value: HTMLElement | undefined
   ) {
     if (this._html !== value) {
       this._html = value;
@@ -171,15 +171,14 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     element: HTMLElement
   ): void {
     on(element, 'click', this.onTabClick);
-
+    
     if (
-      this.isItemsHost === false &&
+      this.hasItemsSource === false &&
       typeof this.addChild === 'function'
     ) {
-      
-      this.addChild(this)
+      this.addChild(this);
     }
-
+    
     this.html = element;
   }
 
@@ -213,14 +212,14 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
 
     if (this.html) {
       off(this.html, 'click', this.onTabClick);
-      this.html = null;
+      this.html = void 0;
     }
 
     if (
-      this.isItemsHost === false &&
+      this.hasItemsSource === false &&
       typeof this.removeChild === 'function'
     ) {
-      this.removeChild(this)
+      this.removeChild(this);
     }
 
     super.willDestroy();
@@ -245,7 +244,7 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
   private _header: unknown
   private _openNode: Node
   private _closeNode: Node
-  private _html: HTMLElement | null = null;
+  private _html?: HTMLElement;
   private _isSelected: boolean = false;
 }
 

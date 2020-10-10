@@ -29,6 +29,10 @@ export class SplitViewBar<T extends ISplitViewBarArgs> extends UXElement<T> {
       : `${Size.Width}: ${barSize}px`
     );
   }
+
+  willDestroy() {
+    console.log('destroy')
+  }
 }
 
 export default SplitViewBar.RegisterTemplate(layout);

@@ -1,10 +1,13 @@
-{{#if this.isItemsHost}}
+{{#if this.hasItemsSource}}
   {{#each this.children as |pane|}}
     <SplitView::Pane 
       @pane={{pane}}
       @axis={{this.axis}}
       @barSize={{this.barSize}}
-      @lastItem={{this.children.lastObject}}
+      @addChild={{this.addChild}}
+      @removeChild={{this.removeChild}}
+      @lastItem={{this.view.lastObject}}
+      @hasItemsSource={{this.hasItemsSource}}
     />
   {{/each}}
 {{else}}

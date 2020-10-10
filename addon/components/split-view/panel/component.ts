@@ -4,20 +4,26 @@ import layout from './template';
 import Panel, { IPanelArgs } from 'ember-ux-controls/common/classes/panel';
 import { reads } from '@ember/object/computed';
 import { Axes } from 'ember-ux-controls/common/types';
-import { get } from '@ember/object';
-import { computed } from '@ember/object';
+import ItemCollection from 'ember-ux-controls/common/classes/-private/item-collection';
 
-interface IContentArgs extends IPanelArgs {
-  
+interface ISplitViewPanelArgs extends IPanelArgs {
+  view?: ItemCollection
+  itemTemplateName?: string
 }
 
-class SplitViewPanel extends Panel<IContentArgs> {
+class SplitViewPanel extends Panel<ISplitViewPanelArgs> {
   constructor(
     owner: any,
-    args: IContentArgs
+    args: ISplitViewPanelArgs
   ) {
     super(owner, args);
   }
+
+  @reads('args.itemContainerGenerator.view')
+  public view?: ItemCollection
+
+  @reads('args.itemTemplateName')
+  public itemTemplateName?:string
 
   @reads('args.barSize')
   public barSize?: number

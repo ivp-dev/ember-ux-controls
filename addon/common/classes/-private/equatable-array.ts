@@ -7,12 +7,10 @@ import { isArray } from '@ember/array';
 import { reads } from '@ember/object/computed';
 
 export default class EquatableArray<TContent> extends ArrayProxy<TContent> {
-  init() {
-    if (!this.content) {
-      this.set('content', A([]))
-    }
+  constructor() {
+    super(...arguments)
 
-    super.init();
+    this.content = A();
   }
 
   @reads('length')

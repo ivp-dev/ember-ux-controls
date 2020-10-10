@@ -5,22 +5,28 @@
   >
   <SplitView::Panel
     @axis={{this.axis}}
+    @view={{this.view}}
     @barSize={{this.barSize}}
     @addChild={{this.addChild}}
     @removeChild={{this.removeChild}}
-    @isItemsHost={{this.hasItemsSource}}
+    @hasItemsSource={{this.hasItemsSource}}
+    @itemTemplateName={{this.itemTemplateName}}
     @itemContainerGenerator={{this.itemContainerGenerator}}
   >
     {{#unless this.hasItemsSource}}
-      {{yield (hash Pane=(
+      {{#with (hash Pane=(
         component 
         this.itemTemplateName
+        content=@content
         axis=this.axis
         barSize=this.barSize
+        addChild=this.addChild
+        removeChild=this.removeChild
         lastItem=this.items.lastObject
-        isItemsHost=this.hasItemsSource
-        content=@content))
-      }}
+        hasItemsSource=this.hasItemsSource)) 
+        as |Panes|
+      }} {{yield Panes}}
+      {{/with}}
     {{/unless}}
   </SplitView::Panel>
 </div>

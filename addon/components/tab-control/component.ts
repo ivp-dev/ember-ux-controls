@@ -96,7 +96,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
   }
 
   @reads('args.contentTemplateName')
-  public contentTemplateName?:string
+  public contentTemplateName?: string
 
   @reads('args.headerTemplateName')
   public headerTemplateName?: string
@@ -209,8 +209,12 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     }
   }
 
-  //@ts-ignore
-  public clearContainerForItem(sender: TabItemModel | Component, item: unknown): void { }
+  public clearContainerForItem(
+    //@ts-ignore
+    sender: TabItemModel | Component, 
+    //@ts-ignore
+    item: unknown
+  ): void { }
 
   public linkContainerToItem(
     container: unknown,
@@ -240,26 +244,24 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
 
   @action
   public didInsert(
-    html: HTMLElement
+    element: HTMLElement
   ) {
-    let 
+    let
       elements: Array<Element>;
 
-    elements = find(html, `.${bem('tab-control')("content")}`);
+    elements = find(element, `.${bem('tab-control')("content")}`);
 
     if (!elements.length) {
-      throw 'TabControl.Content was not found';
-    }
+      throw 'TabControl.Content was not found'
+    };
 
     if (elements.length > 1) {
-      throw 'TabControl.Content should be one';
-    }
+      throw 'TabControl.Content should be one'
+    };
 
     this.contentPresenter = elements[0];
 
-    if (!this.hasItemsSource) {
-      this.selectFist()
-    }
+    this.selectFirstTab();
   }
 
   protected onGeneratorStatusChanged(
@@ -268,18 +270,16 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     args: ItemContainerGeneratorStatusChangedEventArgs
   ) {
     if (args.newStatus === GeneratorStatus.ContainersGenerated) {
-      this.selectFist();
+      this.selectFirstTab();
     }
   }
 
-  private selectFist() {
-    setTimeout(() => this.selectedIndex = 0, 0);
+  private selectFirstTab() {
+    setTimeout(() => this.selectedIndex = 0, 0)
   }
 
   private _contentPresenter?: Element;
 }
-
-
 
 function isHeaderContentElement(
   obj: unknown

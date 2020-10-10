@@ -13,7 +13,7 @@ import { reads } from '@ember/object/computed';
 import { notifyPropertyChange } from '@ember/object';
 
 export interface IPanelArgs extends IUXElementArgs {
-  isItemsHost?: boolean
+  hasItemsSource?: boolean
   itemContainerGenerator?: ItemContainerGenerator
   addChild: (child: unknown) => void
   removeChild: (child: unknown) => void
@@ -27,8 +27,8 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     super(owner, args);
   }
 
-  @reads('args.isItemsHost')
-  public isItemsHost?: boolean
+  @reads('args.hasItemsSource')
+  public hasItemsSource?: boolean
 
   @reads('args.addChild')
   public addChild?: (child: unknown) => void
@@ -39,7 +39,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   public get children()
     : MutableArray<object> {
 
-    if (this.isItemsHost) {
+    if (this.hasItemsSource) {
       this.ensureGenerator();
     }
 
@@ -155,7 +155,6 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
         containerGenerator.prepareItemContainer(child);
       }
     });
-
   }
 
   private onItemContainerGeneratorChanged(
@@ -171,7 +170,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     child: object,
     index: number = -1
   ): boolean {
-    if (!this.isItemsHost) {
+    if (!this.hasItemsSource) {
       return false;
     }
 

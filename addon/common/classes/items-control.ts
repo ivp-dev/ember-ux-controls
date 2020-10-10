@@ -9,7 +9,8 @@ import { isArray } from '@ember/array';
 import { isEmpty } from '@ember/utils';
 import { DeferredAction, IGeneratorHost } from 'ember-ux-controls/common/types';
 import UXElement, { IUXElementArgs } from './ux-element';
-import { next } from '@ember/runloop';
+import { addObserver, removeObserver } from '@ember/object/observers';
+import { notifyPropertyChange } from '@ember/object';
 
 export interface IItemsControlArgs extends IUXElementArgs {
   itemsSource?: NativeArray<unknown>
@@ -32,6 +33,9 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
     this.addChild = this.addChild.bind(this);
     this.removeChild = this.removeChild.bind(this);
+    this.subscribeItemsSourceChanged();
+
+    this._hasItemsSource = isArray(this.itemsSource);
   }
 
   @computed('args.{itemTemplateName}')
@@ -44,17 +48,37 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     return this.args.itemsSource;
   }
 
-  @computed('itemsSource')
-  public get hasItemsSource()
-    : boolean {
-    return isArray(this.itemsSource);
-  }
-
   @computed('itemTemplateName')
   public get hasItemTemplate() {
     return !isEmpty(
       this.itemTemplateName
     );
+  }
+
+  private subscribeItemsSourceChanged() {
+    let
+      itemsSource: keyof this;
+
+    itemsSource = 'itemsSource';
+
+    addObserver(
+      this,
+      itemsSource,
+      this.onItemsSourceChanged
+    );
+  }
+
+  public get hasItemsSource() {
+    return this._hasItemsSource;
+  }
+
+  public set hasItemsSource(
+    value: boolean
+  ) {
+    if (this._hasItemsSource !== value) {
+      this._hasItemsSource = value;
+      notifyPropertyChange(this, 'hasItemsSource');
+    }
   }
 
   public get items() {
@@ -108,33 +132,19 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
 
   public abstract readItemFromContainer(container: unknown): unknown;
 
-  public addChild(child: object)
-  : void {
-    let
-      action: DeferredAction;
-
-    if (!this.items.isDeferred) {
-      action = DeferredAction.Push;
-      this.items.defer(action);
-      next(this, () => {
-        this.items.apply(action);
-      });
+  public addChild(child: object, isDeferred: boolean = false)
+    : void {
+    if (isDeferred && !this.items.isDeferred) {
+      this.items.deferNext(DeferredAction.Push);
     }
 
     this.items.pushObject(child);
   }
 
-  public removeChild(child: object)
-  : void {
-    let
-      action: DeferredAction
-
-    if (!this.items.isDeferred) {
-      action = DeferredAction.Remove;
-      this.items.defer(action);
-      next(this, () => {
-        this.items.apply(action);
-      });
+  public removeChild(child: object, isDeferred: boolean = false)
+    : void {
+    if (isDeferred && !this.items.isDeferred) {
+      this.items.deferNext(DeferredAction.Remove);
     }
 
     this.items.removeObject(child);
@@ -153,7 +163,11 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
   }
 
   public willDestroy() {
+    let
+      hasItemsSource: keyof this;
+
     super.willDestroy();
+
     if (this._items) {
       this._items.removeEventListener(
         this,
@@ -166,6 +180,14 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
       this._itemsContainerGenerator.dispose();
       this._itemsContainerGenerator = void 0;
     }
+
+    hasItemsSource = 'itemsSource';
+
+    removeObserver(
+      this,
+      hasItemsSource,
+      this.onItemsSourceChanged
+    );
   }
 
   public static Equals(
@@ -273,6 +295,16 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     }
   }
 
+  private onItemsSourceChanged() {
+    //First we need update current state
+    this.items.source = this.itemsSource;
+    //Only after that we can update property
+    this.hasItemsSource = isArray(this.itemsSource);
+    //Notify listeners
+    notifyPropertyChange(this, 'hasItemsSource');
+  }
+
+  private _hasItemsSource: boolean
   private _items?: ItemCollection
   private _itemsContainerGenerator?: ItemContainerGenerator
 }

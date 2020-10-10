@@ -3,37 +3,44 @@ import { IArrayObserver } from '../../types';
 import ObservableProxyArray from './observable-proxy-array';
 import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
+import { isArray } from '@ember/array';
 
 export default abstract class SyncProxyArray<TContent, TSource> extends ObservableProxyArray<TContent> {
-  //constructor
-  public init() {
-    let
-      source: NativeArray<TSource> | undefined;
-
-    source = this.source;
-
-    if (Array.isArray(source)) {
-      this.content = A(source.map(item =>
-        this.serializeToContent(item)
-      ));
-
-      source.addArrayObserver(this, this.sourceArrayObserver);
-    }
-
-    super.init();
-  }
-
   public get source() {
     return this._source;
   }
 
   public set source(
-    value: NativeArray<TSource> | undefined
+    newSource: NativeArray<TSource> | undefined
   ) {
-    if (this._source !== value) {
-      this._source = value;
-      notifyPropertyChange(this, 'source')
+    let
+      oldSource: NativeArray<TSource> | undefined;
+
+    oldSource = this._source;
+
+    if (oldSource === newSource) {
+      return;
     }
+
+    if (oldSource) {
+      oldSource.removeArrayObserver(this, this.sourceArrayObserver);
+    }
+
+    if (this.content.length) {
+      this.content.clear();
+    }
+
+    if (isArray(newSource)) {
+      newSource.addArrayObserver(this, this.sourceArrayObserver);
+
+      this.content.pushObjects(A(newSource.map(item =>
+        this.serializeToContent(item)
+      )));
+    }
+
+    this._source = newSource;
+
+    notifyPropertyChange(this, 'source');
   }
 
   public willDestroy() {
@@ -71,10 +78,14 @@ export default abstract class SyncProxyArray<TContent, TSource> extends Observab
   }
 
   protected willSourceChange(
-    _sourceChanged: NativeArray<TSource>,
-    _offset: number,
-    _removeCount: number,
-    _addCount: number
+    //@ts-ignore
+    sourceChanged: NativeArray<TSource>,
+    //@ts-ignore
+    offset: number,
+    //@ts-ignore
+    removeCount: number,
+    //@ts-ignore
+    addCount: number
   ) { }
 
   protected get sourceArrayObserver() {

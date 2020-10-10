@@ -21,7 +21,7 @@
       {{did-insert this.onSelectionChanged}}
     >
       {{this.openNode}}
-        {{#if this.isItemsHost}}
+        {{#if this.hasItemsSource}}
           {{#if this.hasContentTemplate}}
             <Tab.Content 
               @content={{this.content}}
