@@ -7,7 +7,6 @@ import { IContentElement } from 'ember-ux-controls/common/types';
 import { notifyPropertyChange } from '@ember/object';
 import { action } from '@ember/object';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
-import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventArgs } from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 import { getOwner } from '@ember/application';
 import { computed } from '@ember/object';
 import children from 'ember-ux-controls/utils/dom/children';
@@ -22,6 +21,11 @@ import closest from 'ember-ux-controls/utils/dom/closest';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import DragSensor from 'ember-ux-controls/common/classes/drag-sensor';
 import bem from 'ember-ux-controls/utils/bem';
+import {
+  DragMoveSensorEventArgs,
+  DragStartSensorEventArgs,
+  DragStopSensorEventArgs
+} from 'ember-ux-controls/common/classes/concrete-sensors/drag-mouse-sensor';
 
 export class SplitViewPaneSizeChangedEventArgs extends BaseEventArgs {
   constructor(public sizes: number[]) {
@@ -35,6 +39,7 @@ export interface ISplitViewContainer {
 }
 
 export class SplitViewPaneModel implements ISplitViewContainer {
+
   public get content() {
     return this._content;
   }
@@ -82,7 +87,7 @@ interface IBlockSizes {
   availableSize: number
 }
 
-interface IDrag {
+interface IDragData {
   /**
    * Represents an array of panes which located between active (dragging) bar.
    * Array may contains two value-types: Array<string> and string depending 
@@ -112,7 +117,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     this.globalEventEmmiter.addEventListener(this, DragStartSensorEventArgs, this.dragStart);
     this.globalEventEmmiter.addEventListener(this, DragMoveSensorEventArgs, this.dragMove);
     this.globalEventEmmiter.addEventListener(this, DragStopSensorEventArgs, this.dragStop);
-
   }
 
   public get itemTemplateName() {
@@ -217,7 +221,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   }
 
   public get minSizes(): Array<number> {
-    return this._minSizes ?? []
+    return this._minSizes ?? [];
   }
 
   public set minSizes(value: Array<number>) {
@@ -230,7 +234,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     return this._dragData;
   }
 
-  public set dragData(value: IDrag | undefined) {
+  public set dragData(value: IDragData | undefined) {
     if (this._dragData !== value) {
       this._dragData = value;
     }
@@ -337,20 +341,13 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     this.setupIds(element);
     this.setupPanes(element);
 
-    this.calcSizes();
-    this.calcMinSizes();
-    this.applySizes();
-    this.onSizeChanged()
+    this.updateLayout();
   }
 
   @action
   public didUpdateAttrs() {
     this.clearSizes();
-
-    this.calcSizes();
-    this.calcMinSizes();
-    this.applySizes();
-    this.onSizeChanged()
+    this.updateLayout();
   }
 
   public willDestroy() {
@@ -362,7 +359,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
 
   }
 
-  public dragStart(
+  private dragStart(
     _sender: DragSensor,
     args: DragStartSensorEventArgs
   ) {
@@ -427,7 +424,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     );
   }
 
-  public dragMove(
+  private dragMove(
     _sender: DragSensor,
     args: DragMoveSensorEventArgs
   ) {
@@ -456,7 +453,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     args.preventDefault();
   }
 
-  public dragStop(
+  private dragStop(
     _sender: DragSensor,
     args: DragStopSensorEventArgs
   ) {
@@ -498,6 +495,13 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     }
 
     args.preventDefault();
+  }
+
+  private updateLayout() {
+    this.calcSizes();
+    this.calcMinSizes();
+    this.applySizes();
+    this.onSizeChanged()
   }
 
   private createDecorator()
@@ -551,21 +555,21 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     scheme: Array<string | Array<string>>
   ): void {
     let
-      ids: string[],
-      sign: number,
-      sizes: number[],
-      reducedSize: number,
-      absOffset: number,
-      blocks: string[][],
       idx: number,
       jdx: number,
       sum: number,
+      ids: string[],
+      sign: number,
       index: number,
       ratio: number,
       block: string[],
       reduce: boolean,
       increase: boolean,
-      indexes: number[],
+      reducedSize: number,
+      absSizes: number[],
+      absOffset: number,
+      blocks: string[][],
+      indices: number[],
       blockSizes: IBlockSizes;
 
     ids = this.ids.slice();
@@ -573,7 +577,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     reducedSize = 0;
     absOffset = Math.abs(offset);
     blocks = this.blocks(scheme)
-    sizes = this.sizes.map(size =>
+    absSizes = this.sizes.map(size =>
       size * portSize / 100
     );
 
@@ -584,7 +588,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     for ([idx, block] of blocks.entries()) {
       reduce = idx === 0;
       increase = idx === 1;
-      indexes = block.map(pane => ids.indexOf(pane));
+      indices = block.map(pane => ids.indexOf(pane));
       blockSizes = this.absoluteBlockSizes(portSize, block);
 
       // to prevent overflows
@@ -597,13 +601,13 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       }
 
       // apply sizes for all panes in block
-      for ([jdx, index] of indexes.entries()) {
+      for ([jdx, index] of indices.entries()) {
         if (
           // if increase, evenly spread the offset
           // between panes in block 
           increase
         ) {
-          sizes[index] += reducedSize / block.length
+          absSizes[index] += reducedSize / block.length
         }
         else if (
           // if reduce, apply the offset relatively
@@ -612,20 +616,20 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
           reduce
         ) {
           ratio = (blockSizes.availableSize - absOffset) / blockSizes.availableSize;
-          sizes[index] = blockSizes.avaialbleSizes[jdx] * ratio + blockSizes.minSizes[jdx];
-          reducedSize += sizes[index];
+          absSizes[index] = blockSizes.avaialbleSizes[jdx] * ratio + blockSizes.minSizes[jdx];
+          reducedSize += absSizes[index];
         }
       }
 
       reducedSize = blockSizes.size - reducedSize;
     }
 
-    sum = sizes.reduce((a, b) => a + b, 0);
+    sum = absSizes.reduce((a, b) => a + b, 0);
     if (sum !== portSize) {
-      sizes = sizes.map((size) => size * portSize / sum)
+      absSizes = absSizes.map((size) => size * portSize / sum)
     }
 
-    this.sizes = sizes.map(size =>
+    this.sizes = absSizes.map(size =>
       size / portSize * 100
     );
 
@@ -847,14 +851,15 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     scheme: Array<string | Array<string>>
   ): Array<Array<string>> {
     let
-      result: string[][]
+      result: Array<Array<string>>
 
     result = this.responsive
       // if responsive scheme will be array of arrays
       ? scheme.slice() as Array<Array<string>>
       // else needs leave only arrays
       : scheme.filter(b =>
-        b instanceof Array) as Array<Array<string>>;
+        b instanceof Array
+      ) as Array<Array<string>>;
 
     return result
   }
@@ -864,23 +869,25 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     block: Array<string>
   ): IBlockSizes {
     let
-      indexes: number[],
-      sizes: number[],
       size: number,
+      indices: number[],
+      sizes: number[],
       minSizes: number[],
       minSize: number,
       avaialbleSizes: number[],
       availableSize: number;
 
-    indexes = block.map(pane => this.ids.indexOf(pane));
+    indices = block.map(pane => this.ids.indexOf(pane));
 
-    sizes = indexes.map(index =>
-      this.sizes[index] * portSize / 100);
+    sizes = indices.map(index =>
+      this.sizes[index] * portSize / 100
+    );
 
     size = sizes.reduce((a, b) => a + b, 0);
 
-    minSizes = indexes.map(index =>
-      Math.max(this.minSizes[index] * portSize / 100, this.calcBarSize()));
+    minSizes = indices.map(index =>
+      Math.max(this.minSizes[index] * portSize / 100, this.calcBarSize())
+    );
 
     minSize = minSizes.reduce((a, b) => a + b, 0);
 
@@ -898,7 +905,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     } as IBlockSizes;
   }
 
-  private static DragData = class implements IDrag {
+  private static DragData = class implements IDragData {
     constructor(
       public scheme: Array<string | Array<string>>,
       public startPosition: number,
@@ -909,7 +916,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     ) { }
   }
 
-  private _dragData?: IDrag
+  private _dragData?: IDragData
   private _html?: HTMLElement
   private _globalEventEmmiter?: IEventEmmiter
   private _ids?: Array<string>

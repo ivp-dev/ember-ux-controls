@@ -50,7 +50,10 @@ export default class SplitView extends DraggableModifier<ISplitViewBehaviorArgs>
     );
   }
 
-  dragMove(_sender: DragSensor, args: DragMoveSensorEventArgs) {
+  dragMove(
+    _sender: DragSensor, 
+    args: DragMoveSensorEventArgs
+  ) {
     if (closest(args.dragginTarget as Element, this.element)) {
       console.log(args.dragginTarget);
     }

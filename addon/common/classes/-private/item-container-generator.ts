@@ -342,9 +342,9 @@ export default class ItemContainerGenerator implements IDisposable {
     let
       item: unknown;
 
-    item = this.doLinearSearch((_, innerContainer) =>
+    [, , item,] = this.doLinearSearch((_, innerContainer) =>
       innerContainer === container
-    )[2];
+    );
 
     return item;
   }
@@ -353,9 +353,9 @@ export default class ItemContainerGenerator implements IDisposable {
     let
       container: object | null;
 
-    container = this.doLinearSearch((innerItem, _) =>
+    [, container, ,] = this.doLinearSearch((innerItem, _) =>
       innerItem === item
-    )[1];
+    );
 
     return container;
   }
@@ -364,9 +364,9 @@ export default class ItemContainerGenerator implements IDisposable {
     let
       index: number;
 
-    index = this.doLinearSearch((_, innerContainer) =>
+    [, , , index] = this.doLinearSearch((_, innerContainer) =>
       innerContainer === container
-    )[3];
+    );
 
     return index;
   }

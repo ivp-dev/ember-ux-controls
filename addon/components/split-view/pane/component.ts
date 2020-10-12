@@ -50,6 +50,10 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
   @reads('args.isFixed')
   public isFixed?: boolean
 
+  public get item() {
+    return this.args.pane?.item ?? this;
+  }
+
   public set item(
     value: unknown
   ) {
@@ -57,10 +61,6 @@ export class SplitViewPane<T extends ISplitViewPaneArgs> extends UXElement<T> im
       this._item = value;
       notifyPropertyChange(this, 'item');
     }
-  }
-
-  public get item() {
-    return this.args.pane?.item ?? this;
   }
 
   @computed('isFixed', 'axis')

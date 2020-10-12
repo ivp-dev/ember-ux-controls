@@ -25,6 +25,10 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     args: TA
   ) {
     super(owner, args);
+
+    if (!this.hasItemsSource) {
+      this.ensureGenerator();
+    }
   }
 
   @reads('args.hasItemsSource')
@@ -121,13 +125,18 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   private connectToGenerator()
     : void {
     this.itemContainerGenerator = this.args.itemContainerGenerator;
-    if (this.itemContainerGenerator) {
-      this.itemContainerGenerator.removeAll();
-      this.itemContainerGenerator.addEventListener(this,
-        ItemContainerGeneratorChangedEventArgs,
-        this.onItemContainerGeneratorChanged
-      );
+
+    if (!this.itemContainerGenerator) {
+      return;
     }
+
+    this.itemContainerGenerator.removeAll();
+
+    this.itemContainerGenerator.addEventListener(
+      this,
+      ItemContainerGeneratorChangedEventArgs,
+      this.onItemContainerGeneratorChanged
+    );
   }
 
   private generateChildren()
@@ -158,8 +167,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   }
 
   private onItemContainerGeneratorChanged(
-    //@ts-ignore
-    sender: ItemContainerGenerator,
+    _sender: ItemContainerGenerator,
     args: ItemContainerGeneratorChangedEventArgs
   ): void {
     this.onItemsChangedInternal(args);
