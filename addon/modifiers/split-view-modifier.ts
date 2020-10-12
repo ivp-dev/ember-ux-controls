@@ -24,7 +24,7 @@ import {
   ISplitViewArgs,
   SplitView
 } from '../components/split-view/component';
-import { GeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
+import { ItemContainerGeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
 import ItemsControl from 'dummy/classes/items-control';
 
@@ -213,7 +213,7 @@ export class SplitViewBehavior {
   public subscribe() {
     if (this.host instanceof SplitView) {
       this.host.addEventListener(
-        this, GeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
+        this, ItemContainerGeneratorStatusChangedEventArgs, this.onGeneratorStatusChanged
       );
     }
   }
@@ -254,7 +254,7 @@ export class SplitViewBehavior {
       ) {
         this.host.removeEventListener(
           this,
-          GeneratorStatusChangedEventArgs,
+          ItemContainerGeneratorStatusChangedEventArgs,
           this.onGeneratorStatusChanged
         );
       }
@@ -263,7 +263,7 @@ export class SplitViewBehavior {
 
   private onGeneratorStatusChanged(
     _: object,
-    args: GeneratorStatusChangedEventArgs
+    args: ItemContainerGeneratorStatusChangedEventArgs
   ): void {
     if (
       this.host instanceof ItemsControl &&

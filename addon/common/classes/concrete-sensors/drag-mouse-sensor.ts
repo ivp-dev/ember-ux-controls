@@ -4,7 +4,7 @@ import { IEventEmmiter } from "ember-ux-controls/common/types";
 import { later, cancel } from '@ember/runloop';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args'
 import preventNativeEvent from "ember-ux-controls/utils/prevent-native-event";
-import closest from "dummy/utils/dom/closest";
+import closest from "ember-ux-controls/utils/dom/closest";
 import { EmberRunTimer } from "@ember/runloop/types";
 
 export class BaseDragSensorEventArgs extends BaseEventArgs {
@@ -21,7 +21,7 @@ export class BaseDragSensorEventArgs extends BaseEventArgs {
   }
 
   public preventDefault() {
-    this.originalEvent.preventDefault();
+    preventNativeEvent(this.originalEvent);
   }
 }
 

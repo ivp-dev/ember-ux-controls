@@ -12,7 +12,6 @@ import { DragMoveSensorEventArgs, DragStartSensorEventArgs, DragStopSensorEventA
 import closest from 'ember-ux-controls/utils/dom/closest';
 import hasClass from 'ember-ux-controls/utils/dom/has-class';
 import DragSensor from 'ember-ux-controls/common/classes/drag-sensor';
-import Disposable from './disposable';
 
 interface IBlockSizes {
   size: number,
@@ -42,20 +41,22 @@ interface IDrag {
   decorator?: HTMLElement
 }
 
-export default class SplitViewBehavior extends Disposable {
+export default class SplitViewBehavior {
   constructor(
     public owner: SplitView<ISplitViewArgs>,
     public element: HTMLElement,
+    public barSize: number,
+    public fluent: boolean,
+    public responsive: boolean,
     sizes?: Array<number>,
     minSize?: number,
     minSizes?: Array<number>
   ) {
-    super();
     this.ids = this.setupIds();
     this.panes = this.setupPanes();
     this.minSizes = this.calcMinSizes(minSize, minSizes);
     this.sizes = this.calcSizes(sizes);
-
+    this.clearSizes();
     this.applySizes();
     this.notifySizeChanged();
   }
@@ -63,25 +64,6 @@ export default class SplitViewBehavior extends Disposable {
   public get axis()
     : Axes {
     return this.owner.axis
-  }
-
-  public get allowMouseSensor() {
-    return true;
-  }
-
-  public get fluent()
-    : boolean {
-    return this.owner.fluent
-  }
-
-  public get responsive()
-    : boolean {
-    return this.owner.responsive
-  }
-
-  public get barSize()
-    : number {
-    return this.owner.barSize
   }
 
   public get classNamesBuilder()
@@ -249,14 +231,8 @@ export default class SplitViewBehavior extends Disposable {
     args.preventDefault();
   }
 
-  public dispose() {
-    super.dispose();
-
-
-  }
-
   private notifySizeChanged() {
-    this.owner.onSizeChanged(this.sizes.slice());
+    this.owner.onSizeChanged();
   }
 
   private createDecorator()
@@ -483,6 +459,24 @@ export default class SplitViewBehavior extends Disposable {
     return minSizes ?? this.ids.map(() =>
       minSize ?? 0
     );
+  }
+
+  private clearSizes() {
+    let
+      style: { [K in Size]?: string },
+      idx: number;
+
+    style = {};
+
+    for (
+      idx = 0;
+      idx < this.panes.length;
+      idx++
+    ) {
+      style[Size.Height] = 'inherit';
+      style[Size.Width] = 'inherit';
+      css(this.panes[idx], style);
+    }
   }
 
   private applySizes() {
