@@ -11,6 +11,7 @@ import { assert } from '@ember/debug';
 import MutableArray from '@ember/array/mutable';
 import { reads } from '@ember/object/computed';
 import { notifyPropertyChange } from '@ember/object';
+import ItemCollection from 'ember-ux-controls/common/classes/-private/item-collection';
 
 export interface IPanelArgs extends IUXElementArgs {
   hasItemsSource?: boolean
@@ -30,6 +31,9 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
       this.ensureGenerator();
     }
   }
+
+  @reads('args.itemContainerGenerator.view')
+  public view?: ItemCollection
 
   @reads('args.hasItemsSource')
   public hasItemsSource?: boolean

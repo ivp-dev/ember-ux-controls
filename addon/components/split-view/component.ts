@@ -329,7 +329,11 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       this.args.onSizeChanged(sizes);
     }
 
-    this.eventEmmiter.emitEvent(this, SplitViewPaneSizeChangedEventArgs, sizes);
+    this.eventEmmiter.emitEvent(
+      this,
+      SplitViewPaneSizeChangedEventArgs,
+      sizes
+    );
   }
 
   @action
@@ -778,24 +782,30 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     let
       idx: number,
       index: number,
+      splice: (start: number, deleteCount?: number) => T[],
       result: Array<string | Array<string>>
 
     result = pair.map(id =>
       [id]
     );
 
+    splice = Array.prototype.splice;
+
     for (
-      idx = 0, index = this.ids.indexOf(pair[idx]);
+      idx = 0,
+      index = this.ids.indexOf(pair[idx]);
       idx < this.ids.length;
       idx++
     ) {
-      if (!pair.some(id => id === this.ids[idx])) {
+      if (!pair.some(id =>
+        id === this.ids[idx])
+      ) {
         if (responsive) {
-          Array.prototype.splice.call(
+          splice.call(
             result[~~(idx > index)], idx % index, 0, this.ids[idx]
           );
         } else {
-          result.splice(idx, 0, this.ids[idx]);
+          splice.call(result, idx, 0, this.ids[idx])
         }
       } else {
         index = this.ids.indexOf(this.ids[idx]);
@@ -844,7 +854,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
 
       /* ~~(index > 0) - 1 | 1  convert true in 1 and false in -1*/
       return edges[index] + blockSize * -(~~(index > 0) - 1 | 1);
-    })
+    });
   }
 
   private blocks(

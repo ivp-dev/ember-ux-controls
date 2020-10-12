@@ -19,9 +19,6 @@ class SplitViewPanel extends Panel<ISplitViewPanelArgs> {
     super(owner, args);
   }
 
-  @reads('args.itemContainerGenerator.view')
-  public view?: ItemCollection
-
   @reads('args.itemTemplateName')
   public itemTemplateName?:string
 
