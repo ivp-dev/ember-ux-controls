@@ -360,7 +360,6 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     this.globalEventEmmiter.removeEventListener(this, DragStartSensorEventArgs, this.dragStart);
     this.globalEventEmmiter.removeEventListener(this, DragMoveSensorEventArgs, this.dragMove);
     this.globalEventEmmiter.removeEventListener(this, DragStopSensorEventArgs, this.dragStop);
-
   }
 
   private dragStart(
@@ -547,10 +546,8 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     if (!hasClass(target, classes.base)) return false;
     //if fixed
     if (hasClass(target, classes.names[0])) return false;
-    //if is not current splitview
-    if (!closest(target, port)) return false;
-
-    return true;
+    //if is current splitview
+    return closest(target, `.${this.classNamesBuilder.toString(f => f.base)}`) === port;
   }
 
   public measure(

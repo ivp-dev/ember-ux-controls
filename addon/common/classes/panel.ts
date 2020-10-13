@@ -44,6 +44,12 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   @reads('args.removeChild')
   public removeChild?: (child: unknown) => void
 
+  @reads('children.lastObject')
+  public lastChild?: unknown
+
+  @reads('children.firstObject')
+  public firstChild?: unknown
+
   public get children()
     : MutableArray<object> {
 
@@ -164,7 +170,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
         child !== null;
         [child] = generator.generateNext(true)
       ) {
-        this.addIfItemsHost(child);
+        this.addToChildren(child);
         containerGenerator.prepareItemContainer(child);
       }
     });
@@ -178,14 +184,10 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   }
 
   // if panel is not items-host, children no need
-  private addIfItemsHost(
+  private addToChildren(
     child: object,
     index: number = -1
   ): boolean {
-    if (!this.hasItemsSource) {
-      return false;
-    }
-
     if (index === -1) {
       this.children.pushObject(child);
     } else {
@@ -228,7 +230,7 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
         assert('panel expect replace to affect only realzied items', !isNewlyRealized)
 
         if (child !== null && !isNewlyRealized) {
-          this.addIfItemsHost(child, position.index + i);
+          this.addToChildren(child, position.index + i);
           containerGenerator.prepareItemContainer(child);
         } else {
           //TODO: something wrong

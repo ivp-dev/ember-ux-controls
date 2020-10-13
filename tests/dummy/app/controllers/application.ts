@@ -19,7 +19,8 @@ export default class Application extends Controller.extend({
 
   @action
   onSizeChanged(sizes: Array<number>) {
-    this.sizes = sizes
+    this.sizes.length = 0;
+    this.sizes.push(...sizes);
   }
 }
 

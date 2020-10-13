@@ -4,6 +4,7 @@ import ObservableProxyArray from './observable-proxy-array';
 import { A } from '@ember/array';
 import { notifyPropertyChange } from '@ember/object';
 import { isArray } from '@ember/array';
+import MutableArray from '@ember/array/mutable';
 
 export default abstract class SyncProxyArray<TContent, TSource> extends ObservableProxyArray<TContent> {
   public get source() {
@@ -11,10 +12,10 @@ export default abstract class SyncProxyArray<TContent, TSource> extends Observab
   }
 
   public set source(
-    newSource: NativeArray<TSource> | undefined
+    newSource: MutableArray<TSource> | undefined
   ) {
     let
-      oldSource: NativeArray<TSource> | undefined;
+      oldSource: MutableArray<TSource> | undefined;
 
     oldSource = this._source;
 
@@ -45,7 +46,7 @@ export default abstract class SyncProxyArray<TContent, TSource> extends Observab
 
   public willDestroy() {
     let
-      source: NativeArray<TSource> | undefined;
+      source: MutableArray<TSource> | undefined;
 
     source = this.source;
 
@@ -114,7 +115,7 @@ export default abstract class SyncProxyArray<TContent, TSource> extends Observab
     ) ?? []);
   }
 
-  private _source?: NativeArray<TSource>
+  private _source?: MutableArray<TSource>
   private _sourceArrayObserver?: IArrayObserver<unknown>
 }
 

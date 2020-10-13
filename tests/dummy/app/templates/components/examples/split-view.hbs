@@ -1,5 +1,5 @@
 <div class="example__split-view">
-  <SplitView::Light
+  <SplitView
     @axis={{@axis}}
     @sizes={{@sizes}}
     @minSize={{@minSize}} 
@@ -60,18 +60,24 @@
               <span class="property">@sizes</span>
             </div>
             <div class="grid__cell">
-              <Input readonly @value={{get this.sizes 0}}/>
+              <Input readonly @value={{get this.currentSizes 0}}/>
             </div>
             <div class="grid__row">
               <div class="grid__cell"></div>
               <div class="grid__cell">
-                <Input readonly @value={{get this.sizes 1}}/>
+                <Input readonly @value={{get this.currentSizes 1}}/>
               </div>
             </div>
             <div class="grid__row">
               <div class="grid__cell"></div>
               <div class="grid__cell">
-                <Input readonly @value={{get this.sizes 2}}/>
+                <Input readonly @value={{get this.currentSizes 2}}/>
+              </div>
+            </div>
+            <div class="grid__row">
+              <div class="grid__cell"></div>
+              <div class="grid__cell">
+                <Input @type="button" {{on "click" this.setRandomSize}} value="Random size"/>
               </div>
             </div>
           </div>
@@ -81,6 +87,7 @@
     <Splitter.Pane>
       <SplitView
         @axis={{this.axis}}
+        @sizes={{this.sizes}}
         @minSize={{this.minSize}} 
         @barSize={{this.barSize}}
         @fluent={{this.fluent}} 
@@ -105,5 +112,5 @@
         </SplitViewExample.Pane>
       </SplitView>
     </Splitter.Pane>
-  </SplitView::Light>
+  </SplitView>
 </div>

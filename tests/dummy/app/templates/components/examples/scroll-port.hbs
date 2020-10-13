@@ -1,5 +1,5 @@
 <div class="example__scroll-port">
-  <SplitView::Light
+  <SplitView
     @axis={{@axis}}
     @sizes={{@sizes}}
     @minSize={{@minSize}} 
@@ -36,13 +36,13 @@
       </div>
     </Splitter.Pane>
     <Splitter.Pane>
-      <SplitView::Light
+      <SplitView
         @axis="y"
         @barSize={{10}}
         as |Splitter|
       >
         <Splitter.Pane>
-          <SplitView::Light
+          <SplitView
             @axis="x"
             @barSize={{10}}
             as |Splitter|
@@ -81,10 +81,10 @@
                 </Port.Content>
               </ScrollPort>
             </Splitter.Pane>
-        </SplitView::Light>
+        </SplitView>
         </Splitter.Pane>
         <Splitter.Pane>
-          <SplitView::Light
+          <SplitView
             @axis="x"
             @barSize={{10}}
             as |Splitter|
@@ -123,9 +123,9 @@
                 </Port.Content>
               </ScrollPort>
             </Splitter.Pane>
-          </SplitView::Light>
+          </SplitView>
         </Splitter.Pane>
-      </SplitView::Light>
+      </SplitView>
     </Splitter.Pane>
-  </SplitView::Light>
+  </SplitView>
 </div>

@@ -6,10 +6,20 @@
       @barSize={{this.barSize}}
       @addChild={{this.addChild}}
       @removeChild={{this.removeChild}}
-      @lastItem={{this.view.lastObject}}
+      @lastItem={{this.lastChild}}
       @hasItemsSource={{this.hasItemsSource}}
     />
   {{/each}}
 {{else}}
-  {{yield}}
+  {{#with (hash Pane=(component 
+    this.itemTemplateName
+    content=@content
+    axis=this.axis
+    barSize=this.barSize
+    addChild=this.addChild
+    removeChild=this.removeChild
+    lastItem=this.lastChild
+    hasItemsSource=this.hasItemsSource)) as |Panes|
+  }} {{yield Panes}}
+  {{/with}}
 {{/if}}
