@@ -731,8 +731,9 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
   private calcMinSizes() {
     if (Array.isArray(this.args.minSizes)) {
       this.minSizes = this.args.minSizes;
+    } else {
+      this.minSizes = this.ids.map(() => this.minSize);
     }
-    this.minSizes = this.ids.map(() => this.minSize);
   }
 
   private clearSizes() {
