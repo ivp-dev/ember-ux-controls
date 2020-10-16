@@ -3,6 +3,8 @@ import { action } from '@ember/object';
 import { Axes } from 'ember-ux-controls/common/types';
 import { tracked } from '@glimmer/tracking';
 import { notifyPropertyChange } from '@ember/object';
+import MutableArray from '@ember/array/mutable';
+import { A } from '@ember/array';
 
 interface SplitViewExampleArgs { }
 
@@ -10,8 +12,7 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
   constructor(owner: any, args: SplitViewExampleArgs) {
     super(owner, args);
 
-    this._sizes = [...this.randomSize(3, 100)];
-    this._currentSizes = [...this._sizes];
+    this._sizes = A([...this.randomSize(3, 100)]);
   }
 
   @tracked
@@ -34,7 +35,7 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
   public set minSize(value: number) {
     if (
       this._minSize !== value &&
-      !this.sizes.some(size => size <= value)
+      !this.sizes.any(size => size <= value)
     ) {
       this._minSize = Number(value);
       notifyPropertyChange(this, 'minSize')
@@ -65,21 +66,10 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
     return this._sizes;
   }
 
-  public set sizes(value: Array<number>) {
+  public set sizes(value: MutableArray<number>) {
     if (this._sizes !== value) {
       this._sizes = value;
       notifyPropertyChange(this, 'sizes');
-    }
-  }
-
-  public get currentSizes() {
-    return this._currentSizes;
-  }
-
-  public set currentSizes(value: Array<number>) {
-    if (this._currentSizes !== value) {
-      this._currentSizes = value;
-      notifyPropertyChange(this, 'currentSizes');
     }
   }
 
@@ -93,14 +83,14 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
 
   @action
   public onSizeChanged(sizes: Array<number>) {
-    this.currentSizes = [...sizes];
-    this.sizes.length = 0;
-    this.sizes.push(...sizes);
+    //this.currentSizes = [...sizes];
+    //this.sizes.length = 0;
+    //this.sizes.push(...sizes);
   }
 
   @action
   public setRandomSize() {
-    this.sizes = this.randomSize(3, 100);
+    this.sizes = A(this.randomSize(3, 100));
   }
 
   private randomSize(count: number, sum: number) {
@@ -135,8 +125,7 @@ export default class SplitViewExample extends Component<SplitViewExampleArgs> {
     return sizes;
   }
 
-  private _sizes: Array<number>
-  private _currentSizes: Array<number>
+  private _sizes: MutableArray<number>
   private _minSize: number = 5
   private _barSize: number = 15
   private _fluent: boolean = false
