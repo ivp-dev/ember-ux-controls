@@ -5,6 +5,8 @@ import { SplitViewBar, ISplitViewBarArgs } from 'ember-ux-controls/components/sp
 
 export interface IDataTableBarArgs extends ISplitViewBarArgs { }
 
-export class DataTableBar extends SplitViewBar<ISplitViewBarArgs> { }
+export class DataTableBar extends SplitViewBar<ISplitViewBarArgs> { 
+  
+}
 
 export default DataTableBar.RegisterTemplate(layout);

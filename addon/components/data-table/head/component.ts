@@ -5,7 +5,8 @@ import ItemCollection, { ItemCollectionChangedEventArgs } from 'ember-ux-control
 import { DataTableColumn } from 'ember-ux-controls/components/data-table/column/component';
 import { notifyPropertyChange } from '@ember/object';
 import { BaseEventArgs } from 'ember-ux-controls/common/classes/event-args';
-
+import MutableArray from '@ember/array/mutable';
+import { reads } from '@ember/object/computed';
 export class DataTableColumnsChangedEventArgs extends BaseEventArgs {
   constructor(
     public offset: number,
@@ -21,12 +22,13 @@ export interface IDataTableColumnContainer extends ISplitViewContainer {
 }
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
+  columnSizes?: MutableArray<number>
   onColumnsChanged?: (columns: ItemCollection) => void
-  onColumnsChangedInternal: (offset: number, newColumns: Array<IDataTableColumnContainer>, oldColumns: Array<IDataTableColumnContainer>) => void
   onColumnSizeChangedInternal: (sizes: Array<number>) => void
 }
 
 export class DataTableColumnModel extends SplitViewPaneModel implements IDataTableColumnContainer {
+ 
   public get path() {
     return this._path;
   }
@@ -42,9 +44,15 @@ export class DataTableColumnModel extends SplitViewPaneModel implements IDataTab
 }
 
 export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
+  @reads('args.columnSizes')
+  private columnSizes?: MutableArray<number>
+  
   public onSizeChanged(sizes: number[]) {
     super.onSizeChanged(sizes);
-    this.args.onColumnSizeChangedInternal(sizes);
+    
+    if(this.columnSizes) {
+      this.columnSizes.replace(0, sizes.length, sizes);
+    }
   }
 
   public itemItsOwnContainer(
@@ -91,19 +99,6 @@ export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
     container: IDataTableColumnContainer
   ): IDataTableColumnContainer {
     return container.item as IDataTableColumnContainer;
-  }
-
-  protected onItemCollectionChanged(
-    sender: ItemCollection,
-    args: ItemCollectionChangedEventArgs
-  ) {
-    super.onItemCollectionChanged(sender, args);
-
-    this.args.onColumnsChangedInternal(
-      args.offset,
-      args.newItems as IDataTableColumnContainer[],
-      args.oldItems as IDataTableColumnContainer[]
-    );
   }
 }
 

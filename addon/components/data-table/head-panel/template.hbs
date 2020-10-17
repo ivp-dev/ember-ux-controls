@@ -1,0 +1,27 @@
+{{#with 
+  (hash
+    Column=(component this.itemTemplateName)
+  ) as |Head|
+}}
+ {{#if this.hasItemsSource}}
+    {{#each this.children}}
+      <Head.Column
+       
+      />
+    {{/each}}
+  {{else}}
+    {{#with (hash Column=(
+      component this.itemTemplateName
+      axis=this.axis
+      barSize=this.barSize
+      addChild=this.addChild
+      removeChild=this.removeChild
+      lastItem=this.lastChild
+      hasItemsSource=this.hasItemsSource
+      )) as |Column|
+    }}
+      {{yield Column}}
+    {{/with}}
+  {{/if}}
+{{/with}}
+

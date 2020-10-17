@@ -10,9 +10,11 @@
   <span>{{@title}}</span>
 </div>
 
-{{#unless this.isLast}}
-  <DataTable::Bar
-    @axis={{this.axis}}
-    @barSize={{this.barSize}}
-  />
-{{/unless}}
+{{#let (or (not this.lastItem) (eq this this.lastItem)) as |isLast|}}
+  {{#unless isLast}}
+    <SplitView::Bar
+      @axis={{this.axis}} 
+      @barSize={{this.barSize}}
+    />
+  {{/unless}}
+{{/let}}

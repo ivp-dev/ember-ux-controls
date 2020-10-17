@@ -32,9 +32,6 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
     }
   }
 
-  @reads('args.itemContainerGenerator.view')
-  public view?: ItemCollection
-
   @reads('args.hasItemsSource')
   public hasItemsSource?: boolean
 
@@ -118,11 +115,13 @@ export default class Panel<TA extends IPanelArgs> extends UXElement<TA> {
   }
 
   private ensureGenerator() {
-    if (!this.itemContainerGenerator) {
-      this.connectToGenerator();
-      this.ensureEmptyChildren();
-      this.generateChildren();
+    if (this.itemContainerGenerator) {
+      return;
     }
+
+    this.connectToGenerator();
+    this.ensureEmptyChildren();
+    this.generateChildren();
   }
 
   private ensureEmptyChildren()
