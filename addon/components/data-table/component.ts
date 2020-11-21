@@ -3,12 +3,10 @@ import layout from './template';
 import SelectItemsControl, { ISelectItemsControlArgs } from "ember-ux-controls/common/classes/select-items-control";
 import { notifyPropertyChange } from '@ember/object';
 import { ISelectable } from 'ember-ux-controls/common/types';
-import { tracked } from '@glimmer/tracking';
 import { SplitViewPaneSizeChangedEventArgs } from 'ember-ux-controls/components/split-view/component';
 import { A } from '@ember/array';
 import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 import MutableArray from '@ember/array/mutable';
-import { action } from '@ember/object';
 
 export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs { }
 
@@ -55,16 +53,23 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     args: IDataTableArgs
   ) {
     super(owner, args);
-
-    this.columns = A();
-    this.columnSizes = A();
   }
 
-  @tracked
-  public columnSizes: MutableArray<number>
+  public get columnSizes() : MutableArray<number> {
+    if(!this._columnSizes) {
+      this._columnSizes = A();
+    }
 
-  @tracked
-  public columns: MutableArray<IDataTableColumnContainer>
+    return this._columnSizes;
+  }
+
+  public get columns(): MutableArray<IDataTableColumnContainer> {
+    if(!this._columns) {
+      this._columns = A();
+    }
+
+    return this._columns;
+  }
 
   public get itemTemplateName() {
     return super.itemTemplateName ?? 'data-table/row';
@@ -128,23 +133,8 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     return container.item;
   }
 
-  @action
-  public onColumnsChangedInternal(
-    offset: number,
-    newColumns: IDataTableColumnContainer[],
-    oldColumns: IDataTableColumnContainer[]
-  ) {
-    this.columns.replace(
-      offset,
-      oldColumns.length,
-      newColumns
-    );
-  }
-
-  @action
-  public onColumnSizeChangedInternal (sizes: number[]) {
-    this.columnSizes = A(sizes);
-  }
+  private _columns?: MutableArray<IDataTableColumnContainer>
+  private _columnSizes?: MutableArray<number>
 }
 
 export default DataTable.RegisterTemplate(layout);

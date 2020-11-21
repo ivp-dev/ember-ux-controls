@@ -9,14 +9,15 @@ import on from 'ember-ux-controls/utils/dom/on';
 import { computed } from '@ember/object';
 import off from 'ember-ux-controls/utils/dom/off';
 import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
+import { get } from '@ember/object';
 
 interface IDataTableRowArgs extends IUXElementArgs {
   columnSizes?: MutableArray<number>,
   columns?: MutableArray<IDataTableColumnContainer>
   container?: DataTableItemModel
   cellTemplateName?: string
-  onSelect: (container: unknown) => void
-  onUnselect: (container: unknown) => void
+  onSelect?: (container: unknown) => void
+  onUnselect?: (container: unknown) => void
 }
 
 export class CellModel {
@@ -28,42 +29,25 @@ export class CellModel {
 
 class DataTableRow<T extends IDataTableRowArgs> extends UXElement<T> {
   @reads('args.cellTemplateName')
-  cellTemplateName?: string
+  public cellTemplateName?: string
 
   @reads('args.columns')
-  columns?: MutableArray<IDataTableColumnContainer>
+  public columns?: MutableArray<IDataTableColumnContainer>
 
   @reads('args.columnSizes')
-  columnSizes?: MutableArray<number>
+  public columnSizes?: MutableArray<number>
 
   @reads('args.container')
-  container?: DataTableItemModel
+  public container?: DataTableItemModel
 
   @reads('container.isSelected')
-  isSelected?: boolean
+  public isSelected?: boolean
 
-  @computed('args.{columns.[]}', 'args.{columnSizes.[]}')
-  public get cells() {
-    let
-      item: object | null,
-      container: DataTableItemModel | undefined,
-      columns: MutableArray<IDataTableColumnContainer> | undefined;
+  @reads('args.onSelect')
+  public onSelect?: (container: unknown) => void
 
-    columns = this.columns;
-    container = this.container;
-
-    if (!columns || !container) {
-      return;
-    }
-
-    item = container.item;
-
-    if (!item) {
-      return [];
-    }
-
-    return columns.map((column) => Reflect.get(item as object, column.path));
-  }
+  @reads('args.onUnselect')
+  public onUnselect?: (container: unknown) => void
 
   @action
   public didInsert(element: Element) {
@@ -73,7 +57,9 @@ class DataTableRow<T extends IDataTableRowArgs> extends UXElement<T> {
 
   public willDestroy() {
     let
-      element: Element | null
+      element: Element | null;
+
+    super.willDestroy();
 
     element = this._html;
     if (!element) {
@@ -81,15 +67,14 @@ class DataTableRow<T extends IDataTableRowArgs> extends UXElement<T> {
     }
 
     off(element, 'click', this.onClickEventHandler);
-    super.willDestroy();
   }
 
   @action
   private onClickEventHandler() {
-    if (this.isSelected === true) {
-      this.args.onSelect(this.container)
-    } else if (this.isSelected === false) {
-      this.args.onUnselect(this.container)
+    if (this.isSelected === true && this.onUnselect) {
+      this.onUnselect(this.container)
+    } else if (this.isSelected === false && this.onSelect) {
+      this.onSelect(this.container)
     }
   }
 

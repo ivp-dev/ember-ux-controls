@@ -204,8 +204,6 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     ) {
       container.header = this.args.getHeader(item);
       container.content = this.args.getContent(item)
-    } else {
-      throw new Error(`Can't extract header and content from item`);
     }
   }
 
@@ -220,12 +218,7 @@ export class TabControl extends SelectItemsControl<ITabControlArgs> {
     container: unknown,
     item: unknown
   ): void {
-    if (
-      !this.itemItsOwnContainer(item) && (
-        container instanceof TabItemModel ||
-        container instanceof TabControlItem
-      )
-    ) {
+    if (container instanceof TabItemModel) {
       container.item = item;
     }
   }

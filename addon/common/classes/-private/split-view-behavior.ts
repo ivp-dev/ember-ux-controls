@@ -33,8 +33,6 @@ export class SplitViewBehavior {
     sizes?: Array<number>,
     minSizes?: Array<number>
   ) {
-    debugger
-
     this.ids = this.setupIds(element);
     this.panes = this.setupPanes(element);
     this.sizes = this.calcSizes(sizes);
@@ -126,7 +124,11 @@ export class SplitViewBehavior {
     ) {
       style[Size.Height] = 'inherit';
       style[Size.Width] = 'inherit';
-      css(this.panes[idx], style);
+      
+      css(
+        this.panes[idx], 
+        style
+      );
     }
   }
 

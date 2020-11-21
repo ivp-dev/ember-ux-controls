@@ -2,21 +2,25 @@
   class="{{bem 'data-table'}}"
   ...attributes
 >
-  {{#with 
+  {{#let 
     (hash
       Body=(component this.bodyTemplateName)
       Foot=(component this.footTemplateName)
-    ) as |Table|
+    ) 
+    (hash Columns=(
+      component this.headTemplateName
+      columns=this.columns
+      columnSizes=this.columnSizes
+      itemTemplateName=this.columnTemplateName
+      onSizeChanged=this.onColumnSizeChanged
+      onColumnsChanged=this.onColumnsChanged)
+    )
+    as |Table Columns|
   }}
 
-    {{yield (hash Columns=(
-      component this.headTemplateName
-      itemTemplateName=this.columnTemplateName
-      onColumnsChangedInternal=this.onColumnsChangedInternal
-      onColumnSizeChangedInternal=this.onColumnSizeChangedInternal))
-    }}
+    {{yield Columns}}
     
-    <Table.Body 
+    <Table.Body
       @columns={{this.columns}}
       @columnSizes={{this.columnSizes}}
       @scrollable={{this.scrollable}}
@@ -26,11 +30,12 @@
       @hasItemsSource={{this.hasItemsSource}}
       @itemTemplateName={{this.itemTemplateName}}
       @cellTemplateName={{this.cellTemplateName}}
+      @itemContainerGenerator={{this.itemContainerGenerator}}
     />
 
     <Table.Foot />
 
-  {{/with}}
+  {{/let}}
 </div>
 
 

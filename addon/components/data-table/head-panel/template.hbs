@@ -4,9 +4,9 @@
   ) as |Head|
 }}
  {{#if this.hasItemsSource}}
-    {{#each this.children}}
+    {{#each this.children as |container|}}
       <Head.Column
-       
+        @container={{container}}
       />
     {{/each}}
   {{else}}

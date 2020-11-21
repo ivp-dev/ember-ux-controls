@@ -3,13 +3,13 @@
   {{did-insert this.didInsert}}
   ...attributes
 >
-  {{#with (hash Cell=(component this.cellTemplateName)) as |Row|}}
-    {{#each this.cells as |value index|}}
+  {{#let (hash Cell=(component this.cellTemplateName)) as |Row|}}
+    {{#each this.columns as |column index|}}
       <Row.Cell 
         @width={{get this.columnSizes index}}
       > 
-        {{value}} 
+        {{get this.container.item column.path}}
       </Row.Cell>
     {{/each}}
-  {{/with}}
+  {{/let}}
 </div>

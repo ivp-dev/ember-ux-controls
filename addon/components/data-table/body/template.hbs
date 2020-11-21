@@ -15,8 +15,6 @@
         >
           {{#each this.children as |container|}}
             <Body.Row
-              @visualParent={{this}}
-              @logicalParent={{this.visualParent}}
               @columns={{this.columns}}
               @columnSizes={{this.columnSizes}}
               @hasItemsSource={{this.hasItemsSource}}
@@ -24,8 +22,6 @@
               @container={{container}}
               @isSelected={{container.isSelected}}
               @item={{container.item}}
-              @header={{container.header}}
-              @content={{container.content}}
               @onSelect={{this.onSelect}}
               @onUnselect={{this.onUnselect}}
             />
@@ -35,13 +31,9 @@
     {{else}}
       {{#each this.children as |container|}}
         <Body.Row
-          @visualParent={{this}}
-          @logicalParent={{this.visualParent}}
           @container={{container}}
           @isSelected={{container.isSelected}}
           @item={{container.item}}
-          @header={{container.header}}
-          @content={{container.content}}
           @columns={{this.columns}}
           @columnSizes={{this.columnSizes}}
           @hasItemsSource={{this.hasItemsSource}}

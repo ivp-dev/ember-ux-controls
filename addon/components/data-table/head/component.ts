@@ -17,8 +17,11 @@ export class DataTableColumnsChangedEventArgs extends BaseEventArgs {
   }
 }
 
-export interface IDataTableColumnContainer extends ISplitViewContainer {
+export interface IHasPath {
   path: string
+}
+
+export interface IDataTableColumnContainer extends Partial<IHasPath>, ISplitViewContainer {
 }
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
@@ -28,30 +31,57 @@ export interface IDataTableHeadArgs extends ISplitViewArgs {
 }
 
 export class DataTableColumnModel extends SplitViewPaneModel implements IDataTableColumnContainer {
- 
+
   public get path() {
     return this._path;
   }
 
-  public set path(value: string) {
+  public set path(
+    value: string | undefined
+  ) {
     if (this._path !== value) {
       this._path = value;
       notifyPropertyChange(this, 'path');
     }
   }
 
-  private _path!: string
+  private _path?: string
 }
 
 export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
   @reads('args.columnSizes')
   private columnSizes?: MutableArray<number>
-  
+
+  @reads('args.columns')
+  private columns?: MutableArray<unknown>
+
   public onSizeChanged(sizes: number[]) {
     super.onSizeChanged(sizes);
-    
-    if(this.columnSizes) {
+
+    if (this.columnSizes) {
       this.columnSizes.replace(0, sizes.length, sizes);
+    }
+  }
+
+  public onItemCollectionChanged(
+    sender: ItemCollection,
+    args: ItemCollectionChangedEventArgs
+  ) {
+    let
+      offset: number,
+      count: number,
+      newItems: Array<unknown>;
+
+    super.onItemCollectionChanged(sender, args);
+
+    offset = args.offset;
+    count = args.oldItems.length;
+    newItems = args.newItems;
+
+    if (this.columns) {
+      this.columns.replace(
+        offset, count, newItems
+      );
     }
   }
 
@@ -104,10 +134,6 @@ export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
 
 function hasPath(obj: unknown): obj is IHasPath {
   return typeof (<IHasPath>obj).path !== 'undefined';
-}
-
-interface IHasPath {
-  path: string
 }
 
 export default DataTableHead.RegisterTemplate(layout);

@@ -157,7 +157,10 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
     let
       result: boolean
 
-    result = item instanceof SplitViewPane || item instanceof SplitViewPaneModel;
+    result = (
+      item instanceof SplitViewPane || 
+      item instanceof SplitViewPaneModel
+    );
 
     return result;
   }
@@ -233,7 +236,7 @@ export class SplitView<T extends ISplitViewArgs> extends ItemsControl<T> {
       this.onSizeChanged.bind(this),
       this.args.sizes,
       this.args.minSizes
-    )
+    );
 
     this.globalEventEmmiter.addEventListener(
       this,
