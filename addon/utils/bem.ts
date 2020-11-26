@@ -1,6 +1,7 @@
 //original source-code https://github.com/romeobravo/bem-classes
 
 import { assert } from '@ember/debug';
+import config from 'ember-get-config';
 
 export type ClassNamesBuilder = {
   (element: string, ...elementArgs: (string | object)[]): ClassNamesDriver;
@@ -41,17 +42,18 @@ export default bem;
 
 function optionFactory(
   base: string,
-  option: unknown
+  option: unknown,
+  separator: string
 ): BaseOption {
   if (option !== null && typeof option === 'object') {
-    return new ObjectOption(base, option as object);
+    return new ObjectOption(base, option as object, separator);
   }
 
   if (option instanceof String || typeof option === 'string') {
-    return new StringOption(base, option as string);
+    return new StringOption(base, option as string, separator);
   }
 
-  return new BaseOption();
+  throw 'type of option can be object or string';
 }
 
 export class ClassNamesDriver {
@@ -61,12 +63,28 @@ export class ClassNamesDriver {
     private options: Array<string | object>
   ) { }
 
+  private get modifierSeparator() {
+    if (config && config['ember-ux-controls'] && config['ember-ux-controls']['modifier-separator']) {
+      return config['ember-ux-controls']['modifier-separator']
+    }
+
+    return "_";
+  }
+
+  private get elementSeparator() {
+    if (config && config['ember-ux-controls'] && config['ember-ux-controls']['element-separator']) {
+      return config['ember-ux-controls']['element-separator']
+    }
+
+    return "__";
+  }
+
   /**
-   * Base class name (block | block__element)
+   * Base class name (block | block{elementSeparator}element)
    */
   public get base() {
     return this.element
-      ? `${this.block}__${this.element}`
+      ? `${this.block}${this.elementSeparator}${this.element}`
       : this.block;
   }
 
@@ -75,7 +93,7 @@ export class ClassNamesDriver {
    */
   public get names() {
     return this.options.map(option =>
-      optionFactory(this.base, option).toString()
+      optionFactory(this.base, option, this.modifierSeparator).toString()
     ).filter((value, index, array) =>
       array.indexOf(value) === index &&
       value.length
@@ -83,7 +101,7 @@ export class ClassNamesDriver {
   }
 
   /**
-   * All class names (base + base__modifiers)
+   * All class names (base + base{modifierSeparator}modifiers)
    */
   public get classes() {
     return this.names.length
@@ -98,7 +116,10 @@ export class ClassNamesDriver {
   }
 }
 
-class BaseOption {
+abstract class BaseOption {
+  constructor(
+    public separator: string
+  ) { }
   public toString() {
     return '';
   }
@@ -107,15 +128,16 @@ class BaseOption {
 class ObjectOption extends BaseOption {
   constructor(
     public base: string,
-    public option: object
-  ) { super() }
+    public option: object,
+    separator: string
+  ) { super(separator) }
 
   public get classNames() {
     return Object.keys(this.option).reduce((names: Array<string>, key: string) => (
       Reflect.get(this.option, key)
         ? names.concat(this.keyToString(key))
         : names
-    ), [])
+    ), []);
   }
 
   public toString() {
@@ -123,15 +145,16 @@ class ObjectOption extends BaseOption {
   }
 
   private keyToString(key: string) {
-    return new StringOption(this.base, key).toString()
+    return new StringOption(this.base, key, this.separator).toString()
   }
 }
 
 class StringOption extends BaseOption {
   constructor(
     public base: string,
-    public option: string
-  ) { super() }
+    public option: string,
+    separator: string
+  ) { super(separator) }
 
   get isModifier() {
     return (
@@ -155,8 +178,7 @@ class StringOption extends BaseOption {
     return this.option.charAt(0) === char;
   }
 
-  //TODO: set seporator in app config
   private toModifier() {
-    return `${this.base}_${this.withoutPrefix()}`;
+    return `${this.base}${this.separator}${this.withoutPrefix()}`;
   }
 }

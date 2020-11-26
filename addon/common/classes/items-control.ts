@@ -150,7 +150,6 @@ export default abstract class ItemsControl<TA extends IItemsControlArgs = {}>
     this.items.removeObject(child);
   }
 
-
   public containerForItem(item: unknown) {
     if (this.itemItsOwnContainer(item)) {
       return item;
