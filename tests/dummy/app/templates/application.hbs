@@ -18,17 +18,6 @@
         @responsive={{this.responsive}}
       />
     </Menu.Tab>
-    <Menu.Tab @header="SplitView">
-      <Examples::SplitView 
-        @onSizeChanged={{this.onSizeChanged}}
-        @axis={{this.axis}}
-        @sizes={{this.sizes}}
-        @minSize={{this.minSize}} 
-        @barSize={{this.barSize}} 
-        @fluent={{this.fluent}} 
-        @responsive={{this.responsive}}
-      />
-    </Menu.Tab>
     <Menu.Tab @header="ScrollPort">
       <Examples::ScrollPort 
         @onSizeChanged={{this.onSizeChanged}}
@@ -40,9 +29,8 @@
         @responsive={{this.responsive}}
       />
     </Menu.Tab>
-    <Menu.Tab @header="TreeView - developing">
-      <Examples::TreeView 
-        @tree={{this.tree}}
+    <Menu.Tab @header="SplitView">
+      <Examples::SplitView 
         @onSizeChanged={{this.onSizeChanged}}
         @axis={{this.axis}}
         @sizes={{this.sizes}}
@@ -52,7 +40,7 @@
         @responsive={{this.responsive}}
       />
     </Menu.Tab>
-    <Menu.Tab @header="Table - developing">
+    <Menu.Tab @header="Table">
       <Examples::DataTable 
         @onSizeChanged={{this.onSizeChanged}}
         @axis={{this.axis}}
