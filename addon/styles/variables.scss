@@ -1,0 +1,13 @@
+$separators: "__", "_" !default;
+
+@function block($block, $name) {
+    @return $block + nth($separators, 2) + $name;
+}
+
+@function block-element($block, $element) {
+    @return $block + nth($separators, 1) + $element;
+}
+
+@function block-element-modifier($block, $element, $modifier) {
+    @return $block + nth($separators, 1) + $element + nth($separators, 2);
+}
