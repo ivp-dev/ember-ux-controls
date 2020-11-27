@@ -2,8 +2,7 @@
 import layout from './template';
 import UXElement, { IUXElementArgs } from 'ember-ux-controls/common/classes/ux-element';
 import { action } from '@ember/object';
-import { on, off, appendBetween } from 'ember-ux-controls/utils/dom';
-import { scheduleOnce } from '@ember/runloop';
+import { on, off } from 'ember-ux-controls/utils/dom';
 import { TabItemModel } from 'ember-ux-controls/components/tab-control/component';
 import { notifyPropertyChange } from '@ember/object';
 import { computed } from '@ember/object';
@@ -33,9 +32,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     args: ITabControlItemArgs
   ) {
     super(owner, args);
-
-    this._openNode = document.createTextNode('');
-    this._closeNode = document.createTextNode('');
   }
 
   @reads('args.headerTemplateName')
@@ -143,16 +139,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     }
   }
 
-  public get openNode()
-    : Node {
-    return this._openNode;
-  }
-
-  public get closeNode()
-    : Node {
-    return this._closeNode;
-  }
-
   protected get html()
     : HTMLElement | undefined {
     return this._html;
@@ -180,14 +166,6 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     }
     
     this.html = element;
-  }
-
-  @action
-  public onSelectionChanged()
-    : void {
-    if (this.isSelected) {
-      scheduleOnce('afterRender', this, this.updateContentPresenter);
-    }
   }
 
   @action
@@ -227,23 +205,9 @@ export class TabControlItem extends UXElement<ITabControlItemArgs> {
     //TODO: maybe I need to remove it from TabControl.Items here
   }
 
-  private updateContentPresenter() {
-
-    if (this.contentPresenter) {
-      appendBetween(
-        this.contentPresenter,
-        this.openNode,
-        this.closeNode,
-        true
-      );
-    }
-  }
-
   private _item: unknown
   private _content: unknown
   private _header: unknown
-  private _openNode: Node
-  private _closeNode: Node
   private _html?: HTMLElement;
   private _isSelected: boolean = false;
 }

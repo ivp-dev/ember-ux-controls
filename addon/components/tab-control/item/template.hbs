@@ -17,23 +17,19 @@
     {{/if}}
   </a>
   {{#if this.isSelected}}
-    <template 
-      {{did-insert this.onSelectionChanged}}
-    >
-      {{this.openNode}}
-        {{#if this.hasItemsSource}}
-          {{#if this.hasContentTemplate}}
-            <Tab.Content 
-              @content={{this.content}}
-            />
-          {{else}}
-            {{this.content}}
-          {{/if}}
+    {{#in-element this.contentPresenter}}
+      {{#if this.hasItemsSource}}
+        {{#if this.hasContentTemplate}}
+          <Tab.Content 
+            @content={{this.content}}
+          />
         {{else}}
-          {{yield}}
+          {{this.content}}
         {{/if}}
-      {{this.closeNode}}
-    </template>
+      {{else}}
+        {{yield}}
+      {{/if}}
+    {{/in-element}}
   {{/if}}
 {{/with}}
 
