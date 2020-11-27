@@ -52,8 +52,5 @@
     "types/**/*",
     "test-support/**/*",
     "addon-test-support/**/*"
-  ],
-  "exclude": [
-    "addon/common/classes/-private"
   ]
 }

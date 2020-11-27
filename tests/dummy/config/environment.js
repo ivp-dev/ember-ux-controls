@@ -48,6 +48,8 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
+    ENV.locationType = 'hash';
+    ENV.rootURL = '/ember-ux-controls/';
     ENV.rootURL = '/ember-ux-controls'
     // here you can enable a production-specific feature
   }
