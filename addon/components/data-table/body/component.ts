@@ -5,6 +5,7 @@ import { Axes } from 'ember-ux-controls/common/types';
 import MutableArray from '@ember/array/mutable';
 import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
 import { reads } from '@ember/object/computed';
+import { computed } from '@ember/object';
 
 interface IDataTableBodyArgs extends IPanelArgs {
   scrollable?: boolean
@@ -13,6 +14,7 @@ interface IDataTableBodyArgs extends IPanelArgs {
   columnSizes: Array<number>
   hasItemsSource?: boolean
   itemTemplateName?: string
+  groupTemplateName?: string
   cellTemplateName?: string
   onSelect: (container: unknown) => void
   onUnselect: (container: unknown) => void
@@ -27,25 +29,37 @@ export class DataTableBody extends Panel<IDataTableBodyArgs> {
   }
 
   @reads('args.itemTemplateName') 
-  itemTemplateName?: string 
+  public itemTemplateName?: string 
+
+  @reads('args.groupTemplateName') 
+  public groupTemplateName?: string 
 
   @reads('args.cellTemplateName') 
-  cellTemplateName?: string 
+  public cellTemplateName?: string 
 
   @reads('args.scrollable') 
-  scrollable?: boolean 
+  public scrollable?: boolean 
 
   @reads('args.columnSizes') 
-  columnSizes?: Array<number> 
+  public columnSizes?: Array<number> 
 
   @reads('args.hasItemsSource') 
-  hasItemsSource?: boolean 
+  public hasItemsSource?: boolean 
 
   @reads('args.scrollAxis') 
-  scrollAxis?: Axes 
+  public scrollAxis?: Axes 
 
   @reads('args.columns') 
-  columns?: MutableArray<IDataTableColumnContainer> 
+  public columns?: MutableArray<IDataTableColumnContainer> 
+
+  @computed('columns.[].groupBy') 
+  public get groupBy(){
+    var t = this.columns?.filter(column => column.groupBy === true);
+    if(t && t.length) {
+      return t[0].path
+    }
+    return void 0;
+  }
 
   @reads('args.onSelect') 
   onSelect?: (container: unknown) => void 

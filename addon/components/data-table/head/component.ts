@@ -19,9 +19,11 @@ export class DataTableColumnsChangedEventArgs extends BaseEventArgs {
 
 export interface IHasPath {
   path: string
+  groupBy: boolean
 }
 
 export interface IDataTableColumnContainer extends Partial<IHasPath>, ISplitViewContainer {
+  
 }
 
 export interface IDataTableHeadArgs extends ISplitViewArgs {
@@ -45,6 +47,20 @@ export class DataTableColumnModel extends SplitViewPaneModel implements IDataTab
     }
   }
 
+  public get groupBy() {
+    return this._groupBy ?? false;
+  }
+
+  public set groupBy(
+    value: boolean
+  ) {
+    if (this._groupBy !== value) {
+      this._groupBy = value;
+      notifyPropertyChange(this, 'groupBy');
+    }
+  }
+
+  private _groupBy? : boolean
   private _path?: string
 }
 
@@ -106,6 +122,7 @@ export class DataTableHead<T extends IDataTableHeadArgs> extends SplitView<T> {
 
     if (hasPath(item)) {
       container.path = item.path;
+      container.groupBy = item.groupBy
     } else {
       throw 'Can`t extract path'
     }

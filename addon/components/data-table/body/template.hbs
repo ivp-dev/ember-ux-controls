@@ -1,5 +1,6 @@
 {{#with 
   (hash
+    Group=(component this.groupTemplateName)
     Row=(component this.itemTemplateName)
   ) as |Body|
 }}
@@ -13,37 +14,76 @@
         <Port.Content 
           @axis={{this.scrollAxis}}
         >
+          {{#if this.groupBy}}
+             {{#each-in (group-by this.groupBy this.children) as |group children|}}
+                <Body.Group @group={{group}}>
+                  {{#each children as |container|}}
+                    <Body.Row
+                      @columns={{this.columns}}
+                      @columnSizes={{this.columnSizes}}
+                      @hasItemsSource={{this.hasItemsSource}}
+                      @cellTemplateName={{this.cellTemplateName}}
+                      @container={{container}}
+                      @isSelected={{container.isSelected}}
+                      @item={{container.item}}
+                      @onSelect={{this.onSelect}}
+                      @onUnselect={{this.onUnselect}}
+                    />
+                  {{/each}}
+                </Body.Group>
+              {{/each-in}}
+          {{else}}
+            {{#each this.children as |container|}}
+              <Body.Row
+                @columns={{this.columns}}
+                @columnSizes={{this.columnSizes}}
+                @hasItemsSource={{this.hasItemsSource}}
+                @cellTemplateName={{this.cellTemplateName}}
+                @container={{container}}
+                @isSelected={{container.isSelected}}
+                @item={{container.item}}
+                @onSelect={{this.onSelect}}
+                @onUnselect={{this.onUnselect}}
+              />
+            {{/each}}
+          {{/if}}
+        </Port.Content>
+      </ScrollPort>
+    {{else}}
+       {{#if this.groupBy}}
+         {{#each-in (group-by (concat "item." this.groupBy) this.children) as |group children|}}
+            <Body.Group @group={{group}}>
+              {{#each children as |container|}}
+                <Body.Row
+                  @container={{container}}
+                  @isSelected={{container.isSelected}}
+                  @item={{container.item}}
+                  @columns={{this.columns}}
+                  @columnSizes={{this.columnSizes}}
+                  @hasItemsSource={{this.hasItemsSource}}
+                  @cellTemplateName={{this.cellTemplateName}}
+                  @onSelect={{this.onSelect}}
+                  @onUnselect={{this.onUnselect}}
+                />
+              {{/each}}
+            </Body.Group>
+          {{/each-in}}
+        {{else}}
           {{#each this.children as |container|}}
             <Body.Row
+              @container={{container}}
+              @isSelected={{container.isSelected}}
+              @item={{container.item}}
               @columns={{this.columns}}
               @columnSizes={{this.columnSizes}}
               @hasItemsSource={{this.hasItemsSource}}
               @cellTemplateName={{this.cellTemplateName}}
-              @container={{container}}
-              @isSelected={{container.isSelected}}
-              @item={{container.item}}
               @onSelect={{this.onSelect}}
               @onUnselect={{this.onUnselect}}
             />
           {{/each}}
-        </Port.Content>
-      </ScrollPort>
-    {{else}}
-      {{#each this.children as |container|}}
-        <Body.Row
-          @container={{container}}
-          @isSelected={{container.isSelected}}
-          @item={{container.item}}
-          @columns={{this.columns}}
-          @columnSizes={{this.columnSizes}}
-          @hasItemsSource={{this.hasItemsSource}}
-          @cellTemplateName={{this.cellTemplateName}}
-          @onSelect={{this.onSelect}}
-          @onUnselect={{this.onUnselect}}
-        />
-      {{/each}}
+        {{/if}}
     {{/if}}
   </div>
-
 {{/with}}
 

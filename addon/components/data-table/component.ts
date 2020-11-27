@@ -11,6 +11,7 @@ import MutableArray from '@ember/array/mutable';
 export class DataTableColumnSizesChangedEventArgs extends SplitViewPaneSizeChangedEventArgs { }
 
 export interface IDataTableArgs extends ISelectItemsControlArgs {
+  groupTemplateName: string
   columnTemplateName: string
   cellTemplateName: string;
   headTemplateName: string;
@@ -79,6 +80,11 @@ export class DataTable extends SelectItemsControl<IDataTableArgs> {
     : string {
     return this.args.cellTemplateName ?? 'data-table/cell'
   }
+
+  public get groupTemplateName()
+  : string {
+  return this.args.groupTemplateName ?? 'data-table/group'
+}
 
   public get columnTemplateName()
     : string {
