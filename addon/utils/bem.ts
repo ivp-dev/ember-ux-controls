@@ -8,6 +8,14 @@ export type ClassNamesBuilder = {
   toString(formatter?: (driver: ClassNamesDriver) => string): string;
 }
 
+const separators = ((options) => {
+  if(options && options.separators && Array.isArray(options.separators)) {
+    return options.separators;
+  }
+
+  return ["__", "_"]
+})(config.uxControls);
+
 /**
  * BEM class names builder 
  * @param block 
@@ -63,28 +71,12 @@ export class ClassNamesDriver {
     private options: Array<string | object>
   ) { }
 
-  private get modifierSeparator() {
-    if (config && config['ember-ux-controls'] && config['ember-ux-controls']['modifier-separator']) {
-      return config['ember-ux-controls']['modifier-separator']
-    }
-
-    return "_";
-  }
-
-  private get elementSeparator() {
-    if (config && config['ember-ux-controls'] && config['ember-ux-controls']['element-separator']) {
-      return config['ember-ux-controls']['element-separator']
-    }
-
-    return "__";
-  }
-
   /**
    * Base class name (block | block{elementSeparator}element)
    */
   public get base() {
     return this.element
-      ? `${this.block}${this.elementSeparator}${this.element}`
+      ? `${this.block}${separators[0]}${this.element}`
       : this.block;
   }
 
@@ -93,7 +85,7 @@ export class ClassNamesDriver {
    */
   public get names() {
     return this.options.map(option =>
-      optionFactory(this.base, option, this.modifierSeparator).toString()
+      optionFactory(this.base, option, separators[1]).toString()
     ).filter((value, index, array) =>
       array.indexOf(value) === index &&
       value.length

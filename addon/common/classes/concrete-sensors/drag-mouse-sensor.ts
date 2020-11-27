@@ -165,8 +165,7 @@ export default class DragMouseSensor extends DragSensor {
   @action
   private onMouseUp(event: MouseEvent) {
     let
-      dragginTarget: Element,
-      dragEvent: DragStartSensorEventArgs;
+      dragginTarget: Element;
 
     if (
       !this.dragginProcess ||
@@ -183,7 +182,7 @@ export default class DragMouseSensor extends DragSensor {
 
     //target = document.elementFromPoint(event.clientX, event.clientY);
 
-    dragEvent = this.eventEmmiter.emitEvent(
+    this.eventEmmiter.emitEvent(
       this,
       DragStopSensorEventArgs,
       event.clientX,

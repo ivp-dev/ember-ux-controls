@@ -6,10 +6,8 @@ import MutableArray from '@ember/array/mutable';
 import { reads } from '@ember/object/computed';
 import { action } from '@ember/object';
 import on from 'ember-ux-controls/utils/dom/on';
-import { computed } from '@ember/object';
 import off from 'ember-ux-controls/utils/dom/off';
 import { IDataTableColumnContainer } from 'ember-ux-controls/components/data-table/head/component';
-import { get } from '@ember/object';
 
 interface IDataTableRowArgs extends IUXElementArgs {
   columnSizes?: MutableArray<number>,

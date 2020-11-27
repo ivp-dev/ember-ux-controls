@@ -12,6 +12,6 @@ module('Integration | Helper | bem', function(hooks) {
 
     await render(hbs`{{bem inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.equal(this.element?.textContent?.trim(), '1234');
   });
 });

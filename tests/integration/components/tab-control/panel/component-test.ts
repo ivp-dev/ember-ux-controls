@@ -12,7 +12,7 @@ module('Integration | Component | tab-control/panel', function(hooks) {
 
     await render(hbs`{{tab-control/panel}}`);
 
-    assert.equal(this.element.textContent.trim(), '');
+    assert.equal(this.element?.textContent?.trim(), '');
 
     // Template block usage:
     await render(hbs`
@@ -21,6 +21,6 @@ module('Integration | Component | tab-control/panel', function(hooks) {
       {{/tab-control/panel}}
     `);
 
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.equal(this.element?.textContent?.trim(), 'template block text');
   });
 });

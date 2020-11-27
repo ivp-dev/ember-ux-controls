@@ -657,20 +657,6 @@ export default abstract class SelectItemsControl<TA extends ISelectItemsControlA
     }
   }
 
-  private static CoerceSelectedIndex(
-    selector: SelectItemsControl,
-    value: number
-  ): number {
-    if (
-      typeof value === 'number' &&
-      value < selector.items.count
-    ) {
-      return value;
-    }
-
-    return -1;
-  }
-
   private static CoerceSelectedItem(
     selector: SelectItemsControl,
     item: unknown

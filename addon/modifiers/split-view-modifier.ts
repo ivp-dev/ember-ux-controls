@@ -23,10 +23,10 @@ import {
 import {
   ISplitViewArgs,
   SplitView
-} from '../components/split-view/component';
+} from 'ember-ux-controls/components/split-view/component';
 import { ItemContainerGeneratorStatusChangedEventArgs } from 'ember-ux-controls/common/classes/-private/item-container-generator';
 import bem, { ClassNamesBuilder } from 'ember-ux-controls/utils/bem';
-import ItemsControl from 'dummy/classes/items-control';
+import ItemsControl from 'ember-ux-controls/common/classes/items-control';
 
 interface ISplitViewModifierArgs extends ISplitViewArgs {
   host: unknown

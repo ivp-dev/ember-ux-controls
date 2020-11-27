@@ -1,56 +1,55 @@
 $split-gutter-size: 3px !default;
 
-.split-view {
+.#{block("split-view")} {
   height: 100%;
   width: 100%;
   display: flex;
-}
 
-.split-view_x {
-  flex-direction: row;
-}
+  &.#{block-modifier("split-view", "x")} {
+    flex-direction: row;
+  }
 
-.split-view_y {
-  flex-direction: column;
-}
+  &.#{block-modifier("split-view", "y")} {
+    flex-direction: column;
+  }
 
-.split-view__pane {
-  width: 100%;
-  height: 100%;
-  vertical-align: top;
-  overflow: hidden;
-}
+  > .#{block-element("split-view", "pane")} {
+    width: 100%;
+    height: 100%;
+    vertical-align: top;
+    overflow: hidden;
+  }
 
-.split-view__bar {
-  position: relative;
-  user-select: none;
-}
+  > .#{block-element("split-view", "bar")} {
+      position: relative;
+      user-select: none;
+    > .#{block-element("split-view", "decorator")} {
+      position: absolute;
+      z-index: 1002;
+      background-color:rgba(173, 216, 230, 0.5);
+      user-select:none;
+    }
 
-.split-view_x {
-  cursor: ew-resize;
-  height: 100%;
-  width: $split-gutter-size;
-  background-color:black;
-}
-
-.split-view_y {
-  cursor: n-resize;
-  height: $split-gutter-size;
-  width: 100%;
-  background-color:black;
-}
-
-.split-view__bar_x .split-view__decorator {
-  height: 100%;
-}
-
-.split-view__bar_y .split-view__decorator {
-  width: 100%;
-}
-
-.split-view__decorator {
-  position: absolute;
-  z-index: 1002;
-  background-color:rgba(173, 216, 230, 0.5);
-  user-select:none;
+    &.#{block-element-modifier("split-view", "bar", "x")} {
+      cursor: ew-resize;
+      flex-direction: row;
+      height: 100%;
+      width: $split-gutter-size;
+      background-color:black;
+      > .#{block-element("split-view", "decorator")} {
+        height: 100%;
+      }
+    }
+    
+    &.#{block-element-modifier("split-view", "bar", "y")} {
+      cursor: n-resize;
+      flex-direction: column;
+      height: $split-gutter-size;
+      width: 100%;
+      background-color:black;
+      > .#{block-element("split-view", "decorator")} {
+        width: 100%;
+      }
+    } 
+  }
 }

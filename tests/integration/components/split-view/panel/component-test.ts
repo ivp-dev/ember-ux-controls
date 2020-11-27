@@ -12,7 +12,7 @@ module('Integration | Component | split-view/panel', function(hooks) {
 
     await render(hbs`{{split-view/panel}}`);
 
-    assert.equal(this.element.textContent.trim(), '');
+    assert.equal(this.element?.textContent?.trim(), '');
 
     // Template block usage:
     await render(hbs`
@@ -21,6 +21,6 @@ module('Integration | Component | split-view/panel', function(hooks) {
       {{/split-view/panel}}
     `);
 
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.equal(this.element?.textContent?.trim(), 'template block text');
   });
 });

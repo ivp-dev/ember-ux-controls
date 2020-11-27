@@ -22,9 +22,8 @@ module.exports = function(environment) {
       // when it is created
     },
 
-    ['ember-ux-controls']: {
-      ['element-separator']: '__',
-      ['modifier-separator']: '_'
+    uxControls: {
+      separators: ["__", "_"]
     }
   };
 

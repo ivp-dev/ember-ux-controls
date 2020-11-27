@@ -1,4 +1,4 @@
-.data-table {
+.#{block("data-table")} {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -7,28 +7,33 @@
   align-items: stretch;
 }
 
-.data-table__column {
+.#{block-element("data-table", "head")} {
+  height: auto;
+  width: auto;
+}
+
+.#{block-element("data-table", "column")} {
   width: 100%;
   height: 100%;
   vertical-align: top;
   overflow: hidden;
 }
 
-.data-table__bar {
-  @extend .split-view__bar;
-  &_x {
-    @extend .split-view__bar_x;
+.#{block-element("data-table", "bar")} {
+  @extend .#{block-element("split-view", "bar")};
+  > .#{block-element-modifier("data-table", "bar", "x")} {
+    @extend .#{block-element-modifier("split-view", "bar", "x")};
   }
-  &_y {
-    @extend .split-view__bar_y;
+  > .#{block-element-modifier("data-table", "bar", "y")} {
+    @extend .#{block-element-modifier("split-view", "bar", "y")};
   }
 }
 
-.data-table__decorator {
-  @extend .split-view__decorator;
+.#{block-element("data-table", "decorator")} {
+  @extend .#{block-element("split-view", "decorator")};
 }
 
-.data-table__row {
+.#{block-element("data-table", "row")} {
   display: flex;
   flex-direction: row;
 }

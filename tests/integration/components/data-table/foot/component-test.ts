@@ -12,7 +12,7 @@ module('Integration | Component | data-table/foot', function(hooks) {
 
     await render(hbs`{{data-table/foot}}`);
 
-    assert.equal(this.element.textContent.trim(), '');
+    assert.equal(this.element?.textContent?.trim(), '');
 
     // Template block usage:
     await render(hbs`
@@ -21,6 +21,6 @@ module('Integration | Component | data-table/foot', function(hooks) {
       {{/data-table/foot}}
     `);
 
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.equal(this.element?.textContent?.trim(), 'template block text');
   });
 });
